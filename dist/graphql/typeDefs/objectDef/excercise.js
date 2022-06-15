@@ -1,0 +1,14 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.Excercise = void 0;
+const { gql } = require('apollo-server');
+exports.Excercise = gql `
+    "Represents a specific excercise."
+    type Excercise {
+        excercise_id:          ID           
+        excercise_name:        String
+        excercise_description: String
+        target_regions:        [MuscleRegion]
+    }
+`;
+//# sourceMappingURL=excercise.js.map

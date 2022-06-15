@@ -1,0 +1,141 @@
+// TODO: change to pascal naming
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Gender {
+  CIS_MALE
+  CIS_FEMALE
+  RATHER_NOT_SAY
+}
+
+enum LengthUnit {
+  CM
+  MM
+  MTR
+  FT
+}
+
+enum WeightUnit {
+  KG
+  LB
+}
+
+enum Goal {
+  LOSE_WEIGHT
+  KEEP_FIT
+  BUILD_MUSCLE
+  INCREASE_ATHLETICISM
+}
+
+model User {
+  user_id      Int           @id @default(autoincrement())
+  email        String        @unique
+  firebase_uid String        @unique
+  displayName  String
+  prior_years_of_experience   String?
+  self_schedule Boolean?
+  frequency_workouts Int?
+  goals        Goal?
+  gender       Gender?
+  weight       Float?
+  height       Float?
+  weight_unit  WeightUnit?
+  height_unit  LengthUnit?
+  phoneNumber  String?
+  measurements Measurement[]
+  workouts     Workout[]
+  notifications Notification[]
+  broadcasts  BroadCast[]
+  excerciseRestTimes ExcerciseRestTimeRange[]
+}
+
+model ExcerciseRestTimeRange {
+  user      User    @relation(fields: [user_id], references: [user_id])
+  excercise Excercise   @relation(fields: [excercise_id], references: [excercise_id])
+  rest_time_lower_bound    Int
+  rest_time_upper_bound    Int
+  user_id      Int    
+  excercise_id Int
+  @@id([user_id, excercise_id])
+}
+
+
+model Measurement {
+  measurement_id Int        @id @default(autoincrement())
+  measured_at     DateTime
+  muscle_region   MuscleRegion   @relation(fields: [muscle_region_id], references: [muscle_region_id])
+  measurement_value          Float
+  length_units   LengthUnit
+  user           User       @relation(fields: [user_id], references: [user_id])
+  user_id        Int
+  muscle_region_id Int
+}
+
+model Workout {
+  workout_id         Int              @id @default(autoincrement())
+  repetition_count_left Int     // Keeps track of when to change excercises
+  date_scheduled     DateTime?
+  date_completed     DateTime?
+  performance_rating Float?
+  user               User             @relation(fields: [user_id], references: [user_id])
+  user_id            Int
+  excercise_sets     ExcerciseSet[]
+}
+
+model MuscleRegion {
+  muscle_region_id          Int         @id @default(autoincrement())
+  muscle_region_name        String
+  muscle_region_description String
+  stabilizer_muscles        Excercise[] @relation(name:"stabilizers")
+  target_muscles            Excercise[] @relation(name:"target")
+  measurements              Measurement[]
+}
+
+model Excercise {
+  excercise_id          Int              @id @default(autoincrement())
+  excercise_name        String
+  excercise_description String?
+  excercise_instructions String?
+  excercise_tips String?
+  target_regions        MuscleRegion[] @relation(name: "target")
+  stabilizer_muscles        MuscleRegion[] @relation(name: "stabilizers")
+  excercise_sets      ExcerciseSet[]
+  excerciseRestTimes ExcerciseRestTimeRange[]
+}
+
+model ExcerciseSet {
+  excercise_set_id Int  @id @default(autoincrement())
+  excercise    Excercise  @relation(fields: [excercise_id], references: [excercise_id])
+  workout      Workout    @relation(fields: [workout_id], references: [workout_id])
+  workout_id   Int
+  excercise_id Int
+  weight       Float
+  weight_unit  WeightUnit
+  target_reps   Int
+  actual_reps   Int?
+  actual_weight Float?
+  actual_weight_unit  Int?
+}
+
+
+model BroadCast {
+  broad_cast_id  Int @id @default(autoincrement())
+  broadcast_message String
+  users User[]
+  scheduled_start DateTime
+  scheduled_end  DateTime
+}
+
+model Notification {
+  notification_id  Int @id @default(autoincrement())
+  notification_message String
+  user  User @relation(fields: [user_id], references: [user_id])
+  user_id Int
+}
