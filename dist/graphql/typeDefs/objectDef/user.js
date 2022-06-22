@@ -8,11 +8,19 @@ exports.User = gql `
         user_id:      ID           
         email:        String       
         displayName:         String
-        gender:       Gender
-        weight:       Float
-        height:       Float
-        weight_unit:  WeightUnit
-        height_unit:  LengthUnit
+        gender:Gender,
+        weight:Float,
+        height:Float,
+        weight_unit:WeightUnit,
+        height_unit:LengthUnit,
+        prior_years_of_experience:Int,
+        level_of_experience: LevelOfExperience,
+        age: Int,
+        dark_mode: Boolean,
+        goal: Goal,
+        workout_frequency: Int,
+        workout_duration: Int,
+        automatic_scheduling: Boolean,
         measurements: [Measurement]
         workouts:     [Workout]
         notifications: [Notification]

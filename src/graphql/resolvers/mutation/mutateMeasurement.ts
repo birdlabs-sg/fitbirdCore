@@ -41,7 +41,7 @@ export const updateMeasurement = async ( _:any, args: any, context:any ) => {
         }
     })
     if (targetMeasurement.user_id !== context.user.user_id) {
-        throw new ForbiddenError('You are not authororized to remove this object.');
+        throw new ForbiddenError('You are not authororized to mutate this object.');
     }
 
     const updatedMeasurement = await prisma.measurement.update({

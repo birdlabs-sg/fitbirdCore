@@ -1,5 +1,5 @@
 -- CreateEnum
-CREATE TYPE "Gender" AS ENUM ('CIS_MALE', 'CIS_FEMALE', 'RATHER_NOT_SAY');
+CREATE TYPE "Gender" AS ENUM ('MALE', 'FEMALE', 'RATHER_NOT_SAY');
 
 -- CreateEnum
 CREATE TYPE "LengthUnit" AS ENUM ('CM', 'MM', 'MTR', 'FT');
@@ -8,7 +8,10 @@ CREATE TYPE "LengthUnit" AS ENUM ('CM', 'MM', 'MTR', 'FT');
 CREATE TYPE "WeightUnit" AS ENUM ('KG', 'LB');
 
 -- CreateEnum
-CREATE TYPE "Goal" AS ENUM ('LOSE_WEIGHT', 'KEEP_FIT', 'BUILD_MUSCLE', 'INCREASE_ATHLETICISM');
+CREATE TYPE "Goal" AS ENUM ('BODY_RECOMPOSITION', 'STRENGTH', 'KEEPING_FIT', 'ATHLETICISM', 'OTHERS');
+
+-- CreateEnum
+CREATE TYPE "LevelOfExperience" AS ENUM ('BEGINNER', 'MID', 'ADVANCED', 'EXPERT');
 
 -- CreateTable
 CREATE TABLE "User" (
@@ -16,9 +19,12 @@ CREATE TABLE "User" (
     "email" TEXT NOT NULL,
     "firebase_uid" TEXT NOT NULL,
     "displayName" TEXT NOT NULL,
-    "prior_years_of_experience" TEXT,
-    "self_schedule" BOOLEAN,
-    "frequency_workouts" INTEGER,
+    "prior_years_of_experience" INTEGER,
+    "level_of_experience" "LevelOfExperience",
+    "age" INTEGER,
+    "dark_mode" BOOLEAN NOT NULL DEFAULT false,
+    "automatic_scheduling" BOOLEAN NOT NULL DEFAULT true,
+    "workout_frequency" INTEGER,
     "goals" "Goal",
     "gender" "Gender",
     "weight" DOUBLE PRECISION,

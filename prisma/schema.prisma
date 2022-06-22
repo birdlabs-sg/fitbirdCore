@@ -10,8 +10,8 @@ datasource db {
 }
 
 enum Gender {
-  CIS_MALE
-  CIS_FEMALE
+  MALE
+  FEMALE
   RATHER_NOT_SAY
 }
 
@@ -28,10 +28,18 @@ enum WeightUnit {
 }
 
 enum Goal {
-  LOSE_WEIGHT
-  KEEP_FIT
-  BUILD_MUSCLE
-  INCREASE_ATHLETICISM
+  BODY_RECOMPOSITION
+  STRENGTH
+  KEEPING_FIT
+  ATHLETICISM
+  OTHERS
+}
+
+enum LevelOfExperience {
+  BEGINNER
+  MID
+  ADVANCED
+  EXPERT
 }
 
 model User {
@@ -39,10 +47,14 @@ model User {
   email        String        @unique
   firebase_uid String        @unique
   displayName  String
-  prior_years_of_experience   String?
-  self_schedule Boolean?
-  frequency_workouts Int?
-  goals        Goal?
+  prior_years_of_experience   Int?
+  level_of_experience   LevelOfExperience?
+  age           Int?
+  dark_mode     Boolean @default(false)
+  automatic_scheduling Boolean @default(true)
+  workout_frequency Int?
+  workout_duration Int?
+  goal        Goal?
   gender       Gender?
   weight       Float?
   height       Float?

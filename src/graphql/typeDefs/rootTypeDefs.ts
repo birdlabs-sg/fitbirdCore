@@ -18,6 +18,7 @@ import { mutateExcerciseBlock } from "./mutationDef/mutateExcerciseBlock";
 import { mutateMuscleRegion } from "./mutationDef/mutateMuscleRegion";
 import { mutateMeasurement } from "./mutationDef/mutateMeasurement";
 import { mutateWorkout } from "./mutationDef/mutateWorkout";
+import { mutateUser } from "./mutationDef/mutateUser";
 
 
 
@@ -47,7 +48,7 @@ const baseTypeDefs = [queryTypeDef,mutationResponse]
 
 const mutationTypeDefs = [mutationResponse,mutateSignup,mutatateGenerateIdToken,mutateBroadCast,
                           mutateExcercise,mutateExcerciseBlock,mutateMeasurement,
-                          mutateMuscleRegion,mutateWorkout]
+                          mutateMuscleRegion,mutateWorkout,mutateUser]
 
 const objectTypeDefs = [queryTypeDef,User, Enum, Measurement, 
                         BroadCast, Excercise, ExcerciseBlock, 

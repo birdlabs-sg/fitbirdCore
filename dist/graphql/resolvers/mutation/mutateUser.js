@@ -9,16 +9,32 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.workoutsQueryResolver = void 0;
+exports.updateUser = void 0;
 const firebase_service_1 = require("../../../service/firebase_service");
-const workoutsQueryResolver = (parent, args, context, info) => __awaiter(void 0, void 0, void 0, function* () {
+const updateUser = (_, args, context) => __awaiter(void 0, void 0, void 0, function* () {
     (0, firebase_service_1.onlyAuthenticated)(context);
     const prisma = context.dataSources.prisma;
-    return yield prisma.workout.findMany({
-        where: {
-            user_id: context.user_id
-        }
-    });
+    // conduct check that the measurement object belongs to the user.
+    console.log(context.user);
+    console.log(args);
+    let updatedUser;
+    try {
+        updatedUser = yield prisma.user.update({
+            where: {
+                user_id: context.user.user_id
+            },
+            data: args,
+        });
+    }
+    catch (e) {
+        console.log(e);
+    }
+    return {
+        code: "200",
+        success: true,
+        message: "Successfully updated your profile!",
+        user: updatedUser
+    };
 });
-exports.workoutsQueryResolver = workoutsQueryResolver;
-//# sourceMappingURL=queryWorkouts.js.map
+exports.updateUser = updateUser;
+//# sourceMappingURL=mutateUser.js.map

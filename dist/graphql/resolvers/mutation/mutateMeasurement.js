@@ -57,7 +57,7 @@ const updateMeasurement = (_, args, context) => __awaiter(void 0, void 0, void 0
         }
     });
     if (targetMeasurement.user_id !== context.user.user_id) {
-        throw new apollo_server_1.ForbiddenError('You are not authororized to remove this object.');
+        throw new apollo_server_1.ForbiddenError('You are not authororized to mutate this object.');
     }
     const updatedMeasurement = yield prisma.measurement.update({
         where: {

@@ -11,6 +11,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.resolvers = void 0;
 const generateFirebaseIdTokenResolver_1 = require("./mutation/generateFirebaseIdTokenResolver");
+const mutateUser_1 = require("./mutation/mutateUser");
 const mutateBroadcast_1 = require("./mutation/mutateBroadcast");
 const mutateExcercise_1 = require("./mutation/mutateExcercise");
 const mutateExcerciseBlock_1 = require("./mutation/mutateExcerciseBlock");
@@ -28,6 +29,7 @@ exports.resolvers = {
     Mutation: {
         signup: mutateSignup_1.mutateSignup,
         generateFirebaseIdToken: generateFirebaseIdTokenResolver_1.generateFirebaseIdTokenResolver,
+        updateUser: mutateUser_1.updateUser,
         createMeasurement: mutateMeasurement_1.createMeasurement,
         updateMeasurement: mutateMeasurement_1.updateMeasurement,
         deleteMeasurement: mutateMeasurement_1.deleteMeasurement,

@@ -1,4 +1,5 @@
 import { generateFirebaseIdTokenResolver } from "./mutation/generateFirebaseIdTokenResolver";
+import { updateUser } from "./mutation/mutateUser";
 import { createBroadcast, deleteBroadcast, updateBroadcast } from "./mutation/mutateBroadcast";
 import { createExcercise, deleteExcercise, updateExcercise } from "./mutation/mutateExcercise";
 import { createExcerciseBlock, deleteExcerciseBlock, updateExcerciseBlock } from "./mutation/mutateExcerciseBlock";
@@ -17,6 +18,7 @@ export const resolvers = {
     Mutation: {
         signup:  mutateSignup,
         generateFirebaseIdToken:  generateFirebaseIdTokenResolver,
+        updateUser: updateUser,
         createMeasurement: createMeasurement,
         updateMeasurement: updateMeasurement,
         deleteMeasurement: deleteMeasurement,

@@ -4,8 +4,8 @@ const { gql } = require('apollo-server');
 export const Enum = gql`
     "Gender type."
     enum Gender {
-        CIS_MALE
-        CIS_FEMALE
+        MALE
+        FEMALE
         RATHER_NOT_SAY
     }
 
@@ -23,4 +23,18 @@ export const Enum = gql`
         FT
     }
 
+    enum LevelOfExperience {
+        BEGINNER
+        MID
+        ADVANCED
+        EXPERT
+    }
+
+    enum Goal {
+        BODY_RECOMPOSITION
+        STRENGTH
+        KEEPING_FIT
+        ATHLETICISM
+        OTHERS
+    }
 `
