@@ -19,7 +19,7 @@ exports.mutateUser = gql `
             height:Float,
             weight_unit:WeightUnit,
             height_unit:LengthUnit,
-            prior_years_of_experience:Int,
+            prior_years_of_experience:Float,
             level_of_experience: LevelOfExperience,
             age: Int,
             dark_mode: Boolean,
