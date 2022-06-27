@@ -12,30 +12,35 @@ exports.mutateWorkout = gql `
     }
 
     "Optional input parameters for inline creation of excercise blocks within createWorkout mutation"
-    input  createExcerciseBlockInput {
+    input  excerciseSetInput {
         excercise_id: Int!,
-        weight: Float!,
-        weight_unit: WeightUnit!,
-        reps_per_set: Int!,
-        sets: Int!,
+        target_weight: Float!,
+        target_weight_unit: WeightUnit!,
+        target_reps: Int!,
+        actual_weight: Float,
+        actual_reps: Int,
+        actual_weight_unit: WeightUnit
     }
 
     type Mutation {
         "[PROTECTED] Creates a workout object for the requestor."
         createWorkout(
-            date_scheduled:String!,
+            date_scheduled:String,
             date_completed:String,
             performance_rating:String,
-            excercise_blocks: [createExcerciseBlockInput] 
+            repetition_count_left: Int!,
+            excercise_sets: [excerciseSetInput] 
         )
         : mutateWorkoutResponse
 
-        "[PROTECTED] Updates a workout object (Must belong to the requestor)."
+        "[PROTECTED] Updates a workout object (Must belong to the requestor). Note: This will replace any existing excercise sets."
         updateWorkout(
             workout_id: Int!
+            repetition_count_left: Int!,
             date_scheduled:String,
             date_completed:String,
             performance_rating:Float,
+            excercise_sets: [excerciseSetInput] 
         )
         : mutateWorkoutResponse
 

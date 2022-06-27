@@ -9,8 +9,9 @@ exports.Workout = gql `
         date_scheduled:        String       
         date_completed:        String     
         performance_rating:        Float
+        repetition_count_left:        Int
         user_id:    Int
-        excercise_blocks: [ExcerciseBlock]
+        excercise_sets: [ExcerciseSet]
     }
 `;
 //# sourceMappingURL=workout.js.map

@@ -26,13 +26,13 @@ const firebase_service_1 = require("../../../service/firebase_service");
 const createWorkout = (_, args, context) => __awaiter(void 0, void 0, void 0, function* () {
     (0, firebase_service_1.onlyAuthenticated)(context);
     const prisma = context.dataSources.prisma;
-    const { excercise_blocks } = args, otherArgs = __rest(args, ["excercise_blocks"]);
+    const { excercise_sets } = args, otherArgs = __rest(args, ["excercise_sets"]);
     const newWorkout = yield prisma.workout.create({
-        data: Object.assign(Object.assign({ user_id: context.user.user_id }, otherArgs), { excercise_block: {
-                create: excercise_blocks
+        data: Object.assign(Object.assign({ user_id: context.user.user_id }, otherArgs), { excercise_sets: {
+                create: excercise_sets
             } }),
         include: {
-            excercise_block: true,
+            excercise_sets: true,
         }
     });
     return {
@@ -45,9 +45,9 @@ const createWorkout = (_, args, context) => __awaiter(void 0, void 0, void 0, fu
 exports.createWorkout = createWorkout;
 const updateWorkout = (_, args, context) => __awaiter(void 0, void 0, void 0, function* () {
     (0, firebase_service_1.onlyAuthenticated)(context);
-    const { workout_id } = args, otherArgs = __rest(args, ["workout_id"]);
+    const { workout_id, excercise_sets } = args, otherArgs = __rest(args, ["workout_id", "excercise_sets"]);
     const prisma = context.dataSources.prisma;
-    // conduct check that the measurement object belongs to the user.
+    // note: you have to send in all the excercise_sets cos it'll be if it's not present
     const targetWorkout = yield prisma.workout.findUnique({
         where: {
             workout_id: workout_id
@@ -60,9 +60,12 @@ const updateWorkout = (_, args, context) => __awaiter(void 0, void 0, void 0, fu
         where: {
             workout_id: workout_id
         },
-        data: otherArgs,
+        data: Object.assign(Object.assign({}, otherArgs), { excercise_sets: {
+                deleteMany: {},
+                createMany: { data: excercise_sets },
+            } }),
         include: {
-            excercise_block: true,
+            excercise_sets: true,
         }
     });
     return {

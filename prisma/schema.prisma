@@ -148,12 +148,12 @@ model ExcerciseSet {
   workout      Workout    @relation(fields: [workout_id], references: [workout_id])
   workout_id   Int
   excercise_id Int
-  weight       Float
-  weight_unit  WeightUnit
+  target_weight       Float
+  target_weight_unit  WeightUnit
   target_reps   Int
-  actual_reps   Int?
   actual_weight Float?
-  actual_weight_unit  Int?
+  actual_reps   Int?
+  actual_weight_unit  WeightUnit?
 }
 
 

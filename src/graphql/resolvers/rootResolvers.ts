@@ -2,7 +2,6 @@ import { generateFirebaseIdTokenResolver } from "./mutation/generateFirebaseIdTo
 import { updateUser } from "./mutation/mutateUser";
 import { createBroadcast, deleteBroadcast, updateBroadcast } from "./mutation/mutateBroadcast";
 import { createExcercise, deleteExcercise, updateExcercise } from "./mutation/mutateExcercise";
-import { createExcerciseBlock, deleteExcerciseBlock, updateExcerciseBlock } from "./mutation/mutateExcerciseBlock";
 import { createMeasurement, deleteMeasurement, updateMeasurement } from "./mutation/mutateMeasurement";
 import { createMuscleRegion, deleteMuscleRegion, updateMuscleRegion } from "./mutation/mutateMuscleRegion";
 import { createWorkout, deleteWorkout, updateWorkout } from "./mutation/mutateWorkout";
@@ -28,9 +27,6 @@ export const resolvers = {
         createExcercise: createExcercise,
         updateExcercise: updateExcercise,
         deleteExcercise: deleteExcercise,
-        createExcerciseBlock: createExcerciseBlock,
-        updateExcerciseBlock: updateExcerciseBlock,
-        deleteExcerciseBlock: deleteExcerciseBlock,
         createWorkout: createWorkout,
         updateWorkout: updateWorkout,
         deleteWorkout: deleteWorkout,
@@ -92,9 +88,9 @@ export const resolvers = {
         }
     },
     Workout: {
-        async excercise_blocks(parent: any, args: any, context: any, info: any){
+        async excercise_sets(parent: any, args: any, context: any, info: any){
             const prisma = context.dataSources.prisma
-            return await prisma.excerciseBlock.findMany({
+            return await prisma.ExcerciseSet.findMany({
                 where: { workout_id : parent.workout_id }
             })
         },

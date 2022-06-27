@@ -5,17 +5,18 @@ import { onlyAuthenticated } from "../../../service/firebase_service";
 export const createWorkout = async ( _:any, args: any, context:any ) => {
     onlyAuthenticated(context)
     const prisma = context.dataSources.prisma
-    const {excercise_blocks, ...otherArgs} = args
+    const {excercise_sets, ...otherArgs} = args
+
     const newWorkout = await prisma.workout.create({
         data: {
             user_id: context.user.user_id,
             ...otherArgs,
-            excercise_block: { 
-                create: excercise_blocks
+            excercise_sets: { 
+                create: excercise_sets
             }
         },
         include: {
-            excercise_block: true,
+            excercise_sets: true,
         }
     })
 
@@ -29,10 +30,10 @@ export const createWorkout = async ( _:any, args: any, context:any ) => {
 
 export const updateWorkout = async ( _:any, args: any, context:any ) => {
     onlyAuthenticated(context)
-    const {workout_id, ...otherArgs} = args
+    const {workout_id, excercise_sets, ...otherArgs} = args
     const prisma = context.dataSources.prisma
 
-    // conduct check that the measurement object belongs to the user.
+    // note: you have to send in all the excercise_sets cos it'll be if it's not present
     const targetWorkout = await prisma.workout.findUnique({
         where: {
             workout_id: workout_id
@@ -46,11 +47,18 @@ export const updateWorkout = async ( _:any, args: any, context:any ) => {
         where: {
             workout_id : workout_id
         },
-        data:otherArgs,
+        data:{
+            ...otherArgs, 
+            excercise_sets: {
+                deleteMany: {},
+                createMany: {data: excercise_sets},
+            }
+        },
         include: {
-            excercise_block: true,
+            excercise_sets: true,
         }
     })
+
     return {
         code: "200",
         success: true,

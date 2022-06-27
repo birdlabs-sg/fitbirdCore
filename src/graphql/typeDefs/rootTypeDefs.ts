@@ -3,7 +3,7 @@ const { gql } = require('apollo-server');
 import { BroadCast } from "./objectDef/broadCast";
 import { Enum } from "./objectDef/enum";
 import { Excercise } from "./objectDef/excercise";
-import { ExcerciseBlock } from "./objectDef/excerciseBlock";
+import { ExcerciseSet } from "./objectDef/ExcerciseSet";
 import { Measurement } from "./objectDef/measurement";
 import { Notification } from "./objectDef/notification";
 import { MuscleRegion } from "./objectDef/muscleRegion";
@@ -14,7 +14,6 @@ import { mutateSignup } from "./mutationDef/mutateSignup";
 import { mutatateGenerateIdToken } from "./mutationDef/mutateGenerateIdToken";
 import { mutateBroadCast } from "./mutationDef/mutateBroadcast";
 import { mutateExcercise } from "./mutationDef/mutateExcercise";
-import { mutateExcerciseBlock } from "./mutationDef/mutateExcerciseBlock";
 import { mutateMuscleRegion } from "./mutationDef/mutateMuscleRegion";
 import { mutateMeasurement } from "./mutationDef/mutateMeasurement";
 import { mutateWorkout } from "./mutationDef/mutateWorkout";
@@ -47,11 +46,11 @@ const mutationResponse =  gql`
 const baseTypeDefs = [queryTypeDef,mutationResponse]
 
 const mutationTypeDefs = [mutationResponse,mutateSignup,mutatateGenerateIdToken,mutateBroadCast,
-                          mutateExcercise,mutateExcerciseBlock,mutateMeasurement,
+                          mutateExcercise,mutateMeasurement,
                           mutateMuscleRegion,mutateWorkout,mutateUser]
 
 const objectTypeDefs = [queryTypeDef,User, Enum, Measurement, 
-                        BroadCast, Excercise, ExcerciseBlock, 
+                        BroadCast, Excercise, ExcerciseSet, 
                         MuscleRegion,Notification, Workout]
         
 

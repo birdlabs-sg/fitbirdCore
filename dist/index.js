@@ -20,7 +20,7 @@ const server = new apollo_server_1.ApolloServer({
     typeDefs: rootTypeDefs_1.typeDefs,
     resolvers: rootResolvers_1.resolvers,
     csrfPrevention: true,
-    // plugins: [logger],
+    plugins: [logger],
     dataSources: () => {
         return {
             prisma: prisma
@@ -34,6 +34,6 @@ const server = new apollo_server_1.ApolloServer({
     }),
 });
 server.listen({ port: 8080 }).then(({ url }) => {
-    console.log(`🚀  Server ready at: ${url}`);
+    console.log(`🚀 ${new Date().toISOString()}  Server ready at: ${url}`);
 });
 //# sourceMappingURL=index.js.map

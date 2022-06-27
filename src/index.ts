@@ -29,5 +29,5 @@ const server = new ApolloServer({
 });
 
 server.listen({port:8080}).then(({ url }) => {
-  console.log(`🚀  Server ready at: ${url}`);
+  console.log(`🚀 ${new Date().toISOString()}  Server ready at: ${url}`);
 });

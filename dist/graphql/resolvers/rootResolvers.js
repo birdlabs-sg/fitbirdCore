@@ -14,7 +14,6 @@ const generateFirebaseIdTokenResolver_1 = require("./mutation/generateFirebaseId
 const mutateUser_1 = require("./mutation/mutateUser");
 const mutateBroadcast_1 = require("./mutation/mutateBroadcast");
 const mutateExcercise_1 = require("./mutation/mutateExcercise");
-const mutateExcerciseBlock_1 = require("./mutation/mutateExcerciseBlock");
 const mutateMeasurement_1 = require("./mutation/mutateMeasurement");
 const mutateMuscleRegion_1 = require("./mutation/mutateMuscleRegion");
 const mutateWorkout_1 = require("./mutation/mutateWorkout");
@@ -39,9 +38,6 @@ exports.resolvers = {
         createExcercise: mutateExcercise_1.createExcercise,
         updateExcercise: mutateExcercise_1.updateExcercise,
         deleteExcercise: mutateExcercise_1.deleteExcercise,
-        createExcerciseBlock: mutateExcerciseBlock_1.createExcerciseBlock,
-        updateExcerciseBlock: mutateExcerciseBlock_1.updateExcerciseBlock,
-        deleteExcerciseBlock: mutateExcerciseBlock_1.deleteExcerciseBlock,
         createWorkout: mutateWorkout_1.createWorkout,
         updateWorkout: mutateWorkout_1.updateWorkout,
         deleteWorkout: mutateWorkout_1.deleteWorkout,
@@ -109,10 +105,10 @@ exports.resolvers = {
         }
     },
     Workout: {
-        excercise_blocks(parent, args, context, info) {
+        excercise_sets(parent, args, context, info) {
             return __awaiter(this, void 0, void 0, function* () {
                 const prisma = context.dataSources.prisma;
-                return yield prisma.excerciseBlock.findMany({
+                return yield prisma.ExcerciseSet.findMany({
                     where: { workout_id: parent.workout_id }
                 });
             });
