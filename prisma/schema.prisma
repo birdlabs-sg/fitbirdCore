@@ -41,6 +41,19 @@ enum LevelOfExperience {
   ADVANCED
   EXPERT
 }
+enum ExcerciseMechanics {
+  COMPOUND
+  ISOLATED
+}
+enum ExcerciseForce {
+  PUSH
+  PULL
+}
+
+enum ExcerciseUtility {
+  BASIC
+  AUXILIARY
+}
 
 model User {
   user_id      Int           @id @default(autoincrement())
@@ -104,9 +117,11 @@ model Workout {
 model MuscleRegion {
   muscle_region_id          Int         @id @default(autoincrement())
   muscle_region_name        String
-  muscle_region_description String
-  stabilizer_muscles        Excercise[] @relation(name:"stabilizers")
+  muscle_region_description String?
+  stabilizer_muscles        Excercise[] @relation(name:"stabilizer")
+  dynamic_stabilizer_muscles        Excercise[] @relation(name:"dynamic")
   target_muscles            Excercise[] @relation(name:"target")
+  synergist_muscles            Excercise[] @relation(name:"synergist")
   measurements              Measurement[]
 }
 
@@ -116,8 +131,13 @@ model Excercise {
   excercise_description String?
   excercise_instructions String?
   excercise_tips String?
+  excercise_utility   ExcerciseUtility[]
+  excercise_mechanics ExcerciseMechanics[]
+  excercise_force ExcerciseForce[]
   target_regions        MuscleRegion[] @relation(name: "target")
-  stabilizer_muscles        MuscleRegion[] @relation(name: "stabilizers")
+  stabilizer_muscles        MuscleRegion[] @relation(name: "stabilizer")
+  synergist_muscles        MuscleRegion[] @relation(name: "synergist")
+  dynamic_stabilizer_muscles        MuscleRegion[] @relation(name: "dynamic")
   excercise_sets      ExcerciseSet[]
   excerciseRestTimes ExcerciseRestTimeRange[]
 }
