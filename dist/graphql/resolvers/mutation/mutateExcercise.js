@@ -26,14 +26,26 @@ const createExcercise = (_, args, context) => __awaiter(void 0, void 0, void 0, 
     (0, firebase_service_1.onlyAuthenticated)(context);
     (0, firebase_service_1.onlyAdmin)(context);
     const prisma = context.dataSources.prisma;
-    const { target_regions } = args, otherArgs = __rest(args, ["target_regions"]);
+    const { target_regions, synergist_muscles, dynamic_stabilizer_muscles, stabilizer_muscles } = args, otherArgs = __rest(args, ["target_regions", "synergist_muscles", "dynamic_stabilizer_muscles", "stabilizer_muscles"]);
     const targetRegionArray = target_regions.map((target_region_id) => ({ muscle_region_id: target_region_id }));
+    const synergistMusclesArray = synergist_muscles.map((synergist_muscles_id) => ({ muscle_region_id: synergist_muscles_id }));
+    const dynamicStabilizerMusclesArray = dynamic_stabilizer_muscles.map((dynamic_stabilizer_muscles_id) => ({ muscle_region_id: dynamic_stabilizer_muscles_id }));
+    const stabilizerMusclesArray = stabilizer_muscles.map((stabilizer_muscles_id) => ({ muscle_region_id: stabilizer_muscles_id }));
     const newExcercise = yield prisma.excercise.create({
         data: Object.assign(Object.assign({}, otherArgs), { target_regions: {
                 connect: targetRegionArray
+            }, stabilizer_muscles: {
+                connect: stabilizerMusclesArray
+            }, synergist_muscles: {
+                connect: synergistMusclesArray
+            }, dynamic_stabilizer_muscles: {
+                connect: dynamicStabilizerMusclesArray
             } }),
         include: {
-            target_regions: true
+            target_regions: true,
+            stabilizer_muscles: true,
+            synergist_muscles: true,
+            dynamic_stabilizer_muscles: true,
         }
     });
     return {
@@ -48,17 +60,29 @@ const updateExcercise = (_, args, context) => __awaiter(void 0, void 0, void 0, 
     (0, firebase_service_1.onlyAuthenticated)(context);
     (0, firebase_service_1.onlyAdmin)(context);
     const prisma = context.dataSources.prisma;
-    const { excercise_id, target_regions } = args, otherArgs = __rest(args, ["excercise_id", "target_regions"]);
+    const { excercise_id, target_regions, synergist_muscles, dynamic_stabilizer_muscles, stabilizer_muscles } = args, otherArgs = __rest(args, ["excercise_id", "target_regions", "synergist_muscles", "dynamic_stabilizer_muscles", "stabilizer_muscles"]);
     const targetRegionArray = target_regions.map((target_region_id) => ({ muscle_region_id: target_region_id }));
+    const synergistMusclesArray = synergist_muscles.map((synergist_muscles_id) => ({ muscle_region_id: synergist_muscles_id }));
+    const dynamicStabilizerMusclesArray = dynamic_stabilizer_muscles.map((dynamic_stabilizer_muscles_id) => ({ muscle_region_id: dynamic_stabilizer_muscles_id }));
+    const stabilizerMusclesArray = stabilizer_muscles.map((stabilizer_muscles_id) => ({ muscle_region_id: stabilizer_muscles_id }));
     const updatedExcercise = yield prisma.excercise.update({
         where: {
             excercise_id: excercise_id
         },
         data: Object.assign(Object.assign({}, otherArgs), { target_regions: {
                 set: targetRegionArray
+            }, stabilizer_muscles: {
+                set: stabilizerMusclesArray
+            }, synergist_muscles: {
+                set: synergistMusclesArray
+            }, dynamic_stabilizer_muscles: {
+                set: dynamicStabilizerMusclesArray
             } }),
         include: {
-            target_regions: true
+            target_regions: true,
+            stabilizer_muscles: true,
+            synergist_muscles: true,
+            dynamic_stabilizer_muscles: true,
         }
     });
     return {

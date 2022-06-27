@@ -104,7 +104,37 @@ export const resolvers = {
             const prisma = context.dataSources.prisma
             return await prisma.muscleRegion.findMany({
                 where: { 
-                    excercises: {
+                    target_muscles: {
+                        some: {excercise_id: parent.excercise_id }
+                    } 
+                } 
+            })
+        },
+        async stabilizer_muscles(parent: any, args: any, context: any, info: any){
+            const prisma = context.dataSources.prisma
+            return await prisma.muscleRegion.findMany({
+                where: { 
+                    stabilizer_muscles: {
+                        some: {excercise_id: parent.excercise_id }
+                    } 
+                } 
+            })
+        },
+        async synergist_muscles(parent: any, args: any, context: any, info: any){
+            const prisma = context.dataSources.prisma
+            return await prisma.muscleRegion.findMany({
+                where: { 
+                    synergist_muscles: {
+                        some: {excercise_id: parent.excercise_id }
+                    } 
+                } 
+            })
+        },
+        async dynamic_stabilizer_muscles(parent: any, args: any, context: any, info: any){
+            const prisma = context.dataSources.prisma
+            return await prisma.muscleRegion.findMany({
+                where: { 
+                    dynamic_stabilizer_muscles: {
                         some: {excercise_id: parent.excercise_id }
                     } 
                 } 

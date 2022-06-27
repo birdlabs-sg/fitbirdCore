@@ -124,7 +124,43 @@ exports.resolvers = {
                 const prisma = context.dataSources.prisma;
                 return yield prisma.muscleRegion.findMany({
                     where: {
-                        excercises: {
+                        target_muscles: {
+                            some: { excercise_id: parent.excercise_id }
+                        }
+                    }
+                });
+            });
+        },
+        stabilizer_muscles(parent, args, context, info) {
+            return __awaiter(this, void 0, void 0, function* () {
+                const prisma = context.dataSources.prisma;
+                return yield prisma.muscleRegion.findMany({
+                    where: {
+                        stabilizer_muscles: {
+                            some: { excercise_id: parent.excercise_id }
+                        }
+                    }
+                });
+            });
+        },
+        synergist_muscles(parent, args, context, info) {
+            return __awaiter(this, void 0, void 0, function* () {
+                const prisma = context.dataSources.prisma;
+                return yield prisma.muscleRegion.findMany({
+                    where: {
+                        synergist_muscles: {
+                            some: { excercise_id: parent.excercise_id }
+                        }
+                    }
+                });
+            });
+        },
+        dynamic_stabilizer_muscles(parent, args, context, info) {
+            return __awaiter(this, void 0, void 0, function* () {
+                const prisma = context.dataSources.prisma;
+                return yield prisma.muscleRegion.findMany({
+                    where: {
+                        dynamic_stabilizer_muscles: {
                             some: { excercise_id: parent.excercise_id }
                         }
                     }

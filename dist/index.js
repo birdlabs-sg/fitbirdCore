@@ -20,7 +20,7 @@ const server = new apollo_server_1.ApolloServer({
     typeDefs: rootTypeDefs_1.typeDefs,
     resolvers: rootResolvers_1.resolvers,
     csrfPrevention: true,
-    plugins: [logger],
+    // plugins: [logger],
     dataSources: () => {
         return {
             prisma: prisma

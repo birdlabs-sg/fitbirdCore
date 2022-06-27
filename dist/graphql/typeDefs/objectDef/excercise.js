@@ -9,6 +9,9 @@ exports.Excercise = gql `
         excercise_name:        String
         excercise_description: String
         target_regions:        [MuscleRegion]
+        stabilizer_muscles:        [MuscleRegion]
+        synergist_muscles:        [MuscleRegion]
+        dynamic_stabilizer_muscles:        [MuscleRegion]
     }
 `;
 //# sourceMappingURL=excercise.js.map

@@ -12,17 +12,14 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.updateUser = void 0;
 const firebase_service_1 = require("../../../service/firebase_service");
 const updateUser = (_, args, context) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log("ss");
     (0, firebase_service_1.onlyAuthenticated)(context);
     const prisma = context.dataSources.prisma;
-    // conduct check that the measurement object belongs to the user.
     const updatedUser = yield prisma.user.update({
         where: {
             user_id: context.user.user_id
         },
         data: args,
     });
-    console.log(updatedUser);
     return {
         code: "200",
         success: true,

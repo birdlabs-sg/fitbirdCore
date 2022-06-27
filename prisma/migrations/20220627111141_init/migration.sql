@@ -13,19 +13,29 @@ CREATE TYPE "Goal" AS ENUM ('BODY_RECOMPOSITION', 'STRENGTH', 'KEEPING_FIT', 'AT
 -- CreateEnum
 CREATE TYPE "LevelOfExperience" AS ENUM ('BEGINNER', 'MID', 'ADVANCED', 'EXPERT');
 
+-- CreateEnum
+CREATE TYPE "ExcerciseMechanics" AS ENUM ('COMPOUND', 'ISOLATED');
+
+-- CreateEnum
+CREATE TYPE "ExcerciseForce" AS ENUM ('PUSH', 'PULL');
+
+-- CreateEnum
+CREATE TYPE "ExcerciseUtility" AS ENUM ('BASIC', 'AUXILIARY');
+
 -- CreateTable
 CREATE TABLE "User" (
     "user_id" SERIAL NOT NULL,
     "email" TEXT NOT NULL,
     "firebase_uid" TEXT NOT NULL,
     "displayName" TEXT NOT NULL,
-    "prior_years_of_experience" INTEGER,
+    "prior_years_of_experience" DOUBLE PRECISION,
     "level_of_experience" "LevelOfExperience",
     "age" INTEGER,
     "dark_mode" BOOLEAN NOT NULL DEFAULT false,
     "automatic_scheduling" BOOLEAN NOT NULL DEFAULT true,
     "workout_frequency" INTEGER,
-    "goals" "Goal",
+    "workout_duration" INTEGER,
+    "goal" "Goal",
     "gender" "Gender",
     "weight" DOUBLE PRECISION,
     "height" DOUBLE PRECISION,
@@ -74,7 +84,7 @@ CREATE TABLE "Workout" (
 CREATE TABLE "MuscleRegion" (
     "muscle_region_id" SERIAL NOT NULL,
     "muscle_region_name" TEXT NOT NULL,
-    "muscle_region_description" TEXT NOT NULL,
+    "muscle_region_description" TEXT,
 
     CONSTRAINT "MuscleRegion_pkey" PRIMARY KEY ("muscle_region_id")
 );
@@ -86,6 +96,9 @@ CREATE TABLE "Excercise" (
     "excercise_description" TEXT,
     "excercise_instructions" TEXT,
     "excercise_tips" TEXT,
+    "excercise_utility" "ExcerciseUtility"[],
+    "excercise_mechanics" "ExcerciseMechanics"[],
+    "excercise_force" "ExcerciseForce"[],
 
     CONSTRAINT "Excercise_pkey" PRIMARY KEY ("excercise_id")
 );
@@ -131,7 +144,19 @@ CREATE TABLE "_target" (
 );
 
 -- CreateTable
-CREATE TABLE "_stabilizers" (
+CREATE TABLE "_stabilizer" (
+    "A" INTEGER NOT NULL,
+    "B" INTEGER NOT NULL
+);
+
+-- CreateTable
+CREATE TABLE "_synergist" (
+    "A" INTEGER NOT NULL,
+    "B" INTEGER NOT NULL
+);
+
+-- CreateTable
+CREATE TABLE "_dynamic" (
     "A" INTEGER NOT NULL,
     "B" INTEGER NOT NULL
 );
@@ -155,10 +180,22 @@ CREATE UNIQUE INDEX "_target_AB_unique" ON "_target"("A", "B");
 CREATE INDEX "_target_B_index" ON "_target"("B");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "_stabilizers_AB_unique" ON "_stabilizers"("A", "B");
+CREATE UNIQUE INDEX "_stabilizer_AB_unique" ON "_stabilizer"("A", "B");
 
 -- CreateIndex
-CREATE INDEX "_stabilizers_B_index" ON "_stabilizers"("B");
+CREATE INDEX "_stabilizer_B_index" ON "_stabilizer"("B");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "_synergist_AB_unique" ON "_synergist"("A", "B");
+
+-- CreateIndex
+CREATE INDEX "_synergist_B_index" ON "_synergist"("B");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "_dynamic_AB_unique" ON "_dynamic"("A", "B");
+
+-- CreateIndex
+CREATE INDEX "_dynamic_B_index" ON "_dynamic"("B");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "_BroadCastToUser_AB_unique" ON "_BroadCastToUser"("A", "B");
@@ -197,10 +234,22 @@ ALTER TABLE "_target" ADD CONSTRAINT "_target_A_fkey" FOREIGN KEY ("A") REFERENC
 ALTER TABLE "_target" ADD CONSTRAINT "_target_B_fkey" FOREIGN KEY ("B") REFERENCES "MuscleRegion"("muscle_region_id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "_stabilizers" ADD CONSTRAINT "_stabilizers_A_fkey" FOREIGN KEY ("A") REFERENCES "Excercise"("excercise_id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "_stabilizer" ADD CONSTRAINT "_stabilizer_A_fkey" FOREIGN KEY ("A") REFERENCES "Excercise"("excercise_id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "_stabilizers" ADD CONSTRAINT "_stabilizers_B_fkey" FOREIGN KEY ("B") REFERENCES "MuscleRegion"("muscle_region_id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "_stabilizer" ADD CONSTRAINT "_stabilizer_B_fkey" FOREIGN KEY ("B") REFERENCES "MuscleRegion"("muscle_region_id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "_synergist" ADD CONSTRAINT "_synergist_A_fkey" FOREIGN KEY ("A") REFERENCES "Excercise"("excercise_id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "_synergist" ADD CONSTRAINT "_synergist_B_fkey" FOREIGN KEY ("B") REFERENCES "MuscleRegion"("muscle_region_id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "_dynamic" ADD CONSTRAINT "_dynamic_A_fkey" FOREIGN KEY ("A") REFERENCES "Excercise"("excercise_id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "_dynamic" ADD CONSTRAINT "_dynamic_B_fkey" FOREIGN KEY ("B") REFERENCES "MuscleRegion"("muscle_region_id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "_BroadCastToUser" ADD CONSTRAINT "_BroadCastToUser_A_fkey" FOREIGN KEY ("A") REFERENCES "BroadCast"("broad_cast_id") ON DELETE CASCADE ON UPDATE CASCADE;

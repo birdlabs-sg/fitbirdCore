@@ -17,6 +17,9 @@ exports.mutateExcercise = gql `
             excercise_name:String!,
             excercise_description:String!,
             target_regions:[Int],
+            stabilizer_muscles: [Int],
+            synergist_muscles:[Int],
+            dynamic_stabilizer_muscles: [Int],
         )
         : mutateExcerciseResponse
 
@@ -26,6 +29,9 @@ exports.mutateExcercise = gql `
             excercise_name:String,
             excercise_description:String,
             target_regions:[Int!],
+            stabilizer_muscles: [Int!],
+            synergist_muscles:[Int!],
+            dynamic_stabilizer_muscles: [Int!],
         )
         : mutateExcerciseResponse
 
