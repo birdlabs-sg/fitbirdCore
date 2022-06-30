@@ -5,7 +5,7 @@ const { gql } = require('apollo-server');
 exports.Excercise = gql `
     "Represents a specific excercise."
     type Excercise {
-        excercise_id:          ID           
+        excercise_id:          Int           
         excercise_name:        String
         excercise_preparation: String
         excercise_instructions: String
