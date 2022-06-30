@@ -15,7 +15,8 @@ exports.mutateExcercise = gql `
         "[PROTECTED:ADMIN ONLY] Creates a excercise object."
         createExcercise(
             excercise_name:String!,
-            excercise_description:String!,
+            excercise_preparation: String!,
+            excercise_instructions: String!,
             target_regions:[Int],
             stabilizer_muscles: [Int],
             synergist_muscles:[Int],
@@ -27,7 +28,8 @@ exports.mutateExcercise = gql `
         updateExcercise(
             excercise_id: Int!,
             excercise_name:String,
-            excercise_description:String,
+            excercise_preparation: String!,
+            excercise_instructions: String!,
             target_regions:[Int!],
             stabilizer_muscles: [Int!],
             synergist_muscles:[Int!],

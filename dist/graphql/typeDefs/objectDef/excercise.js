@@ -7,7 +7,8 @@ exports.Excercise = gql `
     type Excercise {
         excercise_id:          ID           
         excercise_name:        String
-        excercise_description: String
+        excercise_preparation: String
+        excercise_instructions: String
         target_regions:        [MuscleRegion]
         stabilizer_muscles:        [MuscleRegion]
         synergist_muscles:        [MuscleRegion]

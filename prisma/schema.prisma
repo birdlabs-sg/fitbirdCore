@@ -128,7 +128,7 @@ model MuscleRegion {
 model Excercise {
   excercise_id          Int              @id @default(autoincrement())
   excercise_name        String
-  excercise_description String?
+  excercise_preparation String?
   excercise_instructions String?
   excercise_tips String?
   excercise_utility   ExcerciseUtility[]
