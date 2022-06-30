@@ -14,6 +14,7 @@ exports.ExcerciseSet = gql `
         actual_weight:         Float
         actual_weight_unit:    WeightUnit
         actual_reps: Int
+        excercise: Excercise
     }
 `;
 //# sourceMappingURL=ExcerciseSet.js.map

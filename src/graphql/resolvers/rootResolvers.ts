@@ -91,7 +91,10 @@ export const resolvers = {
         async excercise_sets(parent: any, args: any, context: any, info: any){
             const prisma = context.dataSources.prisma
             return await prisma.ExcerciseSet.findMany({
-                where: { workout_id : parent.workout_id }
+                where: { workout_id : parent.workout_id },
+                include: {
+                    excercise: true
+                }
             })
         },
     },

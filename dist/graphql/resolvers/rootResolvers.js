@@ -109,7 +109,10 @@ exports.resolvers = {
             return __awaiter(this, void 0, void 0, function* () {
                 const prisma = context.dataSources.prisma;
                 return yield prisma.ExcerciseSet.findMany({
-                    where: { workout_id: parent.workout_id }
+                    where: { workout_id: parent.workout_id },
+                    include: {
+                        excercise: true
+                    }
                 });
             });
         },
