@@ -37,4 +37,12 @@ export const Enum = gql`
         ATHLETICISM
         OTHERS
     }
+
+    "Units for weight"
+    enum WorkoutFilter {
+        ACTIVE
+        COMPLETED
+        NONE
+    }
+
 `
