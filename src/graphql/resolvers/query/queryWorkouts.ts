@@ -11,6 +11,9 @@ export const workoutsQueryResolver = async (parent: any, args: any, context: any
                 where: {
                     user_id: context.user_id,
                     date_completed: null
+                },
+                orderBy: {
+                    order_index: 'asc'
                 }
             })
         case 'COMPLETED':
@@ -18,6 +21,9 @@ export const workoutsQueryResolver = async (parent: any, args: any, context: any
                 where: {
                     user_id: context.user_id,
                     date_completed: {not: null}
+                },
+                orderBy: {
+                    date_completed: 'asc'
                 }
             })
         case 'NONE':

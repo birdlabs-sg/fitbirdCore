@@ -22,6 +22,9 @@ const workoutsQueryResolver = (parent, args, context, info) => __awaiter(void 0,
                 where: {
                     user_id: context.user_id,
                     date_completed: null
+                },
+                orderBy: {
+                    order_index: 'asc'
                 }
             });
         case 'COMPLETED':
@@ -29,6 +32,9 @@ const workoutsQueryResolver = (parent, args, context, info) => __awaiter(void 0,
                 where: {
                     user_id: context.user_id,
                     date_completed: { not: null }
+                },
+                orderBy: {
+                    date_completed: 'asc'
                 }
             });
         case 'NONE':
