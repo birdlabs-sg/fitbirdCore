@@ -15,11 +15,10 @@ exports.mutateWorkout = gql `
     input  excerciseSetInput {
         excercise_id: Int!,
         target_weight: Float!,
-        target_weight_unit: WeightUnit!,
+        weight_unit: WeightUnit!,
         target_reps: Int!,
         actual_weight: Float,
         actual_reps: Int,
-        actual_weight_unit: WeightUnit
     }
 
     type Mutation {
@@ -40,6 +39,7 @@ exports.mutateWorkout = gql `
             date_scheduled:String,
             date_completed:String,
             performance_rating:Float,
+            order_index: Int
             excercise_sets: [excerciseSetInput] 
         )
         : mutateWorkoutResponse

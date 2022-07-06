@@ -87,6 +87,7 @@ export const resolvers = {
             })
         }
     },
+    // workout query
     Workout: {
         async excercise_sets(parent: any, args: any, context: any, info: any){
             const prisma = context.dataSources.prisma
@@ -136,6 +137,23 @@ export const resolvers = {
                     dynamic_stabilizer_muscles: {
                         some: {excercise_id: parent.excercise_id }
                     } 
+                } 
+            })
+        },
+        async excerciseMetadata(parent: any, args: any, context: any, info: any){
+            const prisma = context.dataSources.prisma
+            console.log(context.user.user_id)
+            console.log(await prisma.excerciseMetadata.findMany({
+                where: { 
+                    excercise_id: parent.excercise_id,
+                    user_id: context.user.user_id,
+                } 
+            }));
+
+            return await prisma.excerciseMetadata.findMany({
+                where: { 
+                    excercise_id: parent.excercise_id,
+                    user_id: context.user.user_id,
                 } 
             })
         },

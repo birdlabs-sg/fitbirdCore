@@ -9,10 +9,9 @@ exports.ExcerciseSet = gql `
         workout_id:   Int
         excercise_id: Int
         target_weight:       Float
-        target_weight_unit:  WeightUnit
+        weight_unit:  WeightUnit
         target_reps: Int
         actual_weight:         Float
-        actual_weight_unit:    WeightUnit
         actual_reps: Int
         excercise: Excercise
     }

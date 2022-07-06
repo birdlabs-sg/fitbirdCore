@@ -20,15 +20,37 @@ var __rest = (this && this.__rest) || function (s, e) {
     return t;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteWorkout = exports.updateWorkout = exports.createWorkout = void 0;
+exports.deleteWorkout = exports.updateWorkout = exports.createWorkout = exports.generateWorkouts = void 0;
 const apollo_server_1 = require("apollo-server");
 const firebase_service_1 = require("../../../service/firebase_service");
+const generateWorkouts = (_, args, context) => __awaiter(void 0, void 0, void 0, function* () {
+    (0, firebase_service_1.onlyAuthenticated)(context);
+    // custom logic for generating workouts based on user type
+});
+exports.generateWorkouts = generateWorkouts;
 const createWorkout = (_, args, context) => __awaiter(void 0, void 0, void 0, function* () {
+    // only used when the user wishes to create new workout on existing ones
     (0, firebase_service_1.onlyAuthenticated)(context);
     const prisma = context.dataSources.prisma;
-    const { excercise_sets } = args, otherArgs = __rest(args, ["excercise_sets"]);
+    const { excercise_sets } = args, otherArgs = __rest(args
+    // Get all the active workouts
+    , ["excercise_sets"]);
+    // Get all the active workouts
+    const active_workouts = yield prisma.workout.findMany({
+        where: {
+            date_completed: null
+        },
+    });
+    // get the highest order index
+    var highest_order_index = -1;
+    for (var i = 0; i < active_workouts.length; i++) {
+        if (active_workouts[i].order_index > highest_order_index) {
+            highest_order_index = active_workouts[i].order_index;
+        }
+    }
+    // create a new workout based on provided arguments and slot it behind the last active workout
     const newWorkout = yield prisma.workout.create({
-        data: Object.assign(Object.assign({ user_id: context.user.user_id }, otherArgs), { excercise_sets: {
+        data: Object.assign(Object.assign({ user_id: context.user.user_id, order_index: highest_order_index + 1 }, otherArgs), { excercise_sets: {
                 create: excercise_sets
             } }),
         include: {
@@ -44,6 +66,7 @@ const createWorkout = (_, args, context) => __awaiter(void 0, void 0, void 0, fu
 });
 exports.createWorkout = createWorkout;
 const updateWorkout = (_, args, context) => __awaiter(void 0, void 0, void 0, function* () {
+    // responsibility of reordering is done on the frontend
     (0, firebase_service_1.onlyAuthenticated)(context);
     const { workout_id, excercise_sets } = args, otherArgs = __rest(args, ["workout_id", "excercise_sets"]);
     const prisma = context.dataSources.prisma;
@@ -85,7 +108,7 @@ const deleteWorkout = (_, args, context) => __awaiter(void 0, void 0, void 0, fu
             workout_id: args.workout_id
         }
     });
-    if (targetWorkout.user_id !== context.user.user_id) {
+    if (targetWorkout.user_id != context.user.user_id) {
         throw new apollo_server_1.ForbiddenError('You are not authororized to remove this object.');
     }
     const deletedWorkout = yield prisma.workout.delete({
@@ -93,6 +116,26 @@ const deleteWorkout = (_, args, context) => __awaiter(void 0, void 0, void 0, fu
             workout_id: args.workout_id,
         },
     });
+    // Reorder the remaining active workouts
+    const active_workouts = yield prisma.workout.findMany({
+        where: {
+            date_completed: null
+        },
+        orderBy: {
+            order_index: 'asc',
+        },
+    });
+    for (var i = 0; i < active_workouts.length; i++) {
+        const _a = active_workouts[i], { order_index, workout_id } = _a, otherArgs = __rest(_a, ["order_index", "workout_id"]);
+        if (i != order_index) {
+            yield prisma.workout.update({
+                where: {
+                    workout_id: workout_id
+                },
+                data: Object.assign(Object.assign({ order_index: i }, otherArgs), { excercise_sets: undefined }),
+            });
+        }
+    }
     return {
         code: "200",
         success: true,

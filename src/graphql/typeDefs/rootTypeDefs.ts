@@ -18,6 +18,7 @@ import { mutateMuscleRegion } from "./mutationDef/mutateMuscleRegion";
 import { mutateMeasurement } from "./mutationDef/mutateMeasurement";
 import { mutateWorkout } from "./mutationDef/mutateWorkout";
 import { mutateUser } from "./mutationDef/mutateUser";
+import { ExcerciseMetadata } from "./objectDef/exerciseMetadata";
 
 
 
@@ -51,7 +52,8 @@ const mutationTypeDefs = [mutationResponse,mutateSignup,mutatateGenerateIdToken,
 
 const objectTypeDefs = [queryTypeDef,User, Enum, Measurement, 
                         BroadCast, Excercise, ExcerciseSet, 
-                        MuscleRegion,Notification, Workout]
+                        MuscleRegion,Notification, Workout,
+                        ExcerciseMetadata]
         
 
 export const typeDefs = baseTypeDefs.concat.apply(objectTypeDefs,mutationTypeDefs)

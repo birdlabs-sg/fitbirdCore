@@ -21,7 +21,7 @@ async function loadExcercise(filepath) {
                     for (jsonObj of jsonObjList) {
                         args = {
                             "excercise_name": jsonObj.excercise_name,
-                            "excercise_description": jsonObj.preparation,
+                            "excercise_preparation": jsonObj.preparation,
                             "excercise_instructions": jsonObj.execution,
                             "excercise_tips": jsonObj.comments,
                             "excercise_utility": JSON.parse(jsonObj.utility.replace(/'/g, "\"")).map(e => e.toUpperCase()),

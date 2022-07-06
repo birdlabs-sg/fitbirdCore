@@ -10,6 +10,7 @@ export const Workout = gql`
         performance_rating:        Float
         repetition_count_left:        Int
         user_id:    Int
+        order_index: Int
         excercise_sets: [ExcerciseSet]
     }
 `;

@@ -21,6 +21,7 @@ const mutateMuscleRegion_1 = require("./mutationDef/mutateMuscleRegion");
 const mutateMeasurement_1 = require("./mutationDef/mutateMeasurement");
 const mutateWorkout_1 = require("./mutationDef/mutateWorkout");
 const mutateUser_1 = require("./mutationDef/mutateUser");
+const exerciseMetadata_1 = require("./objectDef/exerciseMetadata");
 const queryTypeDef = gql `
    "This is the root query to resources. Require ADMIN permission to access all, otherwise resources are scoped to the user issuing the request."
     type Query {
@@ -47,6 +48,7 @@ const mutationTypeDefs = [mutationResponse, mutateSignup_1.mutateSignup, mutateG
     mutateMuscleRegion_1.mutateMuscleRegion, mutateWorkout_1.mutateWorkout, mutateUser_1.mutateUser];
 const objectTypeDefs = [queryTypeDef, user_1.User, enum_1.Enum, measurement_1.Measurement,
     broadCast_1.BroadCast, excercise_1.Excercise, ExcerciseSet_1.ExcerciseSet,
-    muscleRegion_1.MuscleRegion, notification_1.Notification, workout_1.Workout];
+    muscleRegion_1.MuscleRegion, notification_1.Notification, workout_1.Workout,
+    exerciseMetadata_1.ExcerciseMetadata];
 exports.typeDefs = baseTypeDefs.concat.apply(objectTypeDefs, mutationTypeDefs);
 //# sourceMappingURL=rootTypeDefs.js.map

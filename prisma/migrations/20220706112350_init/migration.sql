@@ -47,13 +47,15 @@ CREATE TABLE "User" (
 );
 
 -- CreateTable
-CREATE TABLE "ExcerciseRestTimeRange" (
+CREATE TABLE "ExcerciseMetadata" (
+    "haveRequiredEquipment" BOOLEAN,
+    "preferred" BOOLEAN,
     "rest_time_lower_bound" INTEGER NOT NULL,
     "rest_time_upper_bound" INTEGER NOT NULL,
     "user_id" INTEGER NOT NULL,
     "excercise_id" INTEGER NOT NULL,
 
-    CONSTRAINT "ExcerciseRestTimeRange_pkey" PRIMARY KEY ("user_id","excercise_id")
+    CONSTRAINT "ExcerciseMetadata_pkey" PRIMARY KEY ("user_id","excercise_id")
 );
 
 -- CreateTable
@@ -72,6 +74,7 @@ CREATE TABLE "Measurement" (
 CREATE TABLE "Workout" (
     "workout_id" SERIAL NOT NULL,
     "repetition_count_left" INTEGER NOT NULL,
+    "order_index" INTEGER NOT NULL,
     "date_scheduled" TIMESTAMP(3),
     "date_completed" TIMESTAMP(3),
     "performance_rating" DOUBLE PRECISION,
@@ -93,7 +96,7 @@ CREATE TABLE "MuscleRegion" (
 CREATE TABLE "Excercise" (
     "excercise_id" SERIAL NOT NULL,
     "excercise_name" TEXT NOT NULL,
-    "excercise_description" TEXT,
+    "excercise_preparation" TEXT,
     "excercise_instructions" TEXT,
     "excercise_tips" TEXT,
     "excercise_utility" "ExcerciseUtility"[],
@@ -108,12 +111,11 @@ CREATE TABLE "ExcerciseSet" (
     "excercise_set_id" SERIAL NOT NULL,
     "workout_id" INTEGER NOT NULL,
     "excercise_id" INTEGER NOT NULL,
-    "weight" DOUBLE PRECISION NOT NULL,
+    "target_weight" DOUBLE PRECISION NOT NULL,
     "weight_unit" "WeightUnit" NOT NULL,
     "target_reps" INTEGER NOT NULL,
-    "actual_reps" INTEGER,
     "actual_weight" DOUBLE PRECISION,
-    "actual_weight_unit" INTEGER,
+    "actual_reps" INTEGER,
 
     CONSTRAINT "ExcerciseSet_pkey" PRIMARY KEY ("excercise_set_id")
 );
@@ -174,6 +176,9 @@ CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 CREATE UNIQUE INDEX "User_firebase_uid_key" ON "User"("firebase_uid");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "MuscleRegion_muscle_region_name_key" ON "MuscleRegion"("muscle_region_name");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "_target_AB_unique" ON "_target"("A", "B");
 
 -- CreateIndex
@@ -204,10 +209,10 @@ CREATE UNIQUE INDEX "_BroadCastToUser_AB_unique" ON "_BroadCastToUser"("A", "B")
 CREATE INDEX "_BroadCastToUser_B_index" ON "_BroadCastToUser"("B");
 
 -- AddForeignKey
-ALTER TABLE "ExcerciseRestTimeRange" ADD CONSTRAINT "ExcerciseRestTimeRange_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "User"("user_id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "ExcerciseMetadata" ADD CONSTRAINT "ExcerciseMetadata_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "User"("user_id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "ExcerciseRestTimeRange" ADD CONSTRAINT "ExcerciseRestTimeRange_excercise_id_fkey" FOREIGN KEY ("excercise_id") REFERENCES "Excercise"("excercise_id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "ExcerciseMetadata" ADD CONSTRAINT "ExcerciseMetadata_excercise_id_fkey" FOREIGN KEY ("excercise_id") REFERENCES "Excercise"("excercise_id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Measurement" ADD CONSTRAINT "Measurement_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "User"("user_id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -219,7 +224,7 @@ ALTER TABLE "Measurement" ADD CONSTRAINT "Measurement_muscle_region_id_fkey" FOR
 ALTER TABLE "Workout" ADD CONSTRAINT "Workout_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "User"("user_id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "ExcerciseSet" ADD CONSTRAINT "ExcerciseSet_workout_id_fkey" FOREIGN KEY ("workout_id") REFERENCES "Workout"("workout_id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "ExcerciseSet" ADD CONSTRAINT "ExcerciseSet_workout_id_fkey" FOREIGN KEY ("workout_id") REFERENCES "Workout"("workout_id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "ExcerciseSet" ADD CONSTRAINT "ExcerciseSet_excercise_id_fkey" FOREIGN KEY ("excercise_id") REFERENCES "Excercise"("excercise_id") ON DELETE RESTRICT ON UPDATE CASCADE;

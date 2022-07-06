@@ -1,15 +1,37 @@
 import { ForbiddenError } from 'apollo-server';
 import { onlyAuthenticated } from "../../../service/firebase_service";
 
+export const generateWorkouts = async ( _:any, args: any, context:any ) => {
+    onlyAuthenticated(context)
+    // custom logic for generating workouts based on user type
+}
 
 export const createWorkout = async ( _:any, args: any, context:any ) => {
+    // only used when the user wishes to create new workout on existing ones
     onlyAuthenticated(context)
     const prisma = context.dataSources.prisma
     const {excercise_sets, ...otherArgs} = args
+    
+    // Get all the active workouts
+    const active_workouts = await prisma.workout.findMany({
+        where: {
+            date_completed : null
+        },
+    })
 
+    // get the highest order index
+    var highest_order_index = -1
+    for (var i = 0; i < active_workouts.length; i++) {
+        if ( active_workouts[i].order_index > highest_order_index) {
+            highest_order_index = active_workouts[i].order_index;
+        }
+    }
+
+    // create a new workout based on provided arguments and slot it behind the last active workout
     const newWorkout = await prisma.workout.create({
         data: {
             user_id: context.user.user_id,
+            order_index: highest_order_index + 1,
             ...otherArgs,
             excercise_sets: { 
                 create: excercise_sets
@@ -29,6 +51,7 @@ export const createWorkout = async ( _:any, args: any, context:any ) => {
 }
 
 export const updateWorkout = async ( _:any, args: any, context:any ) => {
+    // responsibility of reordering is done on the frontend
     onlyAuthenticated(context)
     const {workout_id, excercise_sets, ...otherArgs} = args
     const prisma = context.dataSources.prisma
@@ -79,7 +102,8 @@ export const deleteWorkout = async ( _:any, args: any, context:any ) => {
             workout_id: args.workout_id
         }
     })
-    if (targetWorkout.user_id !== context.user.user_id) {
+
+    if (targetWorkout.user_id != context.user.user_id) {
         throw new ForbiddenError('You are not authororized to remove this object.');
     }
 
@@ -88,6 +112,31 @@ export const deleteWorkout = async ( _:any, args: any, context:any ) => {
             workout_id: args.workout_id,
         },
     })
+    // Reorder the remaining active workouts
+    const active_workouts = await prisma.workout.findMany({
+        where: {
+            date_completed : null
+        },
+        orderBy: {
+            order_index: 'asc',
+        },
+    })
+    for (var i = 0; i < active_workouts.length; i++) {
+        const {order_index, workout_id , ...otherArgs} = active_workouts[i] 
+        if (i != order_index) {
+            await prisma.workout.update({
+                where: {
+                    workout_id : workout_id
+                },
+                data: {
+                    order_index: i,
+                    ...otherArgs, 
+                    excercise_sets: undefined
+                },
+            })
+        }
+    }
+
     return {
         code: "200",
         success: true,

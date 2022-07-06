@@ -104,6 +104,7 @@ exports.resolvers = {
             });
         }
     },
+    // workout query
     Workout: {
         excercise_sets(parent, args, context, info) {
             return __awaiter(this, void 0, void 0, function* () {
@@ -162,6 +163,24 @@ exports.resolvers = {
                         dynamic_stabilizer_muscles: {
                             some: { excercise_id: parent.excercise_id }
                         }
+                    }
+                });
+            });
+        },
+        excerciseMetadata(parent, args, context, info) {
+            return __awaiter(this, void 0, void 0, function* () {
+                const prisma = context.dataSources.prisma;
+                console.log(context.user.user_id);
+                console.log(yield prisma.excerciseMetadata.findMany({
+                    where: {
+                        excercise_id: parent.excercise_id,
+                        user_id: context.user.user_id,
+                    }
+                }));
+                return yield prisma.excerciseMetadata.findMany({
+                    where: {
+                        excercise_id: parent.excercise_id,
+                        user_id: context.user.user_id,
                     }
                 });
             });
