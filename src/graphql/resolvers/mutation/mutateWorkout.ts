@@ -62,6 +62,7 @@ export const updateWorkout = async ( _:any, args: any, context:any ) => {
             workout_id: workout_id
         }
     })
+    
     if (targetWorkout.user_id !== context.user.user_id) {
         throw new ForbiddenError('You are not authororized to remove this object.');
     }

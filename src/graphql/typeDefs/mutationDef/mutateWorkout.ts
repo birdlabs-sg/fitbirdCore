@@ -33,7 +33,6 @@ export const mutateWorkout = gql`
         "[PROTECTED] Updates a workout object (Must belong to the requestor). Note: This will replace any existing excercise sets."
         updateWorkout(
             workout_id: Int!
-            repetition_count_left: Int!,
             date_scheduled:String,
             date_completed:String,
             performance_rating:Float,
