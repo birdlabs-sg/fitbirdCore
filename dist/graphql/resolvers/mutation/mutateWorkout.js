@@ -20,7 +20,7 @@ var __rest = (this && this.__rest) || function (s, e) {
     return t;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteWorkout = exports.updateWorkout = exports.createWorkout = exports.generateWorkouts = void 0;
+exports.deleteWorkout = exports.updateWorkout = exports.updateWorkoutOrder = exports.createWorkout = exports.generateWorkouts = void 0;
 const apollo_server_1 = require("apollo-server");
 const firebase_service_1 = require("../../../service/firebase_service");
 const generateWorkouts = (_, args, context) => __awaiter(void 0, void 0, void 0, function* () {
@@ -65,6 +65,45 @@ const createWorkout = (_, args, context) => __awaiter(void 0, void 0, void 0, fu
     };
 });
 exports.createWorkout = createWorkout;
+const updateWorkoutOrder = (_, args, context) => __awaiter(void 0, void 0, void 0, function* () {
+    let { oldIndex, newIndex } = args;
+    const prisma = context.dataSources.prisma;
+    const active_workouts = yield prisma.workout.findMany({
+        where: {
+            date_completed: null
+        },
+        orderBy: {
+            order_index: 'asc',
+        },
+    });
+    if (oldIndex < newIndex) {
+        newIndex -= 1;
+    }
+    const workout = active_workouts.splice(oldIndex, 1)[0];
+    active_workouts.splice(newIndex, 0, workout);
+    for (var i = 0; i < active_workouts.length; i++) {
+        const { workout_id } = active_workouts[i];
+        yield prisma.workout.update({
+            where: {
+                workout_id: workout_id
+            },
+            data: {
+                order_index: i,
+                excercise_sets: undefined
+            },
+        });
+    }
+    return yield prisma.workout.findMany({
+        where: {
+            user_id: context.user_id,
+            date_completed: null
+        },
+        orderBy: {
+            order_index: 'asc'
+        }
+    });
+});
+exports.updateWorkoutOrder = updateWorkoutOrder;
 const updateWorkout = (_, args, context) => __awaiter(void 0, void 0, void 0, function* () {
     // responsibility of reordering is done on the frontend
     (0, firebase_service_1.onlyAuthenticated)(context);

@@ -4,7 +4,7 @@ import { createBroadcast, deleteBroadcast, updateBroadcast } from "./mutation/mu
 import { createExcercise, deleteExcercise, updateExcercise } from "./mutation/mutateExcercise";
 import { createMeasurement, deleteMeasurement, updateMeasurement } from "./mutation/mutateMeasurement";
 import { createMuscleRegion, deleteMuscleRegion, updateMuscleRegion } from "./mutation/mutateMuscleRegion";
-import { createWorkout, deleteWorkout, updateWorkout } from "./mutation/mutateWorkout";
+import { createWorkout, deleteWorkout, updateWorkout, updateWorkoutOrder } from "./mutation/mutateWorkout";
 import { mutateSignup } from "./mutation/mutateSignup";
 import { broadCastsQueryResolver } from "./query/queryBroadcasts";
 import { excercisesQueryResolver } from "./query/queryExcercises";
@@ -30,6 +30,7 @@ export const resolvers = {
         createWorkout: createWorkout,
         updateWorkout: updateWorkout,
         deleteWorkout: deleteWorkout,
+        updateWorkoutOrder: updateWorkoutOrder,
         createMuscleRegion: createMuscleRegion,
         updateMuscleRegion: updateMuscleRegion,
         deleteMuscleRegion: deleteMuscleRegion,

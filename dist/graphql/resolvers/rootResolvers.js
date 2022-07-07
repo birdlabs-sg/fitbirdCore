@@ -41,6 +41,7 @@ exports.resolvers = {
         createWorkout: mutateWorkout_1.createWorkout,
         updateWorkout: mutateWorkout_1.updateWorkout,
         deleteWorkout: mutateWorkout_1.deleteWorkout,
+        updateWorkoutOrder: mutateWorkout_1.updateWorkoutOrder,
         createMuscleRegion: mutateMuscleRegion_1.createMuscleRegion,
         updateMuscleRegion: mutateMuscleRegion_1.updateMuscleRegion,
         deleteMuscleRegion: mutateMuscleRegion_1.deleteMuscleRegion,

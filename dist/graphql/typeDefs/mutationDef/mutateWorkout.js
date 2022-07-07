@@ -11,6 +11,14 @@ exports.mutateWorkout = gql `
         workout: Workout
     }
 
+    "Response if mutating the workout order succeeds"
+    type mutateWorkoutOrderResponse implements MutationResponse {
+        code: String!
+        success: Boolean!
+        message: String!
+        workouts: [Workout]
+    }
+
     "Optional input parameters for inline creation of excercise blocks within createWorkout mutation"
     input  excerciseSetInput {
         excercise_id: Int!,
@@ -43,6 +51,12 @@ exports.mutateWorkout = gql `
             excercise_sets: [excerciseSetInput] 
         )
         : mutateWorkoutResponse
+
+        updateWorkoutOrder(
+            oldIndex: Int
+            newIndex: Int
+        )
+        : mutateWorkoutOrderResponse
 
         "[PROTECTED] Deletes a workout object (Must belong to the requestor)."
         deleteWorkout(

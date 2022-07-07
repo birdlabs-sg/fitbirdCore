@@ -50,6 +50,45 @@ export const createWorkout = async ( _:any, args: any, context:any ) => {
     }
 }
 
+export const updateWorkoutOrder = async ( _:any, args: any, context:any ) => {
+    let {oldIndex, newIndex} = args;
+    const prisma = context.dataSources.prisma
+    const active_workouts = await prisma.workout.findMany({
+        where: {
+            date_completed : null
+        },
+        orderBy: {
+            order_index: 'asc',
+        },
+    })
+    if (oldIndex < newIndex) {
+        newIndex -= 1;
+    }
+    const workout = active_workouts.splice(oldIndex,1)[0]
+    active_workouts.splice(newIndex, 0, workout);
+    for (var i = 0; i< active_workouts.length; i++) {
+        const {workout_id} = active_workouts[i]; 
+        await prisma.workout.update({
+            where: {
+                workout_id : workout_id
+            },
+            data: {
+                order_index: i,
+                excercise_sets: undefined
+            },
+        })
+    }
+    return await prisma.workout.findMany({
+        where: {
+            user_id: context.user_id,
+            date_completed: null
+        },
+        orderBy: {
+            order_index: 'asc'
+        }
+    });
+}
+
 export const updateWorkout = async ( _:any, args: any, context:any ) => {
     // responsibility of reordering is done on the frontend
     onlyAuthenticated(context)
@@ -62,7 +101,7 @@ export const updateWorkout = async ( _:any, args: any, context:any ) => {
             workout_id: workout_id
         }
     })
-    
+
     if (targetWorkout.user_id !== context.user.user_id) {
         throw new ForbiddenError('You are not authororized to remove this object.');
     }
@@ -122,6 +161,7 @@ export const deleteWorkout = async ( _:any, args: any, context:any ) => {
             order_index: 'asc',
         },
     })
+
     for (var i = 0; i < active_workouts.length; i++) {
         const {order_index, workout_id , ...otherArgs} = active_workouts[i] 
         if (i != order_index) {
