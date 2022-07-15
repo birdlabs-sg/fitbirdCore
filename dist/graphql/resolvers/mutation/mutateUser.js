@@ -16,7 +16,7 @@ const updateUser = (_, args, context) => __awaiter(void 0, void 0, void 0, funct
     const prisma = context.dataSources.prisma;
     const updatedUser = yield prisma.user.update({
         where: {
-            user_id: context.user.user_id
+            user_id: context.user.user_id,
         },
         data: args,
     });
@@ -24,7 +24,7 @@ const updateUser = (_, args, context) => __awaiter(void 0, void 0, void 0, funct
         code: "200",
         success: true,
         message: "Successfully updated your profile!",
-        user: updatedUser
+        user: updatedUser,
     };
 });
 exports.updateUser = updateUser;

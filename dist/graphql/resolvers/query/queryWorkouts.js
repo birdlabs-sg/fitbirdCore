@@ -14,34 +14,38 @@ const firebase_service_1 = require("../../../service/firebase_service");
 const workoutsQueryResolver = (parent, args, context, info) => __awaiter(void 0, void 0, void 0, function* () {
     (0, firebase_service_1.onlyAuthenticated)(context);
     const prisma = context.dataSources.prisma;
-    console.log(args.filter);
-    let workouts;
     switch (args.filter) {
-        case 'ACTIVE':
+        case "ACTIVE":
             return yield prisma.workout.findMany({
                 where: {
-                    user_id: context.user_id,
-                    date_completed: null
+                    workoutGroup: {
+                        user_id: context.user.user_id,
+                    },
+                    date_completed: null,
                 },
                 orderBy: {
-                    order_index: 'asc'
-                }
+                    order_index: "asc",
+                },
             });
-        case 'COMPLETED':
+        case "COMPLETED":
             return yield prisma.workout.findMany({
                 where: {
-                    user_id: context.user_id,
-                    date_completed: { not: null }
+                    workoutGroup: {
+                        user_id: context.user.user_id,
+                    },
+                    date_completed: { not: null },
                 },
                 orderBy: {
-                    date_completed: 'asc'
-                }
+                    date_completed: "asc",
+                },
             });
-        case 'NONE':
+        case "NONE":
             return yield prisma.workout.findMany({
                 where: {
-                    user_id: context.user_id
-                }
+                    workoutGroup: {
+                        user_id: context.user.user_id,
+                    },
+                },
             });
     }
 });

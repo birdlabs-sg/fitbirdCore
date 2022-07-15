@@ -75,7 +75,7 @@ model User {
   height_unit  LengthUnit?
   phoneNumber  String?
   measurements Measurement[]
-  workouts     Workout[]
+  workoutGroups     WorkoutGroup[]
   notifications Notification[]
   broadcasts  BroadCast[]
   excerciseMetadata ExcerciseMetadata[]
@@ -105,15 +105,23 @@ model Measurement {
   muscle_region_id Int
 }
 
+model WorkoutGroup {
+  workout_group_id Int @id @default(autoincrement())
+  workout_group_name String
+  life_span Int
+  user               User             @relation(fields: [user_id], references: [user_id])
+  user_id            Int
+  workouts Workout[] // workouts involved
+}
+
 model Workout {
-  workout_id         Int              @id @default(autoincrement())
-  repetition_count_left Int     // Keeps track of when to change excercises
-  order_index Int               // Keeps track of the order of workout
+  workout_id            Int              @id @default(autoincrement())
+  order_index           Int     // Keeps track of the order of workout
   date_scheduled     DateTime?
   date_completed     DateTime?
   performance_rating Float?
-  user               User             @relation(fields: [user_id], references: [user_id])
-  user_id            Int
+  workoutGroup               WorkoutGroup             @relation(fields: [workout_group_id], references: [workout_group_id])
+  workout_group_id            Int
   excercise_sets     ExcerciseSet[]
 }
 

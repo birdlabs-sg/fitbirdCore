@@ -33,7 +33,7 @@ const createMuscleRegion = (_, args, context) => __awaiter(void 0, void 0, void 
         code: "200",
         success: true,
         message: "Successfully created a muscle region!",
-        muscle_region: newMuscleRegion
+        muscle_region: newMuscleRegion,
     };
 });
 exports.createMuscleRegion = createMuscleRegion;
@@ -44,7 +44,7 @@ const updateMuscleRegion = (_, args, context) => __awaiter(void 0, void 0, void 
     const prisma = context.dataSources.prisma;
     const updatedMuscleRegion = yield prisma.muscleRegion.update({
         where: {
-            muscle_region_id: muscle_region_id
+            muscle_region_id: muscle_region_id,
         },
         data: otherArgs,
     });
@@ -52,7 +52,7 @@ const updateMuscleRegion = (_, args, context) => __awaiter(void 0, void 0, void 
         code: "200",
         success: true,
         message: "Successfully updated your measurement!",
-        muscle_region: updatedMuscleRegion
+        muscle_region: updatedMuscleRegion,
     };
 });
 exports.updateMuscleRegion = updateMuscleRegion;
@@ -69,7 +69,7 @@ const deleteMuscleRegion = (_, args, context) => __awaiter(void 0, void 0, void 
         code: "200",
         success: true,
         message: "Successfully removed your measurement!",
-        muscle_region: deletedMuscleRegion
+        muscle_region: deletedMuscleRegion,
     };
 });
 exports.deleteMuscleRegion = deleteMuscleRegion;

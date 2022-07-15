@@ -13,9 +13,9 @@ const rootResolvers_1 = require("./graphql/resolvers/rootResolvers");
 const rootTypeDefs_1 = require("./graphql/typeDefs/rootTypeDefs");
 const firebase_service_1 = require("./service/firebase_service");
 const apollo_server_1 = require("apollo-server");
-const { PrismaClient } = require('@prisma/client');
+const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
-const { logger } = require('./service/logging_service');
+const { logger } = require("./service/logging_service");
 const server = new apollo_server_1.ApolloServer({
     typeDefs: rootTypeDefs_1.typeDefs,
     resolvers: rootResolvers_1.resolvers,
@@ -23,7 +23,7 @@ const server = new apollo_server_1.ApolloServer({
     plugins: [logger],
     dataSources: () => {
         return {
-            prisma: prisma
+            prisma: prisma,
         };
     },
     context: ({ req }) => __awaiter(void 0, void 0, void 0, function* () {

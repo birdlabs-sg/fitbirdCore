@@ -30,17 +30,17 @@ const createBroadcast = (_, args, context) => __awaiter(void 0, void 0, void 0, 
     const usersArray = users.map((user_id) => ({ user_id: user_id }));
     const newBroadcast = yield prisma.broadCast.create({
         data: Object.assign(Object.assign({}, otherArgs), { users: {
-                connect: usersArray
+                connect: usersArray,
             } }),
         include: {
-            users: true
-        }
+            users: true,
+        },
     });
     return {
         code: "200",
         success: true,
         message: "Successfully created a broadcast!",
-        broadcast: newBroadcast
+        broadcast: newBroadcast,
     };
 });
 exports.createBroadcast = createBroadcast;
@@ -52,20 +52,20 @@ const updateBroadcast = (_, args, context) => __awaiter(void 0, void 0, void 0, 
     const usersArray = users.map((user_id) => ({ user_id: user_id }));
     const updatedBroadcast = yield prisma.broadCast.update({
         where: {
-            broad_cast_id: broad_cast_id
+            broad_cast_id: broad_cast_id,
         },
         data: Object.assign(Object.assign({}, otherArgs), { users: {
-                set: usersArray
+                set: usersArray,
             } }),
         include: {
-            users: true
-        }
+            users: true,
+        },
     });
     return {
         code: "200",
         success: true,
         message: "Successfully updated the specified broadcast!",
-        broadcast: updatedBroadcast
+        broadcast: updatedBroadcast,
     };
 });
 exports.updateBroadcast = updateBroadcast;
@@ -82,7 +82,7 @@ const deleteBroadcast = (_, args, context) => __awaiter(void 0, void 0, void 0, 
         code: "200",
         success: true,
         message: "Successfully deleted the specified broadcast.",
-        broadcast: deletedBroadcast
+        broadcast: deletedBroadcast,
     };
 });
 exports.deleteBroadcast = deleteBroadcast;

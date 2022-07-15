@@ -15,7 +15,7 @@ const notificationsQueryResolver = (parent, args, context, info) => __awaiter(vo
     (0, firebase_service_1.onlyAuthenticated)(context);
     const prisma = context.dataSources.prisma;
     return yield prisma.notification.findMany({
-        where: { user_id: context.user.user_id }
+        where: { user_id: context.user.user_id },
     });
 });
 exports.notificationsQueryResolver = notificationsQueryResolver;

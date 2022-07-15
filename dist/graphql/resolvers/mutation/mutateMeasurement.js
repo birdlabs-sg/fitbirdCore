@@ -27,22 +27,21 @@ const createMeasurement = (_, args, context) => __awaiter(void 0, void 0, void 0
     (0, firebase_service_1.onlyAuthenticated)(context);
     const prisma = context.dataSources.prisma;
     const { muscle_region_id } = args, otherArgs = __rest(args, ["muscle_region_id"]);
-    console.log(context);
     const newMeasurement = yield prisma.measurement.create({
         data: Object.assign(Object.assign({}, otherArgs), { muscle_region: {
-                connect: { muscle_region_id: muscle_region_id }
+                connect: { muscle_region_id: muscle_region_id },
             }, user: {
-                connect: { user_id: context.user.user_id }
+                connect: { user_id: context.user.user_id },
             } }),
         include: {
-            muscle_region: true
-        }
+            muscle_region: true,
+        },
     });
     return {
         code: "200",
         success: true,
         message: "Successfully recorded your measurement!",
-        measurement: newMeasurement
+        measurement: newMeasurement,
     };
 });
 exports.createMeasurement = createMeasurement;
@@ -53,26 +52,26 @@ const updateMeasurement = (_, args, context) => __awaiter(void 0, void 0, void 0
     // conduct check that the measurement object belongs to the user.
     const targetMeasurement = yield prisma.measurement.findUnique({
         where: {
-            measurement_id: measurement_id
-        }
+            measurement_id: measurement_id,
+        },
     });
     if (targetMeasurement.user_id !== context.user.user_id) {
-        throw new apollo_server_1.ForbiddenError('You are not authororized to mutate this object.');
+        throw new apollo_server_1.ForbiddenError("You are not authororized to mutate this object.");
     }
     const updatedMeasurement = yield prisma.measurement.update({
         where: {
-            measurement_id: measurement_id
+            measurement_id: measurement_id,
         },
         data: otherArgs,
         include: {
-            muscle_region: true
-        }
+            muscle_region: true,
+        },
     });
     return {
         code: "200",
         success: true,
         message: "Successfully updated your measurement!",
-        measurement: updatedMeasurement
+        measurement: updatedMeasurement,
     };
 });
 exports.updateMeasurement = updateMeasurement;
@@ -82,11 +81,11 @@ const deleteMeasurement = (_, args, context) => __awaiter(void 0, void 0, void 0
     // conduct check that the measurement object belongs to the user.
     const targetMeasurement = yield prisma.measurement.findUnique({
         where: {
-            measurement_id: args.measurement_id
-        }
+            measurement_id: args.measurement_id,
+        },
     });
     if (targetMeasurement.user_id !== context.user.user_id) {
-        throw new apollo_server_1.ForbiddenError('You are not authororized to remove this object.');
+        throw new apollo_server_1.ForbiddenError("You are not authororized to remove this object.");
     }
     const deletedMeasurement = yield prisma.measurement.delete({
         where: {
@@ -97,7 +96,7 @@ const deleteMeasurement = (_, args, context) => __awaiter(void 0, void 0, void 0
         code: "200",
         success: true,
         message: "Successfully removed your measurement!",
-        measurement: deletedMeasurement
+        measurement: deletedMeasurement,
     };
 });
 exports.deleteMeasurement = deleteMeasurement;

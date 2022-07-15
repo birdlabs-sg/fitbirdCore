@@ -23,6 +23,10 @@ const queryExcercises_1 = require("./query/queryExcercises");
 const queryNotifications_1 = require("./query/queryNotifications");
 const queryUser_1 = require("./query/queryUser");
 const queryWorkouts_1 = require("./query/queryWorkouts");
+const mutateExcerciseMetadata_1 = require("./mutation/mutateExcerciseMetadata");
+const queryWorkoutFrequencies_1 = require("./query/queryWorkoutFrequencies");
+const queryExcercise_1 = require("./query/queryExcercise");
+const queryExcercisePerformance_1 = require("./query/queryExcercisePerformance");
 exports.resolvers = {
     //Mutations for create, update and delete operations
     Mutation: {
@@ -42,18 +46,24 @@ exports.resolvers = {
         updateWorkout: mutateWorkout_1.updateWorkout,
         deleteWorkout: mutateWorkout_1.deleteWorkout,
         updateWorkoutOrder: mutateWorkout_1.updateWorkoutOrder,
+        completeWorkout: mutateWorkout_1.completeWorkout,
         createMuscleRegion: mutateMuscleRegion_1.createMuscleRegion,
         updateMuscleRegion: mutateMuscleRegion_1.updateMuscleRegion,
         deleteMuscleRegion: mutateMuscleRegion_1.deleteMuscleRegion,
+        createExcerciseMetadata: mutateExcerciseMetadata_1.createExcerciseMetadata,
+        updateExcerciseMetadata: mutateExcerciseMetadata_1.updateExcerciseMetadata,
     },
     //Root Query: Top level querying logic here
     Query: {
         user: queryUser_1.userQueryResolvers,
         workouts: queryWorkouts_1.workoutsQueryResolver,
+        getExcercise: queryExcercise_1.getExcerciseQueryResolver,
         excercises: queryExcercises_1.excercisesQueryResolver,
         broadcasts: queryBroadcasts_1.broadCastsQueryResolver,
         notifications: queryNotifications_1.notificationsQueryResolver,
         users: queryUser_1.userQueryResolvers,
+        workout_frequencies: queryWorkoutFrequencies_1.workoutFrequencyQueryResolver,
+        getExcercisePerformance: queryExcercisePerformance_1.excercisePerformanceQueryResolver,
     },
     // Individual model querying here.
     User: {
@@ -62,11 +72,11 @@ exports.resolvers = {
                 const prisma = context.dataSources.prisma;
                 return yield prisma.measurement.findMany({
                     where: {
-                        user_id: parent.user_id
+                        user_id: parent.user_id,
                     },
                     include: {
-                        muscle_region: true
-                    }
+                        muscle_region: true,
+                    },
                 });
             });
         },
@@ -75,8 +85,8 @@ exports.resolvers = {
                 const prisma = context.dataSources.prisma;
                 return yield prisma.workout.findMany({
                     where: {
-                        user_id: parent.user_id
-                    }
+                        user_id: parent.user_id,
+                    },
                 });
             });
         },
@@ -85,8 +95,8 @@ exports.resolvers = {
                 const prisma = context.dataSources.prisma;
                 return yield prisma.notification.findMany({
                     where: {
-                        user_id: parent.user_id
-                    }
+                        user_id: parent.user_id,
+                    },
                 });
             });
         },
@@ -97,24 +107,32 @@ exports.resolvers = {
                     where: {
                         users: {
                             some: {
-                                user_id: parent.user_id
-                            }
-                        }
-                    }
+                                user_id: parent.user_id,
+                            },
+                        },
+                    },
                 });
             });
-        }
+        },
     },
     // workout query
     Workout: {
+        workout_group(parent, args, context, info) {
+            return __awaiter(this, void 0, void 0, function* () {
+                const prisma = context.dataSources.prisma;
+                return yield prisma.workoutGroup.findUnique({
+                    where: { workout_group_id: parent.workout_group_id },
+                });
+            });
+        },
         excercise_sets(parent, args, context, info) {
             return __awaiter(this, void 0, void 0, function* () {
                 const prisma = context.dataSources.prisma;
                 return yield prisma.ExcerciseSet.findMany({
                     where: { workout_id: parent.workout_id },
                     include: {
-                        excercise: true
-                    }
+                        excercise: true,
+                    },
                 });
             });
         },
@@ -126,9 +144,9 @@ exports.resolvers = {
                 return yield prisma.muscleRegion.findMany({
                     where: {
                         target_muscles: {
-                            some: { excercise_id: parent.excercise_id }
-                        }
-                    }
+                            some: { excercise_id: parent.excercise_id },
+                        },
+                    },
                 });
             });
         },
@@ -138,9 +156,9 @@ exports.resolvers = {
                 return yield prisma.muscleRegion.findMany({
                     where: {
                         stabilizer_muscles: {
-                            some: { excercise_id: parent.excercise_id }
-                        }
-                    }
+                            some: { excercise_id: parent.excercise_id },
+                        },
+                    },
                 });
             });
         },
@@ -150,9 +168,9 @@ exports.resolvers = {
                 return yield prisma.muscleRegion.findMany({
                     where: {
                         synergist_muscles: {
-                            some: { excercise_id: parent.excercise_id }
-                        }
-                    }
+                            some: { excercise_id: parent.excercise_id },
+                        },
+                    },
                 });
             });
         },
@@ -162,27 +180,22 @@ exports.resolvers = {
                 return yield prisma.muscleRegion.findMany({
                     where: {
                         dynamic_stabilizer_muscles: {
-                            some: { excercise_id: parent.excercise_id }
-                        }
-                    }
+                            some: { excercise_id: parent.excercise_id },
+                        },
+                    },
                 });
             });
         },
         excerciseMetadata(parent, args, context, info) {
             return __awaiter(this, void 0, void 0, function* () {
                 const prisma = context.dataSources.prisma;
-                console.log(context.user.user_id);
-                console.log(yield prisma.excerciseMetadata.findMany({
+                return yield prisma.excerciseMetadata.findUnique({
                     where: {
-                        excercise_id: parent.excercise_id,
-                        user_id: context.user.user_id,
-                    }
-                }));
-                return yield prisma.excerciseMetadata.findMany({
-                    where: {
-                        excercise_id: parent.excercise_id,
-                        user_id: context.user.user_id,
-                    }
+                        user_id_excercise_id: {
+                            excercise_id: parent.excercise_id,
+                            user_id: context.user.user_id,
+                        },
+                    },
                 });
             });
         },
@@ -194,9 +207,9 @@ exports.resolvers = {
                 return yield prisma.user.findMany({
                     where: {
                         broadcasts: {
-                            some: { broad_cast_id: parent.broad_cast_id }
-                        }
-                    }
+                            some: { broad_cast_id: parent.broad_cast_id },
+                        },
+                    },
                 });
             });
         },

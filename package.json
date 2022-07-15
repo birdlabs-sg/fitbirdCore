@@ -17,6 +17,7 @@
     "dotenv": "^16.0.1",
     "firebase-admin": "^10.2.0",
     "graphql": "^15.8.0",
+    "moment": "^2.29.4",
     "prisma": "^3.13.0"
   },
   "devDependencies": {

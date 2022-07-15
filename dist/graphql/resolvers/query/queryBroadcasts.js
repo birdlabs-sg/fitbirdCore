@@ -18,10 +18,10 @@ const broadCastsQueryResolver = (parent, args, context, info) => __awaiter(void 
         where: {
             users: {
                 some: {
-                    user_id: context.user_id
-                }
-            }
-        }
+                    user_id: context.user_id,
+                },
+            },
+        },
     });
 });
 exports.broadCastsQueryResolver = broadCastsQueryResolver;

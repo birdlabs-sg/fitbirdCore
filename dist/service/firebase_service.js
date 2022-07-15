@@ -35,21 +35,21 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.getFirebaseIdToken = exports.onlyAdmin = exports.onlyAuthenticated = exports.authenticate = exports.getAuthToken = exports.signupFirebase = void 0;
 const apollo_server_1 = require("apollo-server");
 const admin = __importStar(require("firebase-admin"));
-const { PrismaClient } = require('@prisma/client');
+const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
-const dotenv = require('dotenv');
+const dotenv = require("dotenv");
 dotenv.config();
-const axios = require('axios').default;
+const axios = require("axios").default;
 // Initializes the firebaseAuth service
 const firebase = admin.initializeApp({
     credential: admin.credential.cert({
-        privateKey: process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY.replace(/\\n/gm, '\n'),
+        privateKey: process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY.replace(/\\n/gm, "\n"),
         clientEmail: process.env.GOOGLE_SERVICE_ACCOUNT_CLIENT_EMAIL,
         projectId: process.env.GOOGLE_SERVICE_ACCOUNT_PROJECT_ID,
     }),
 });
 const signupFirebase = (email, phoneNumber, password, displayName) => __awaiter(void 0, void 0, void 0, function* () {
-    // Done in backend so as to create an instance within our database as well.  
+    // Done in backend so as to create an instance within our database as well.
     const firebaseUser = yield firebase.auth().createUser({
         email: email,
         emailVerified: false,
@@ -63,7 +63,7 @@ const signupFirebase = (email, phoneNumber, password, displayName) => __awaiter(
             firebase_uid: firebaseUser.uid,
             email: firebaseUser.email,
             phoneNumber: firebaseUser.phoneNumber,
-            displayName: firebaseUser.displayName
+            displayName: firebaseUser.displayName,
         },
     });
     return prismaUser;
@@ -83,33 +83,29 @@ const authenticate = (token) => __awaiter(void 0, void 0, void 0, function* () {
         return { authenticated: false, user: null, isAdmin: null };
     }
     try {
-        const fireBaseUser = yield firebase
-            .auth()
-            .verifyIdToken(token);
+        const fireBaseUser = yield firebase.auth().verifyIdToken(token);
         const user = yield prisma.user.findUnique({
             where: {
-                firebase_uid: fireBaseUser.uid
-            }
+                firebase_uid: fireBaseUser.uid,
+            },
         });
         return { authenticated: true, user: user, isAdmin: !!fireBaseUser.admin };
     }
     catch (e) {
         console.log("HAVE TOKEN BUT FAILED TO AUTHENTICATE");
-        console.log(e);
         return { authenticated: false, user: null, isAdmin: null };
     }
 });
 exports.authenticate = authenticate;
 const onlyAuthenticated = (context) => {
     if (!context.authenticated) {
-        console.log(context);
-        throw new apollo_server_1.AuthenticationError('You are not authenticated.');
+        throw new apollo_server_1.AuthenticationError("You are not authenticated.");
     }
 };
 exports.onlyAuthenticated = onlyAuthenticated;
 const onlyAdmin = (context) => {
     if (!context.isAdmin) {
-        throw new apollo_server_1.ForbiddenError('You are not authorized.');
+        throw new apollo_server_1.ForbiddenError("You are not authorized.");
     }
 };
 exports.onlyAdmin = onlyAdmin;
@@ -117,10 +113,10 @@ const getFirebaseIdToken = (uid) => __awaiter(void 0, void 0, void 0, function* 
     const customToken = yield firebase.auth().createCustomToken(uid);
     const res = yield axios({
         url: `https://www.googleapis.com/identitytoolkit/v3/relyingparty/verifyCustomToken?key=${process.env.GOOGLE_API_KEY}`,
-        method: 'post',
+        method: "post",
         data: {
             token: customToken,
-            returnSecureToken: true
+            returnSecureToken: true,
         },
         json: true,
     });

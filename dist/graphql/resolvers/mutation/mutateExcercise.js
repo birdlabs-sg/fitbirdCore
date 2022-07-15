@@ -27,32 +27,38 @@ const createExcercise = (_, args, context) => __awaiter(void 0, void 0, void 0, 
     (0, firebase_service_1.onlyAdmin)(context);
     const prisma = context.dataSources.prisma;
     const { target_regions, synergist_muscles, dynamic_stabilizer_muscles, stabilizer_muscles } = args, otherArgs = __rest(args, ["target_regions", "synergist_muscles", "dynamic_stabilizer_muscles", "stabilizer_muscles"]);
-    const targetRegionArray = target_regions.map((target_region_id) => ({ muscle_region_id: target_region_id }));
+    const targetRegionArray = target_regions.map((target_region_id) => ({
+        muscle_region_id: target_region_id,
+    }));
     const synergistMusclesArray = synergist_muscles.map((synergist_muscles_id) => ({ muscle_region_id: synergist_muscles_id }));
-    const dynamicStabilizerMusclesArray = dynamic_stabilizer_muscles.map((dynamic_stabilizer_muscles_id) => ({ muscle_region_id: dynamic_stabilizer_muscles_id }));
-    const stabilizerMusclesArray = stabilizer_muscles.map((stabilizer_muscles_id) => ({ muscle_region_id: stabilizer_muscles_id }));
+    const dynamicStabilizerMusclesArray = dynamic_stabilizer_muscles.map((dynamic_stabilizer_muscles_id) => ({
+        muscle_region_id: dynamic_stabilizer_muscles_id,
+    }));
+    const stabilizerMusclesArray = stabilizer_muscles.map((stabilizer_muscles_id) => ({
+        muscle_region_id: stabilizer_muscles_id,
+    }));
     const newExcercise = yield prisma.excercise.create({
         data: Object.assign(Object.assign({}, otherArgs), { target_regions: {
-                connect: targetRegionArray
+                connect: targetRegionArray,
             }, stabilizer_muscles: {
-                connect: stabilizerMusclesArray
+                connect: stabilizerMusclesArray,
             }, synergist_muscles: {
-                connect: synergistMusclesArray
+                connect: synergistMusclesArray,
             }, dynamic_stabilizer_muscles: {
-                connect: dynamicStabilizerMusclesArray
+                connect: dynamicStabilizerMusclesArray,
             } }),
         include: {
             target_regions: true,
             stabilizer_muscles: true,
             synergist_muscles: true,
             dynamic_stabilizer_muscles: true,
-        }
+        },
     });
     return {
         code: "200",
         success: true,
         message: "Successfully created an excercise!",
-        excercise: newExcercise
+        excercise: newExcercise,
     };
 });
 exports.createExcercise = createExcercise;
@@ -61,35 +67,41 @@ const updateExcercise = (_, args, context) => __awaiter(void 0, void 0, void 0, 
     (0, firebase_service_1.onlyAdmin)(context);
     const prisma = context.dataSources.prisma;
     const { excercise_id, target_regions, synergist_muscles, dynamic_stabilizer_muscles, stabilizer_muscles } = args, otherArgs = __rest(args, ["excercise_id", "target_regions", "synergist_muscles", "dynamic_stabilizer_muscles", "stabilizer_muscles"]);
-    const targetRegionArray = target_regions.map((target_region_id) => ({ muscle_region_id: target_region_id }));
+    const targetRegionArray = target_regions.map((target_region_id) => ({
+        muscle_region_id: target_region_id,
+    }));
     const synergistMusclesArray = synergist_muscles.map((synergist_muscles_id) => ({ muscle_region_id: synergist_muscles_id }));
-    const dynamicStabilizerMusclesArray = dynamic_stabilizer_muscles.map((dynamic_stabilizer_muscles_id) => ({ muscle_region_id: dynamic_stabilizer_muscles_id }));
-    const stabilizerMusclesArray = stabilizer_muscles.map((stabilizer_muscles_id) => ({ muscle_region_id: stabilizer_muscles_id }));
+    const dynamicStabilizerMusclesArray = dynamic_stabilizer_muscles.map((dynamic_stabilizer_muscles_id) => ({
+        muscle_region_id: dynamic_stabilizer_muscles_id,
+    }));
+    const stabilizerMusclesArray = stabilizer_muscles.map((stabilizer_muscles_id) => ({
+        muscle_region_id: stabilizer_muscles_id,
+    }));
     const updatedExcercise = yield prisma.excercise.update({
         where: {
-            excercise_id: excercise_id
+            excercise_id: excercise_id,
         },
         data: Object.assign(Object.assign({}, otherArgs), { target_regions: {
-                set: targetRegionArray
+                set: targetRegionArray,
             }, stabilizer_muscles: {
-                set: stabilizerMusclesArray
+                set: stabilizerMusclesArray,
             }, synergist_muscles: {
-                set: synergistMusclesArray
+                set: synergistMusclesArray,
             }, dynamic_stabilizer_muscles: {
-                set: dynamicStabilizerMusclesArray
+                set: dynamicStabilizerMusclesArray,
             } }),
         include: {
             target_regions: true,
             stabilizer_muscles: true,
             synergist_muscles: true,
             dynamic_stabilizer_muscles: true,
-        }
+        },
     });
     return {
         code: "200",
         success: true,
         message: "Successfully updated the specified excercise!",
-        excercise: updatedExcercise
+        excercise: updatedExcercise,
     };
 });
 exports.updateExcercise = updateExcercise;
@@ -106,7 +118,7 @@ const deleteExcercise = (_, args, context) => __awaiter(void 0, void 0, void 0, 
         code: "200",
         success: true,
         message: "Successfully deleted the specified excercise.",
-        excercise: deletedExcercise
+        excercise: deletedExcercise,
     };
 });
 exports.deleteExcercise = deleteExcercise;

@@ -71,14 +71,23 @@ CREATE TABLE "Measurement" (
 );
 
 -- CreateTable
+CREATE TABLE "WorkoutGroup" (
+    "workout_group_id" SERIAL NOT NULL,
+    "workout_group_name" TEXT NOT NULL,
+    "life_span" INTEGER NOT NULL,
+    "user_id" INTEGER NOT NULL,
+
+    CONSTRAINT "WorkoutGroup_pkey" PRIMARY KEY ("workout_group_id")
+);
+
+-- CreateTable
 CREATE TABLE "Workout" (
     "workout_id" SERIAL NOT NULL,
-    "repetition_count_left" INTEGER NOT NULL,
     "order_index" INTEGER NOT NULL,
     "date_scheduled" TIMESTAMP(3),
     "date_completed" TIMESTAMP(3),
     "performance_rating" DOUBLE PRECISION,
-    "user_id" INTEGER NOT NULL,
+    "workout_group_id" INTEGER NOT NULL,
 
     CONSTRAINT "Workout_pkey" PRIMARY KEY ("workout_id")
 );
@@ -221,7 +230,10 @@ ALTER TABLE "Measurement" ADD CONSTRAINT "Measurement_user_id_fkey" FOREIGN KEY 
 ALTER TABLE "Measurement" ADD CONSTRAINT "Measurement_muscle_region_id_fkey" FOREIGN KEY ("muscle_region_id") REFERENCES "MuscleRegion"("muscle_region_id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Workout" ADD CONSTRAINT "Workout_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "User"("user_id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "WorkoutGroup" ADD CONSTRAINT "WorkoutGroup_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "User"("user_id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Workout" ADD CONSTRAINT "Workout_workout_group_id_fkey" FOREIGN KEY ("workout_group_id") REFERENCES "WorkoutGroup"("workout_group_id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "ExcerciseSet" ADD CONSTRAINT "ExcerciseSet_workout_id_fkey" FOREIGN KEY ("workout_id") REFERENCES "Workout"("workout_id") ON DELETE CASCADE ON UPDATE CASCADE;

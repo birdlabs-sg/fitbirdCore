@@ -94,7 +94,6 @@ async function loadExcercise(filepath) {
         const newExcercises = await prisma.excercise.create({
             data: newArgs
         })
-        console.log(newExcercises)
     }
 }
 
@@ -104,21 +103,15 @@ async function deleteExcercise(excercise_id) {
         excercise_id : excercise_id
     }}
     )
-    console.log(deletedExcercise)
 }
 
 
 async function getExcercises() {
     excercises = await prisma.excercise.findMany()
-    console.log(excercises)
 }
 
 loadExcercise()
 
 
-// deleteExcercise([1,2,3,4,5,6,7,8]);
-// getExcercises();
-
-// console.log(arr)
 
 

@@ -1,1 +1,1 @@
-{"version":3,"file":"workout.js","sourceRoot":"","sources":["../../../../src/graphql/typeDefs/objectDef/workout.ts"],"names":[],"mappings":";;;AAAA,MAAM,EAAE,GAAG,EAAE,GAAG,OAAO,CAAC,eAAe,CAAC,CAAC;AAG5B,QAAA,OAAO,GAAG,GAAG,CAAA;;;;;;;;;;;;CAYzB,CAAC"}
+{"version":3,"file":"workout.js","sourceRoot":"","sources":["../../../../src/graphql/typeDefs/objectDef/workout.ts"],"names":[],"mappings":";;;AAAA,MAAM,EAAE,GAAG,EAAE,GAAG,OAAO,CAAC,eAAe,CAAC,CAAC;AAE5B,QAAA,OAAO,GAAG,GAAG,CAAA;;;;;;;;;;;CAWzB,CAAC"}

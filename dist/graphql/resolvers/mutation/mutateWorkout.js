@@ -20,166 +20,223 @@ var __rest = (this && this.__rest) || function (s, e) {
     return t;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteWorkout = exports.updateWorkout = exports.updateWorkoutOrder = exports.createWorkout = exports.generateWorkouts = void 0;
-const apollo_server_1 = require("apollo-server");
+exports.deleteWorkout = exports.updateWorkout = exports.completeWorkout = exports.updateWorkoutOrder = exports.createWorkout = exports.generateWorkouts = void 0;
+const workout_manager_1 = require("../../../service/workout_manager");
 const firebase_service_1 = require("../../../service/firebase_service");
 const generateWorkouts = (_, args, context) => __awaiter(void 0, void 0, void 0, function* () {
     (0, firebase_service_1.onlyAuthenticated)(context);
     // custom logic for generating workouts based on user type
 });
 exports.generateWorkouts = generateWorkouts;
+// Note: This resolver is only used when the user wishes to create new workout on existing ones.
+// Assumption: active_workouts always have order_index with no gaps when sorted. For eg: 0,1,2,3 and not 0,2,3,5
 const createWorkout = (_, args, context) => __awaiter(void 0, void 0, void 0, function* () {
-    // only used when the user wishes to create new workout on existing ones
     (0, firebase_service_1.onlyAuthenticated)(context);
     const prisma = context.dataSources.prisma;
-    const { excercise_sets } = args, otherArgs = __rest(args
-    // Get all the active workouts
-    , ["excercise_sets"]);
+    const { excercise_sets, workout_group } = args, otherArgs = __rest(args, ["excercise_sets", "workout_group"]);
+    // Format the excercise_sets for prisma creation.
+    const cleaned_excercise_sets = (0, workout_manager_1.formatExcerciseSets)(excercise_sets);
     // Get all the active workouts
     const active_workouts = yield prisma.workout.findMany({
         where: {
-            date_completed: null
+            date_completed: null,
+            workoutGroup: {
+                user_id: context.user.user_id,
+            },
+        },
+        orderBy: {
+            order_index: "asc",
         },
     });
-    // get the highest order index
-    var highest_order_index = -1;
-    for (var i = 0; i < active_workouts.length; i++) {
-        if (active_workouts[i].order_index > highest_order_index) {
-            highest_order_index = active_workouts[i].order_index;
-        }
-    }
-    // create a new workout based on provided arguments and slot it behind the last active workout
-    const newWorkout = yield prisma.workout.create({
-        data: Object.assign(Object.assign({ user_id: context.user.user_id, order_index: highest_order_index + 1 }, otherArgs), { excercise_sets: {
-                create: excercise_sets
+    // Create new workout group
+    const workoutGroup = yield prisma.workoutGroup.create({
+        data: Object.assign(Object.assign({ user: {
+                connect: { user_id: context.user.user_id },
+            } }, workout_group), { workouts: {
+                create: [
+                    Object.assign(Object.assign({ order_index: active_workouts.length }, otherArgs), { excercise_sets: {
+                            create: cleaned_excercise_sets,
+                        } }),
+                ],
             } }),
         include: {
-            excercise_sets: true,
-        }
+            workouts: true,
+        },
     });
     return {
         code: "200",
         success: true,
         message: "Successfully created a workout.",
-        workout: newWorkout
+        workout: workoutGroup.workouts[0],
     };
 });
 exports.createWorkout = createWorkout;
+// Assumption: active_workouts always have order_index with no gaps when sorted. For eg: 0,1,2,3 and not 0,2,3,5
 const updateWorkoutOrder = (_, args, context) => __awaiter(void 0, void 0, void 0, function* () {
     let { oldIndex, newIndex } = args;
     const prisma = context.dataSources.prisma;
-    const active_workouts = yield prisma.workout.findMany({
-        where: {
-            date_completed: null
-        },
-        orderBy: {
-            order_index: 'asc',
-        },
-    });
-    if (oldIndex < newIndex) {
-        newIndex -= 1;
-    }
-    const workout = active_workouts.splice(oldIndex, 1)[0];
-    active_workouts.splice(newIndex, 0, workout);
-    for (var i = 0; i < active_workouts.length; i++) {
-        const { workout_id } = active_workouts[i];
-        yield prisma.workout.update({
-            where: {
-                workout_id: workout_id
-            },
-            data: {
-                order_index: i,
-                excercise_sets: undefined
-            },
-        });
-    }
-    return yield prisma.workout.findMany({
-        where: {
-            user_id: context.user_id,
-            date_completed: null
-        },
-        orderBy: {
-            order_index: 'asc'
-        }
-    });
-});
-exports.updateWorkoutOrder = updateWorkoutOrder;
-const updateWorkout = (_, args, context) => __awaiter(void 0, void 0, void 0, function* () {
-    // responsibility of reordering is done on the frontend
-    (0, firebase_service_1.onlyAuthenticated)(context);
-    const { workout_id, excercise_sets } = args, otherArgs = __rest(args, ["workout_id", "excercise_sets"]);
-    const prisma = context.dataSources.prisma;
-    // note: you have to send in all the excercise_sets cos it'll be if it's not present
-    const targetWorkout = yield prisma.workout.findUnique({
-        where: {
-            workout_id: workout_id
-        }
-    });
-    if (targetWorkout.user_id !== context.user.user_id) {
-        throw new apollo_server_1.ForbiddenError('You are not authororized to remove this object.');
-    }
-    const updatedWorkout = yield prisma.workout.update({
-        where: {
-            workout_id: workout_id
-        },
-        data: Object.assign(Object.assign({}, otherArgs), { excercise_sets: {
-                deleteMany: {},
-                createMany: { data: excercise_sets },
-            } }),
-        include: {
-            excercise_sets: true,
-        }
-    });
+    yield (0, workout_manager_1.reorderActiveWorkouts)(context, oldIndex, newIndex);
     return {
         code: "200",
         success: true,
         message: "Successfully updated your workout!",
-        workout: updatedWorkout
+        workouts: yield prisma.workout.findMany({
+            where: {
+                workoutGroup: {
+                    user_id: context.user.user_id,
+                },
+                date_completed: null,
+            },
+            orderBy: {
+                order_index: "asc",
+            },
+        }),
+    };
+});
+exports.updateWorkoutOrder = updateWorkoutOrder;
+// Note: Client have to send in all the excercise_sets or it will be treated that the excercise_set is to be deleted
+const completeWorkout = (_, args, context) => __awaiter(void 0, void 0, void 0, function* () {
+    (0, firebase_service_1.onlyAuthenticated)(context);
+    const { workout_id, excercise_sets } = args;
+    const prisma = context.dataSources.prisma;
+    // Get the workout of interest
+    const targetWorkout = yield prisma.workout.findUnique({
+        where: {
+            workout_id: parseInt(workout_id),
+        },
+        include: {
+            workoutGroup: true,
+        },
+    });
+    (0, workout_manager_1.enforceWorkoutExistsAndOwnership)(context, targetWorkout);
+    // Format the excercise_sets and remove those that are to be deleted.
+    const excercise_sets_to_add = (0, workout_manager_1.formatExcerciseSets)(excercise_sets);
+    // Complete the workout object by filling date_completed and new excercise_sets. All excercise sets not present in excercise_sets_to_add will be removed from the relationship.
+    const completedWorkout = yield prisma.workout.update({
+        where: {
+            workout_id: parseInt(workout_id),
+        },
+        data: {
+            date_completed: new Date(),
+            excercise_sets: {
+                deleteMany: {},
+                createMany: { data: excercise_sets_to_add },
+            },
+        },
+        include: {
+            excercise_sets: true,
+        },
+    });
+    yield (0, workout_manager_1.reorderActiveWorkouts)(context, null, null);
+    yield (0, workout_manager_1.generateNextWorkout)(context, completedWorkout);
+    // See if want to return back the reordered workouts or just the updatedWorkout
+    return {
+        code: "200",
+        success: true,
+        message: "Successfully updated your workout!",
+        workout_id: workout_id,
+        workouts: yield prisma.workout.findMany({
+            where: {
+                date_completed: null,
+                workoutGroup: {
+                    user_id: context.user.user_id,
+                },
+            },
+            orderBy: {
+                order_index: "asc",
+            },
+            include: {
+                excercise_sets: true,
+            },
+        }),
+    };
+});
+exports.completeWorkout = completeWorkout;
+// Note: Client have to send in all the excercise_sets with associated data or it will be treated that the excercise_set is to be deleted
+const updateWorkout = (_, args, context) => __awaiter(void 0, void 0, void 0, function* () {
+    (0, firebase_service_1.onlyAuthenticated)(context);
+    const { workout_id, excercise_sets } = args, otherArgs = __rest(args, ["workout_id", "excercise_sets"]);
+    const prisma = context.dataSources.prisma;
+    // Get the workout of interest
+    const targetWorkout = yield prisma.workout.findUnique({
+        where: {
+            workout_id: parseInt(workout_id),
+        },
+        include: {
+            workoutGroup: true,
+        },
+    });
+    (0, workout_manager_1.enforceWorkoutExistsAndOwnership)(context, targetWorkout);
+    let updatedWorkout;
+    if (excercise_sets != null) {
+        // Format the excercise_sets and remove those that are to be deleted.
+        const excercise_sets_to_add = (0, workout_manager_1.formatExcerciseSets)(excercise_sets);
+        // Update the workout object with provided args. All excercise sets not present in excercise_sets_to_add will be removed from the relationship.
+        updatedWorkout = yield prisma.workout.update({
+            where: {
+                workout_id: parseInt(workout_id),
+            },
+            data: Object.assign(Object.assign({}, otherArgs), { excercise_sets: {
+                    deleteMany: {},
+                    createMany: { data: excercise_sets_to_add },
+                } }),
+            include: {
+                excercise_sets: true,
+            },
+        });
+    }
+    else {
+        updatedWorkout = yield prisma.workout.update({
+            where: {
+                workout_id: parseInt(workout_id),
+            },
+            data: Object.assign({}, otherArgs),
+            include: {
+                excercise_sets: true,
+            },
+        });
+    }
+    return {
+        code: "200",
+        success: true,
+        message: "Successfully updated your workout!",
+        workout: updatedWorkout,
     };
 });
 exports.updateWorkout = updateWorkout;
 const deleteWorkout = (_, args, context) => __awaiter(void 0, void 0, void 0, function* () {
     (0, firebase_service_1.onlyAuthenticated)(context);
     const prisma = context.dataSources.prisma;
-    // conduct check that the measurement object belongs to the user.
+    // Get the workout of interest
     const targetWorkout = yield prisma.workout.findUnique({
         where: {
-            workout_id: args.workout_id
-        }
+            workout_id: parseInt(args.workout_id),
+        },
     });
-    if (targetWorkout.user_id != context.user.user_id) {
-        throw new apollo_server_1.ForbiddenError('You are not authororized to remove this object.');
-    }
-    const deletedWorkout = yield prisma.workout.delete({
+    (0, workout_manager_1.enforceWorkoutExistsAndOwnership)(context, targetWorkout);
+    // delete the workout
+    yield prisma.workout.delete({
         where: {
-            workout_id: args.workout_id,
+            workout_id: parseInt(args.workout_id),
         },
     });
-    // Reorder the remaining active workouts
-    const active_workouts = yield prisma.workout.findMany({
-        where: {
-            date_completed: null
-        },
-        orderBy: {
-            order_index: 'asc',
-        },
-    });
-    for (var i = 0; i < active_workouts.length; i++) {
-        const _a = active_workouts[i], { order_index, workout_id } = _a, otherArgs = __rest(_a, ["order_index", "workout_id"]);
-        if (i != order_index) {
-            yield prisma.workout.update({
-                where: {
-                    workout_id: workout_id
-                },
-                data: Object.assign(Object.assign({ order_index: i }, otherArgs), { excercise_sets: undefined }),
-            });
-        }
-    }
+    // reorder remaining workouts
+    yield (0, workout_manager_1.reorderActiveWorkouts)(context, null, null);
     return {
         code: "200",
         success: true,
         message: "Successfully deleted your workout!",
-        workout: deletedWorkout
+        workouts: yield prisma.workout.findMany({
+            where: {
+                date_completed: null,
+            },
+            orderBy: {
+                order_index: "asc",
+            },
+            include: {
+                excercise_sets: true,
+            },
+        }),
     };
 });
 exports.deleteWorkout = deleteWorkout;

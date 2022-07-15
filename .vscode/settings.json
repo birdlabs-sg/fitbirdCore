@@ -1,0 +1,12 @@
+{
+    "search.exclude": {
+        "*.json": true,
+        "**/dist": true,
+        "**/excercise_data_set": true,
+        "**/migrations": true
+    },
+    "files.exclude": {
+        "**/dist": true,
+        "**/node_modules": true
+    }
+}

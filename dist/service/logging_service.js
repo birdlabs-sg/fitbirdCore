@@ -16,14 +16,13 @@ exports.logger = void 0;
 exports.logger = {
     serverWillStart() {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log('🚀  Server initializing...');
+            console.log("🚀  Server initializing...");
         });
     },
     requestDidStart(requestContext) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (requestContext.request.operationName !== 'IntrospectionQuery') {
+            if (requestContext.request.operationName !== "IntrospectionQuery") {
                 console.log(`[REQUEST] ${new Date()}`);
-                // console.log(requestContext.request)
             }
             return {
                 parsingDidStart() {
@@ -55,13 +54,13 @@ exports.logger = {
                                         console.error(err);
                                     }
                                 });
-                            }
+                            },
                         };
                     });
                 },
                 willSendResponse(context) {
                     return __awaiter(this, void 0, void 0, function* () {
-                        if (context.request.operationName !== 'IntrospectionQuery') {
+                        if (context.request.operationName !== "IntrospectionQuery") {
                             console.log(`[RESPONSE] ${new Date()}`);
                             // console.log(context.response)
                         }

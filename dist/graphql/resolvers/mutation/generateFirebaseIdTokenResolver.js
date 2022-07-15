@@ -13,12 +13,11 @@ exports.generateFirebaseIdTokenResolver = void 0;
 const firebase_service_1 = require("../../../service/firebase_service");
 const generateFirebaseIdTokenResolver = (_, { uid }) => __awaiter(void 0, void 0, void 0, function* () {
     const token = yield (0, firebase_service_1.getFirebaseIdToken)(uid);
-    console.log("THE TOKEN: ", token);
     return {
         code: "200",
         success: true,
         message: "Successfully generated Firebase Id token. Store this somewhere safe.",
-        token: token
+        token: token,
     };
 });
 exports.generateFirebaseIdTokenResolver = generateFirebaseIdTokenResolver;

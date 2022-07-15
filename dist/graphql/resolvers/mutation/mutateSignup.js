@@ -17,7 +17,7 @@ const mutateSignup = (_, { email, phoneNumber, password, displayName }) => __awa
         code: "200",
         success: true,
         message: "Successfully created an account! Welcome onboard.",
-        user: user
+        user: user,
     };
 });
 exports.mutateSignup = mutateSignup;
