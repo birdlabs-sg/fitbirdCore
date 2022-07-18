@@ -212,6 +212,9 @@ const deleteWorkout = (_, args, context) => __awaiter(void 0, void 0, void 0, fu
         where: {
             workout_id: parseInt(args.workout_id),
         },
+        include: {
+            workoutGroup: true,
+        },
     });
     (0, workout_manager_1.enforceWorkoutExistsAndOwnership)(context, targetWorkout);
     // delete the workout

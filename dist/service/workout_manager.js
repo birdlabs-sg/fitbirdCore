@@ -68,11 +68,9 @@ exports.reorderActiveWorkouts = reorderActiveWorkouts;
 const formatExcerciseSets = (unformattedExcerciseSets) => {
     const cleaned_excercise_sets = [];
     for (let i = 0; i < unformattedExcerciseSets.length; i++) {
-        if (unformattedExcerciseSets[i].to_delete == false) {
-            const _a = unformattedExcerciseSets[i], { to_delete, excercise_set_id, excercise_id } = _a, cleaned_excercise_set = __rest(_a, ["to_delete", "excercise_set_id", "excercise_id"]);
-            cleaned_excercise_set["excercise_id"] = parseInt(excercise_id);
-            cleaned_excercise_sets.push(cleaned_excercise_set);
-        }
+        const _a = unformattedExcerciseSets[i], { excercise_set_id, excercise_id } = _a, cleaned_excercise_set = __rest(_a, ["excercise_set_id", "excercise_id"]);
+        cleaned_excercise_set["excercise_id"] = parseInt(excercise_id);
+        cleaned_excercise_sets.push(cleaned_excercise_set);
     }
     return cleaned_excercise_sets;
 };

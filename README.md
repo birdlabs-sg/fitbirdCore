@@ -1,6 +1,7 @@
 # expressBackend
 
 ## Note:
+
 [Until docker-compose is implemented]
 To start dev environment,
 `npm run dev`
@@ -13,11 +14,10 @@ Once built,
 
 For production CI/CD has been setted up to look for changes in "master" branch
 
-
 ## Note:
+
 - All secrets must to be kept on GCP secrets manager without the quotation marks. (Plain text)
 - private key must remove the last EOL
-
 
 ## Helpers for docker dev:
 
@@ -38,3 +38,20 @@ Remember, you should remove all the containers before removing all the images fr
 # Windows - Command Line
 
 `for /F %i in ('docker images -a -q') do docker rmi -f %i`
+
+## Setting up editor:
+
+Set autoformatter:
+
+- press `Control + Shift + P` or `Command + Shift + P (Mac)`
+- setting > Preferences: Open User Settings
+  (This will apply autoformatter on all files. If only want for that project use workspace)
+
+Note:
+
+- .vscode folder contains configurations to IGNORE dist folders so that it won't appear in the explorer.
+
+Plugins:
+
+- Prettier
+- Prisma

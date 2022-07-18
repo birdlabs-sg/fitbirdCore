@@ -37,6 +37,7 @@ const queryTypeDef = gql `
     notifications: [Notification]
     workout_frequencies: [WorkoutFrequency]
     getExcercisePerformance(excercise_id: ID!, span: Int): ExcercisePerformance
+    getWorkoutsCompletedCount(workout_group_id: ID!): Int
     "This query is only available to administrators."
     users: [User]
   }

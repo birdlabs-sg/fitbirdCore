@@ -40,6 +40,7 @@ import {
 import { workoutFrequencyQueryResolver } from "./query/queryWorkoutFrequencies";
 import { getExcerciseQueryResolver } from "./query/queryExcercise";
 import { excercisePerformanceQueryResolver } from "./query/queryExcercisePerformance";
+import { getWorkoutsCompletedCountQueryResolver } from "./query/queryWorkoutsCompletedCount";
 
 export const resolvers = {
   //Mutations for create, update and delete operations
@@ -79,6 +80,7 @@ export const resolvers = {
     users: userQueryResolvers,
     workout_frequencies: workoutFrequencyQueryResolver,
     getExcercisePerformance: excercisePerformanceQueryResolver,
+    getWorkoutsCompletedCount: getWorkoutsCompletedCountQueryResolver,
   },
 
   // Individual model querying here.
@@ -142,6 +144,15 @@ export const resolvers = {
       });
     },
   },
+  ExcerciseSet: {
+    async excercise(parent: any, args: any, context: any, info: any) {
+      const prisma = context.dataSources.prisma;
+      return await prisma.Excercise.findUnique({
+        where: { excercise_id: parent.excercise_id },
+      });
+    },
+  },
+
   Excercise: {
     async target_regions(parent: any, args: any, context: any, info: any) {
       const prisma = context.dataSources.prisma;

@@ -27,7 +27,6 @@ exports.mutateWorkout = gql `
     target_weight: Float!
     weight_unit: WeightUnit!
     target_reps: Int!
-    to_delete: Boolean!
   }
 
   input completeWorkoutExcerciseSetInput {
@@ -36,9 +35,8 @@ exports.mutateWorkout = gql `
     target_weight: Float!
     weight_unit: WeightUnit!
     target_reps: Int!
-    actual_weight: Float!
-    actual_reps: Int!
-    to_delete: Boolean!
+    actual_weight: Float
+    actual_reps: Int
   }
 
   input updateWorkoutExcerciseSetInput {
@@ -49,7 +47,6 @@ exports.mutateWorkout = gql `
     target_reps: Int!
     actual_weight: Float
     actual_reps: Int
-    to_delete: Boolean!
   }
 
   input createWorkoutGroupInput {

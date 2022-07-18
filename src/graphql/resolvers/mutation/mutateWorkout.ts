@@ -218,6 +218,9 @@ export const deleteWorkout = async (_: any, args: any, context: any) => {
     where: {
       workout_id: parseInt(args.workout_id),
     },
+    include: {
+      workoutGroup: true,
+    },
   });
   enforceWorkoutExistsAndOwnership(context, targetWorkout);
 
