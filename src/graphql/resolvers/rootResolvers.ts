@@ -14,6 +14,7 @@ import {
   completeWorkout,
   createWorkout,
   deleteWorkout,
+  generateWorkouts,
   updateWorkout,
   updateWorkoutOrder,
 } from "./mutation/mutateWorkout";
@@ -45,6 +46,7 @@ export const resolvers = {
     updateMuscleRegion: updateMuscleRegion,
     deleteMuscleRegion: deleteMuscleRegion,
     updateExcerciseMetadata: updateExcerciseMetadata,
+    generateWorkouts: generateWorkouts,
   },
 
   //Root Query: Top level querying logic here

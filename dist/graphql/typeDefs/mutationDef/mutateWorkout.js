@@ -47,7 +47,6 @@ exports.mutateWorkout = gql `
     updateWorkout(
       workout_id: ID!
       date_scheduled: String
-      date_completed: String
       performance_rating: Float
       life_span: Int
       excercise_sets: [excerciseSetInput]

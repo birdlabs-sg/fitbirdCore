@@ -21,6 +21,7 @@ import { ExcerciseMetadata } from "./objectDef/exerciseMetadata";
 import { mutateExcerciseMetadata } from "./mutationDef/mutateExcerciseMetaData";
 import { WorkoutFrequency } from "./objectDef/workoutFrequency";
 import { ExcercisePerformance } from "./objectDef/excercisePerformance";
+import { mutateGenerateWorkouts } from "./mutationDef/mutateGenerateWorkouts";
 
 const queryTypeDef = gql`
   "This is the root query to resources. Require ADMIN permission to access all, otherwise resources are scoped to the user issuing the request."
@@ -60,6 +61,7 @@ const mutationTypeDefs = [
   mutateWorkout,
   mutateUser,
   mutateExcerciseMetadata,
+  mutateGenerateWorkouts,
 ];
 
 const objectTypeDefs = [

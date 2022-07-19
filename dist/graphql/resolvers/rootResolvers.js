@@ -42,6 +42,7 @@ exports.resolvers = {
         updateMuscleRegion: mutateMuscleRegion_1.updateMuscleRegion,
         deleteMuscleRegion: mutateMuscleRegion_1.deleteMuscleRegion,
         updateExcerciseMetadata: mutateExcerciseMetadata_1.updateExcerciseMetadata,
+        generateWorkouts: mutateWorkout_1.generateWorkouts,
     },
     //Root Query: Top level querying logic here
     Query: {

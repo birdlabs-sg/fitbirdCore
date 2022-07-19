@@ -1,13 +1,65 @@
 import {
   reorderActiveWorkouts,
   generateNextWorkout,
-  enforceWorkoutExistsAndOwnership,
+  getActiveWorkoutCount,
+  checkExistsAndOwnership,
+  getActiveWorkouts,
+  generateExcerciseMetadata,
+  updateExcerciseMetadataWithCompletedWorkout,
 } from "../../../service/workout_manager";
 import { onlyAuthenticated } from "../../../service/firebase_service";
 
 export const generateWorkouts = async (_: any, args: any, context: any) => {
   onlyAuthenticated(context);
-  // custom logic for generating workouts based on user type
+  console.log(args);
+  const { no_of_workouts } = args;
+  const prisma = context.dataSources.prisma;
+  const generatedWorkouts = [];
+  // Just a mockup for now. TODO: Create a service that links up with lichuan's recommendation algorithm
+  for (let i = 0; i < no_of_workouts; i++) {
+    generatedWorkouts.push(
+      await prisma.workout.create({
+        data: {
+          user_id: context.user.user_id,
+          order_index: await getActiveWorkoutCount(context),
+          life_span: 25,
+          workout_name: `Test workout: ${i}`,
+          excercise_sets: {
+            create: [
+              {
+                target_reps: 10,
+                target_weight: 80,
+                weight_unit: "KG",
+                excercise_name: "Barbell Close Grip Bench Press",
+                actual_weight: null,
+                actual_reps: null,
+              },
+              {
+                target_reps: 10,
+                target_weight: 80,
+                weight_unit: "KG",
+                excercise_name: "Barbell Close Grip Bench Press",
+                actual_weight: null,
+                actual_reps: null,
+              },
+              {
+                target_reps: 30,
+                target_weight: 5,
+                weight_unit: "KG",
+                excercise_name: "Machine-assisted Triceps Dip",
+                actual_reps: null,
+                actual_weight: null,
+              },
+            ],
+          },
+        },
+        include: {
+          excercise_sets: true,
+        },
+      })
+    );
+  }
+  return generatedWorkouts;
 };
 
 // Note: This resolver is only used when the user wishes to create new workout on existing ones.
@@ -17,27 +69,20 @@ export const createWorkout = async (_: any, args: any, context: any) => {
   const prisma = context.dataSources.prisma;
   const { excercise_sets, ...otherArgs } = args;
 
-  // Get all the active workouts
-  const active_workouts = await prisma.workout.findMany({
-    where: {
-      date_completed: null,
-      user_id: context.user.user_id,
-    },
-    orderBy: {
-      order_index: "asc",
-    },
-  });
-
   const workout = await prisma.workout.create({
     data: {
       user_id: context.user.user_id,
-      order_index: active_workouts.length,
+      order_index: await getActiveWorkoutCount(context),
       ...otherArgs,
       excercise_sets: {
         create: excercise_sets,
       },
     },
+    include: {
+      excercise_sets: true,
+    },
   });
+  await generateExcerciseMetadata(context, workout);
 
   return {
     code: "200",
@@ -50,22 +95,13 @@ export const createWorkout = async (_: any, args: any, context: any) => {
 // Assumption: active_workouts always have order_index with no gaps when sorted. For eg: 0,1,2,3 and not 0,2,3,5
 export const updateWorkoutOrder = async (_: any, args: any, context: any) => {
   let { oldIndex, newIndex } = args;
-  const prisma = context.dataSources.prisma;
   await reorderActiveWorkouts(context, oldIndex, newIndex);
 
   return {
     code: "200",
     success: true,
     message: "Successfully updated your workout!",
-    workouts: await prisma.workout.findMany({
-      where: {
-        user_id: context.user.user_id,
-        date_completed: null,
-      },
-      orderBy: {
-        order_index: "asc",
-      },
-    }),
+    workouts: await getActiveWorkouts(context),
   };
 };
 
@@ -75,15 +111,8 @@ export const completeWorkout = async (_: any, args: any, context: any) => {
   const { workout_id, excercise_sets } = args;
   const prisma = context.dataSources.prisma;
 
-  // Get the workout of interest
-  const targetWorkout = await prisma.workout.findUnique({
-    where: {
-      workout_id: parseInt(workout_id),
-    },
-  });
-  enforceWorkoutExistsAndOwnership(context, targetWorkout);
+  await checkExistsAndOwnership(context, workout_id, false);
 
-  // Complete the workout object by filling date_completed and new excercise_sets. All excercise sets not present in excercise_sets_to_add will be removed from the relationship.
   const completedWorkout = await prisma.workout.update({
     where: {
       workout_id: parseInt(workout_id),
@@ -99,42 +128,31 @@ export const completeWorkout = async (_: any, args: any, context: any) => {
       excercise_sets: true,
     },
   });
+  // Updates best set if available. TODO: Change excercise state
+  await updateExcerciseMetadataWithCompletedWorkout(context, completedWorkout);
   await reorderActiveWorkouts(context, null, null);
   await generateNextWorkout(context, completedWorkout);
 
-  // See if want to return back the reordered workouts or just the updatedWorkout
   return {
     code: "200",
     success: true,
     message: "Successfully updated your workout!",
     workout_id: workout_id,
-    workouts: await prisma.workout.findMany({
-      where: {
-        date_completed: null,
-        user_id: context.user.user_id,
-      },
-      orderBy: {
-        order_index: "asc",
-      },
-      include: {
-        excercise_sets: true,
-      },
-    }),
+    workouts: await getActiveWorkouts(context),
   };
 };
 
 // Note: Client have to send in all the excercise_sets with associated data or it will be treated that the excercise_set is to be deleted
+// Note: This only allows active workouts
 export const updateWorkout = async (_: any, args: any, context: any) => {
   onlyAuthenticated(context);
   const { workout_id, excercise_sets, ...otherArgs } = args;
   const prisma = context.dataSources.prisma;
-  // Get the workout of interest
-  const targetWorkout = await prisma.workout.findUnique({
-    where: {
-      workout_id: parseInt(workout_id),
-    },
-  });
-  enforceWorkoutExistsAndOwnership(context, targetWorkout);
+
+  if (otherArgs.date_completed != null) {
+    throw Error("You cannot update a completed workout");
+  }
+  await checkExistsAndOwnership(context, workout_id, true);
 
   let updatedWorkout;
   if (excercise_sets != null) {
@@ -179,12 +197,7 @@ export const deleteWorkout = async (_: any, args: any, context: any) => {
   onlyAuthenticated(context);
   const prisma = context.dataSources.prisma;
   // Get the workout of interest
-  const targetWorkout = await prisma.workout.findUnique({
-    where: {
-      workout_id: parseInt(args.workout_id),
-    },
-  });
-  enforceWorkoutExistsAndOwnership(context, targetWorkout);
+  await checkExistsAndOwnership(context, args.workout_id, false);
 
   // delete the workout
   await prisma.workout.delete({

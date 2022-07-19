@@ -20,17 +20,134 @@ var __rest = (this && this.__rest) || function (s, e) {
     return t;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.generateNextWorkout = exports.reorderActiveWorkouts = exports.enforceWorkoutExistsAndOwnership = void 0;
+exports.generateNextWorkout = exports.reorderActiveWorkouts = exports.checkExistsAndOwnership = exports.getActiveWorkoutCount = exports.updateExcerciseMetadataWithCompletedWorkout = exports.generateExcerciseMetadata = exports.getActiveWorkouts = void 0;
 const apollo_server_1 = require("apollo-server");
-const enforceWorkoutExistsAndOwnership = (context, targetWorkout) => {
+const getActiveWorkouts = (context) => __awaiter(void 0, void 0, void 0, function* () {
+    const prisma = context.dataSources.prisma;
+    return yield prisma.workout.findMany({
+        where: {
+            date_completed: null,
+            user_id: context.user.user_id,
+        },
+        orderBy: {
+            order_index: "asc",
+        },
+    });
+});
+exports.getActiveWorkouts = getActiveWorkouts;
+// Generates excerciseMetadata if it's not available for any of the excercises in a workout
+const generateExcerciseMetadata = (context, workout) => __awaiter(void 0, void 0, void 0, function* () {
+    const prisma = context.dataSources.prisma;
+    const excercise_names = new Set();
+    for (var excercise_set of workout.excercise_sets) {
+        excercise_names.add(excercise_set.excercise_name);
+    }
+    for (var excercise_name of Array.from(excercise_names)) {
+        const excerciseMetadata = yield prisma.excerciseMetadata.findUnique({
+            where: {
+                user_id_excercise_name: {
+                    user_id: context.user.user_id,
+                    excercise_name: excercise_name,
+                },
+            },
+        });
+        if (excerciseMetadata == null) {
+            console.log("it's null");
+            yield prisma.excerciseMetadata.create({
+                data: {
+                    user_id: context.user.user_id,
+                    excercise_name: excercise_name,
+                },
+            });
+        }
+    }
+});
+exports.generateExcerciseMetadata = generateExcerciseMetadata;
+// updates a excerciseMetadata with the stats of the completed workout
+const updateExcerciseMetadataWithCompletedWorkout = (context, workout) => __awaiter(void 0, void 0, void 0, function* () {
+    // TODO: Algorithm to bring shift states
+    // TODO: More efficient algo for comparison and updating
+    const prisma = context.dataSources.prisma;
+    const excercise_names = new Set();
+    for (var excercise_set of workout.excercise_sets) {
+        excercise_names.add(excercise_set.excercise_name);
+    }
+    for (var excercise_name of Array.from(excercise_names)) {
+        const oldMetadata = yield prisma.excerciseMetadata.findUnique({
+            where: {
+                user_id_excercise_name: {
+                    user_id: context.user.user_id,
+                    excercise_name: excercise_name,
+                },
+            },
+        });
+        let best_set = {
+            actual_weight: 0,
+            actual_reps: 0,
+            weight_unit: "KG",
+        };
+        // find the best set for that excercise
+        for (var excercise_set of workout.excercise_sets) {
+            if (excercise_set.excercise_name == excercise_name) {
+                if (best_set.actual_weight < excercise_set.actual_weight) {
+                    best_set.actual_weight = excercise_set.actual_weight;
+                    best_set.actual_reps = excercise_set.actual_reps;
+                    best_set.weight_unit = excercise_set.weight_unit;
+                }
+            }
+        }
+        if (oldMetadata.best_weight < best_set.actual_weight) {
+            // update only if the new best set is higher than previous records
+            yield prisma.excerciseMetadata.update({
+                where: {
+                    user_id_excercise_name: {
+                        user_id: context.user.user_id,
+                        excercise_name: excercise_name,
+                    },
+                },
+                data: {
+                    best_weight: best_set.actual_weight,
+                    best_rep: best_set.actual_reps,
+                    weight_unit: best_set.weight_unit,
+                    last_excecuted: new Date(),
+                },
+            });
+        }
+    }
+});
+exports.updateExcerciseMetadataWithCompletedWorkout = updateExcerciseMetadataWithCompletedWorkout;
+const getActiveWorkoutCount = (context) => __awaiter(void 0, void 0, void 0, function* () {
+    const prisma = context.dataSources.prisma;
+    const workouts = yield prisma.workout.findMany({
+        where: {
+            date_completed: null,
+            user_id: context.user.user_id,
+        },
+        orderBy: {
+            order_index: "asc",
+        },
+    });
+    return workouts.length;
+});
+exports.getActiveWorkoutCount = getActiveWorkoutCount;
+const checkExistsAndOwnership = (context, workout_id, onlyActive) => __awaiter(void 0, void 0, void 0, function* () {
+    const prisma = context.dataSources.prisma;
+    const targetWorkout = yield prisma.workout.findUnique({
+        where: {
+            workout_id: parseInt(workout_id),
+        },
+    });
     if (targetWorkout == null) {
         throw new Error("The workout does not exist.");
+    }
+    if (onlyActive && targetWorkout.date_completed != null) {
+        throw new Error("You cannot amend a completed workout.");
     }
     if (targetWorkout.user_id != context.user.user_id) {
         throw new apollo_server_1.AuthenticationError("You are not authorized to remove this object");
     }
-};
-exports.enforceWorkoutExistsAndOwnership = enforceWorkoutExistsAndOwnership;
+});
+exports.checkExistsAndOwnership = checkExistsAndOwnership;
 const reorderActiveWorkouts = (context, oldIndex, newIndex) => __awaiter(void 0, void 0, void 0, function* () {
     const prisma = context.dataSources.prisma;
     const active_workouts = yield prisma.workout.findMany({
@@ -65,7 +182,7 @@ const reorderActiveWorkouts = (context, oldIndex, newIndex) => __awaiter(void 0,
 exports.reorderActiveWorkouts = reorderActiveWorkouts;
 const generateNextWorkout = (context, previousWorkout) => __awaiter(void 0, void 0, void 0, function* () {
     const prisma = context.dataSources.prisma;
-    const { excercise_sets } = previousWorkout, otherArgs = __rest(previousWorkout, ["excercise_sets"]);
+    const { excercise_sets, life_span, workout_name } = previousWorkout;
     const rateExcerciseSet = (excercise_set) => {
         // TODO: Can return a multiplier value based off how far he is from the bench mark next.
         var benchMark;
@@ -146,19 +263,12 @@ const generateNextWorkout = (context, previousWorkout) => __awaiter(void 0, void
         }
     }
     // Create the workout and slot behind the rest of the queue.
-    const active_workouts = yield prisma.workout.findMany({
-        where: {
-            date_completed: null,
-            user_id: context.user.user_id,
-        },
-        orderBy: {
-            order_index: "asc",
-        },
-    });
     yield prisma.workout.create({
         data: {
             user_id: context.user.user_id,
-            order_index: active_workouts.length,
+            workout_name: workout_name,
+            life_span: life_span - 1,
+            order_index: yield (0, exports.getActiveWorkoutCount)(context),
             excercise_sets: {
                 create: new_excercise_sets,
             },

@@ -100,8 +100,8 @@ model ExcerciseMetadata {
   best_weight              Float                  @default(0)
   weight_unit              WeightUnit             @default(KG)
   best_rep                 Int                    @default(0)
-  rest_time_lower_bound    Int
-  rest_time_upper_bound    Int
+  rest_time_lower_bound    Int                    @default(90)
+  rest_time_upper_bound    Int                    @default(180)
   user_id                  Int
   excercise_name           String
 

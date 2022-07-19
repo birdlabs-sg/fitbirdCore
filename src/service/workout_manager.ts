@@ -1,11 +1,136 @@
 import { AuthenticationError } from "apollo-server";
 
-export const enforceWorkoutExistsAndOwnership = (
+export const getActiveWorkouts = async (context: any) => {
+  const prisma = context.dataSources.prisma;
+  return await prisma.workout.findMany({
+    where: {
+      date_completed: null,
+      user_id: context.user.user_id,
+    },
+    orderBy: {
+      order_index: "asc",
+    },
+  });
+};
+
+// Generates excerciseMetadata if it's not available for any of the excercises in a workout
+export const generateExcerciseMetadata = async (context: any, workout: any) => {
+  const prisma = context.dataSources.prisma;
+  const excercise_names = new Set();
+  for (var excercise_set of workout.excercise_sets) {
+    excercise_names.add(excercise_set.excercise_name);
+  }
+  for (var excercise_name of Array.from(excercise_names)) {
+    const excerciseMetadata = await prisma.excerciseMetadata.findUnique({
+      where: {
+        user_id_excercise_name: {
+          user_id: context.user.user_id,
+          excercise_name: excercise_name,
+        },
+      },
+    });
+    if (excerciseMetadata == null) {
+      console.log("it's null");
+      await prisma.excerciseMetadata.create({
+        data: {
+          user_id: context.user.user_id,
+          excercise_name: excercise_name,
+        },
+      });
+    }
+  }
+};
+
+// updates a excerciseMetadata with the stats of the completed workout
+export const updateExcerciseMetadataWithCompletedWorkout = async (
   context: any,
-  targetWorkout: any
+  workout: any
 ) => {
+  // TODO: Algorithm to bring shift states
+  // TODO: More efficient algo for comparison and updating
+  const prisma = context.dataSources.prisma;
+
+  const excercise_names = new Set();
+  for (var excercise_set of workout.excercise_sets) {
+    excercise_names.add(excercise_set.excercise_name);
+  }
+
+  for (var excercise_name of Array.from(excercise_names)) {
+    const oldMetadata = await prisma.excerciseMetadata.findUnique({
+      where: {
+        user_id_excercise_name: {
+          user_id: context.user.user_id,
+          excercise_name: excercise_name,
+        },
+      },
+    });
+
+    let best_set = {
+      actual_weight: 0,
+      actual_reps: 0,
+      weight_unit: "KG",
+    };
+    // find the best set for that excercise
+    for (var excercise_set of workout.excercise_sets) {
+      if (excercise_set.excercise_name == excercise_name) {
+        if (best_set.actual_weight < excercise_set.actual_weight) {
+          best_set.actual_weight = excercise_set.actual_weight;
+          best_set.actual_reps = excercise_set.actual_reps;
+          best_set.weight_unit = excercise_set.weight_unit;
+        }
+      }
+    }
+
+    if (oldMetadata.best_weight < best_set.actual_weight) {
+      // update only if the new best set is higher than previous records
+      await prisma.excerciseMetadata.update({
+        where: {
+          user_id_excercise_name: {
+            user_id: context.user.user_id,
+            excercise_name: excercise_name,
+          },
+        },
+        data: {
+          best_weight: best_set.actual_weight,
+          best_rep: best_set.actual_reps,
+          weight_unit: best_set.weight_unit,
+          last_excecuted: new Date(),
+        },
+      });
+    }
+  }
+};
+
+export const getActiveWorkoutCount = async (context: any) => {
+  const prisma = context.dataSources.prisma;
+  const workouts = await prisma.workout.findMany({
+    where: {
+      date_completed: null,
+      user_id: context.user.user_id,
+    },
+    orderBy: {
+      order_index: "asc",
+    },
+  });
+  return workouts.length;
+};
+
+export const checkExistsAndOwnership = async (
+  context: any,
+  workout_id: any,
+  onlyActive: boolean
+) => {
+  const prisma = context.dataSources.prisma;
+  const targetWorkout = await prisma.workout.findUnique({
+    where: {
+      workout_id: parseInt(workout_id),
+    },
+  });
   if (targetWorkout == null) {
     throw new Error("The workout does not exist.");
+  }
+  if (onlyActive && targetWorkout.date_completed != null) {
+    throw new Error("You cannot amend a completed workout.");
   }
   if (targetWorkout.user_id != context.user.user_id) {
     throw new AuthenticationError(
@@ -56,7 +181,7 @@ export const generateNextWorkout = async (
   previousWorkout: any
 ) => {
   const prisma = context.dataSources.prisma;
-  const { excercise_sets, ...otherArgs } = previousWorkout;
+  const { excercise_sets, life_span, workout_name } = previousWorkout;
 
   const rateExcerciseSet = (excercise_set: any) => {
     // TODO: Can return a multiplier value based off how far he is from the bench mark next.
@@ -149,19 +274,12 @@ export const generateNextWorkout = async (
     }
   }
   // Create the workout and slot behind the rest of the queue.
-  const active_workouts = await prisma.workout.findMany({
-    where: {
-      date_completed: null,
-      user_id: context.user.user_id,
-    },
-    orderBy: {
-      order_index: "asc",
-    },
-  });
   await prisma.workout.create({
     data: {
       user_id: context.user.user_id,
-      order_index: active_workouts.length,
+      workout_name: workout_name,
+      life_span: life_span - 1,
+      order_index: await getActiveWorkoutCount(context),
       excercise_sets: {
         create: new_excercise_sets,
       },
