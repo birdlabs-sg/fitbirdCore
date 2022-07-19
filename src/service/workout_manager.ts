@@ -7,7 +7,7 @@ export const enforceWorkoutExistsAndOwnership = (
   if (targetWorkout == null) {
     throw new Error("The workout does not exist.");
   }
-  if (targetWorkout.workoutGroup.user_id != context.user.user_id) {
+  if (targetWorkout.user_id != context.user.user_id) {
     throw new AuthenticationError(
       "You are not authorized to remove this object"
     );
@@ -23,9 +23,7 @@ export const reorderActiveWorkouts = async (
   const active_workouts = await prisma.workout.findMany({
     where: {
       date_completed: null,
-      workoutGroup: {
-        user_id: context.user.user_id,
-      },
+      user_id: context.user.user_id,
     },
     orderBy: {
       order_index: "asc",
@@ -53,23 +51,12 @@ export const reorderActiveWorkouts = async (
   }
 };
 
-export const formatExcerciseSets = (unformattedExcerciseSets: any) => {
-  const cleaned_excercise_sets = [];
-  for (let i = 0; i < unformattedExcerciseSets.length; i++) {
-    const { excercise_set_id, excercise_id, ...cleaned_excercise_set } =
-      unformattedExcerciseSets[i];
-    cleaned_excercise_set["excercise_id"] = parseInt(excercise_id);
-    cleaned_excercise_sets.push(cleaned_excercise_set);
-  }
-  return cleaned_excercise_sets;
-};
-
 export const generateNextWorkout = async (
   context: any,
   previousWorkout: any
 ) => {
   const prisma = context.dataSources.prisma;
-  const { excercise_sets, workout_group_id, ...otherArgs } = previousWorkout;
+  const { excercise_sets, ...otherArgs } = previousWorkout;
 
   const rateExcerciseSet = (excercise_set: any) => {
     // TODO: Can return a multiplier value based off how far he is from the bench mark next.
@@ -165,9 +152,7 @@ export const generateNextWorkout = async (
   const active_workouts = await prisma.workout.findMany({
     where: {
       date_completed: null,
-      workoutGroup: {
-        user_id: context.user.user_id,
-      },
+      user_id: context.user.user_id,
     },
     orderBy: {
       order_index: "asc",
@@ -175,7 +160,7 @@ export const generateNextWorkout = async (
   });
   await prisma.workout.create({
     data: {
-      workout_group_id: workout_group_id,
+      user_id: context.user.user_id,
       order_index: active_workouts.length,
       excercise_sets: {
         create: new_excercise_sets,

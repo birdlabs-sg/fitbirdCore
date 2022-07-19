@@ -13,10 +13,10 @@ exports.mutateSignup = gql `
   "[PUBLIC] Mutation to create a new user within firebase and postgresql."
   type Mutation {
     signup(
-      email: String
+      email: String!
       phoneNumber: String
-      password: String
-      displayName: String
+      password: String!
+      displayName: String!
     ): SignupResponse
   }
 `;

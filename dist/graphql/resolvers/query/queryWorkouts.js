@@ -18,9 +18,7 @@ const workoutsQueryResolver = (parent, args, context, info) => __awaiter(void 0,
         case "ACTIVE":
             return yield prisma.workout.findMany({
                 where: {
-                    workoutGroup: {
-                        user_id: context.user.user_id,
-                    },
+                    user_id: context.user.user_id,
                     date_completed: null,
                 },
                 orderBy: {
@@ -30,9 +28,7 @@ const workoutsQueryResolver = (parent, args, context, info) => __awaiter(void 0,
         case "COMPLETED":
             return yield prisma.workout.findMany({
                 where: {
-                    workoutGroup: {
-                        user_id: context.user.user_id,
-                    },
+                    user_id: context.user.user_id,
                     date_completed: { not: null },
                 },
                 orderBy: {
@@ -42,9 +38,7 @@ const workoutsQueryResolver = (parent, args, context, info) => __awaiter(void 0,
         case "NONE":
             return yield prisma.workout.findMany({
                 where: {
-                    workoutGroup: {
-                        user_id: context.user.user_id,
-                    },
+                    user_id: context.user.user_id,
                 },
             });
     }

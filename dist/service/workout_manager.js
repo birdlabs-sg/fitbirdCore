@@ -20,13 +20,13 @@ var __rest = (this && this.__rest) || function (s, e) {
     return t;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.generateNextWorkout = exports.formatExcerciseSets = exports.reorderActiveWorkouts = exports.enforceWorkoutExistsAndOwnership = void 0;
+exports.generateNextWorkout = exports.reorderActiveWorkouts = exports.enforceWorkoutExistsAndOwnership = void 0;
 const apollo_server_1 = require("apollo-server");
 const enforceWorkoutExistsAndOwnership = (context, targetWorkout) => {
     if (targetWorkout == null) {
         throw new Error("The workout does not exist.");
     }
-    if (targetWorkout.workoutGroup.user_id != context.user.user_id) {
+    if (targetWorkout.user_id != context.user.user_id) {
         throw new apollo_server_1.AuthenticationError("You are not authorized to remove this object");
     }
 };
@@ -36,9 +36,7 @@ const reorderActiveWorkouts = (context, oldIndex, newIndex) => __awaiter(void 0,
     const active_workouts = yield prisma.workout.findMany({
         where: {
             date_completed: null,
-            workoutGroup: {
-                user_id: context.user.user_id,
-            },
+            user_id: context.user.user_id,
         },
         orderBy: {
             order_index: "asc",
@@ -65,19 +63,9 @@ const reorderActiveWorkouts = (context, oldIndex, newIndex) => __awaiter(void 0,
     }
 });
 exports.reorderActiveWorkouts = reorderActiveWorkouts;
-const formatExcerciseSets = (unformattedExcerciseSets) => {
-    const cleaned_excercise_sets = [];
-    for (let i = 0; i < unformattedExcerciseSets.length; i++) {
-        const _a = unformattedExcerciseSets[i], { excercise_set_id, excercise_id } = _a, cleaned_excercise_set = __rest(_a, ["excercise_set_id", "excercise_id"]);
-        cleaned_excercise_set["excercise_id"] = parseInt(excercise_id);
-        cleaned_excercise_sets.push(cleaned_excercise_set);
-    }
-    return cleaned_excercise_sets;
-};
-exports.formatExcerciseSets = formatExcerciseSets;
 const generateNextWorkout = (context, previousWorkout) => __awaiter(void 0, void 0, void 0, function* () {
     const prisma = context.dataSources.prisma;
-    const { excercise_sets, workout_group_id } = previousWorkout, otherArgs = __rest(previousWorkout, ["excercise_sets", "workout_group_id"]);
+    const { excercise_sets } = previousWorkout, otherArgs = __rest(previousWorkout, ["excercise_sets"]);
     const rateExcerciseSet = (excercise_set) => {
         // TODO: Can return a multiplier value based off how far he is from the bench mark next.
         var benchMark;
@@ -161,9 +149,7 @@ const generateNextWorkout = (context, previousWorkout) => __awaiter(void 0, void
     const active_workouts = yield prisma.workout.findMany({
         where: {
             date_completed: null,
-            workoutGroup: {
-                user_id: context.user.user_id,
-            },
+            user_id: context.user.user_id,
         },
         orderBy: {
             order_index: "asc",
@@ -171,7 +157,7 @@ const generateNextWorkout = (context, previousWorkout) => __awaiter(void 0, void
     });
     yield prisma.workout.create({
         data: {
-            workout_group_id: workout_group_id,
+            user_id: context.user.user_id,
             order_index: active_workouts.length,
             excercise_sets: {
                 create: new_excercise_sets,

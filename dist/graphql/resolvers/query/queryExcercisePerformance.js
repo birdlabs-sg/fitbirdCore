@@ -14,20 +14,18 @@ const firebase_service_1 = require("../../../service/firebase_service");
 const excercisePerformanceQueryResolver = (parent, args, context, info) => __awaiter(void 0, void 0, void 0, function* () {
     (0, firebase_service_1.onlyAuthenticated)(context);
     const prisma = context.dataSources.prisma;
-    let { excercise_id, span } = args;
+    let { excercise_name, span } = args;
     if (span == null) {
         span = 1;
     }
     const grouped_excercise_sets = [];
     const workouts = yield prisma.workout.findMany({
         where: {
-            workoutGroup: {
-                user_id: context.user.user_id,
-            },
+            user_id: context.user.user_id,
             date_completed: { not: null },
             excercise_sets: {
                 some: {
-                    excercise_id: parseInt(excercise_id),
+                    excercise_name: excercise_name,
                 },
             },
         },
@@ -42,7 +40,7 @@ const excercisePerformanceQueryResolver = (parent, args, context, info) => __awa
     for (var workout of workouts) {
         grouped_excercise_sets.push({
             date_completed: workout.date_completed,
-            excercise_sets: workout.excercise_sets.filter((set) => set.excercise_id == excercise_id),
+            excercise_sets: workout.excercise_sets.filter((set) => set.excercise_name == excercise_name),
         });
     }
     return { grouped_excercise_sets: grouped_excercise_sets };

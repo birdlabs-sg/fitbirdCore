@@ -22,6 +22,13 @@ export const Enum = gql`
     FT
   }
 
+  enum ExcerciseMetadataState {
+    LEARNING
+    INCREASED_DIFFICULTY
+    DECREASED_DIFFICULTY
+    MAINTAINENCE
+  }
+
   enum LevelOfExperience {
     BEGINNER
     MID

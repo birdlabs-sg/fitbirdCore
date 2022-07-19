@@ -29,9 +29,7 @@ const workoutFrequencyQueryResolver = (parent, args, context, info) => __awaiter
         const count = yield prisma.workout.aggregate({
             _count: true,
             where: {
-                workoutGroup: {
-                    user_id: context.user.user_id,
-                },
+                user_id: context.user.user_id,
                 date_completed: {
                     gte: startDate,
                     lt: endDate,

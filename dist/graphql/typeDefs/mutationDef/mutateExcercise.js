@@ -25,7 +25,7 @@ exports.mutateExcercise = gql `
 
     "[PROTECTED:ADMIN ONLY] Updates a excercise object."
     updateExcercise(
-      excercise_id: ID!
+      excercise_name: ID!
       excercise_name: String
       excercise_preparation: String
       excercise_instructions: String
@@ -36,7 +36,7 @@ exports.mutateExcercise = gql `
     ): mutateExcerciseResponse
 
     "[PROTECTED:ADMIN ONLY] Deletes a excercise object."
-    deleteExcercise(excercise_id: ID!): mutateExcerciseResponse
+    deleteExcercise(excercise_name: ID!): mutateExcerciseResponse
   }
 `;
 //# sourceMappingURL=mutateExcercise.js.map

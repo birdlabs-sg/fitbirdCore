@@ -20,36 +20,17 @@ var __rest = (this && this.__rest) || function (s, e) {
     return t;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateExcerciseMetadata = exports.createExcerciseMetadata = void 0;
+exports.updateExcerciseMetadata = void 0;
 const firebase_service_1 = require("../../../service/firebase_service");
-const createExcerciseMetadata = (_, args, context) => __awaiter(void 0, void 0, void 0, function* () {
-    (0, firebase_service_1.onlyAuthenticated)(context);
-    const prisma = context.dataSources.prisma;
-    const { excercise_id } = args, otherArgs = __rest(args, ["excercise_id"]);
-    const newExcerciseMetadata = yield prisma.excerciseMetadata.create({
-        data: Object.assign(Object.assign({}, otherArgs), { excercise: {
-                connect: { excercise_id: parseInt(excercise_id) },
-            }, user: {
-                connect: { user_id: context.user.user_id },
-            } }),
-    });
-    return {
-        code: "200",
-        success: true,
-        message: "Successfully created an excercise metadata!",
-        excercise: newExcerciseMetadata,
-    };
-});
-exports.createExcerciseMetadata = createExcerciseMetadata;
 const updateExcerciseMetadata = (_, args, context) => __awaiter(void 0, void 0, void 0, function* () {
     (0, firebase_service_1.onlyAuthenticated)(context);
     const prisma = context.dataSources.prisma;
-    const { excercise_id } = args, otherArgs = __rest(args, ["excercise_id"]);
+    const { excercise_name } = args, otherArgs = __rest(args, ["excercise_name"]);
     const updatedExcerciseMetadata = yield prisma.excerciseMetadata.update({
         where: {
-            user_id_excercise_id: {
+            user_id_excercise_name: {
                 user_id: context.user.user_id,
-                excercise_id: parseInt(excercise_id),
+                excercise_name: excercise_name,
             },
         },
         data: Object.assign({}, otherArgs),

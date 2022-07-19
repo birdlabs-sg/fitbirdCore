@@ -66,7 +66,7 @@ const updateExcercise = (_, args, context) => __awaiter(void 0, void 0, void 0, 
     (0, firebase_service_1.onlyAuthenticated)(context);
     (0, firebase_service_1.onlyAdmin)(context);
     const prisma = context.dataSources.prisma;
-    const { excercise_id, target_regions, synergist_muscles, dynamic_stabilizer_muscles, stabilizer_muscles } = args, otherArgs = __rest(args, ["excercise_id", "target_regions", "synergist_muscles", "dynamic_stabilizer_muscles", "stabilizer_muscles"]);
+    const { excercise_name, target_regions, synergist_muscles, dynamic_stabilizer_muscles, stabilizer_muscles } = args, otherArgs = __rest(args, ["excercise_name", "target_regions", "synergist_muscles", "dynamic_stabilizer_muscles", "stabilizer_muscles"]);
     const targetRegionArray = target_regions.map((target_region_id) => ({
         muscle_region_id: target_region_id,
     }));
@@ -79,7 +79,7 @@ const updateExcercise = (_, args, context) => __awaiter(void 0, void 0, void 0, 
     }));
     const updatedExcercise = yield prisma.excercise.update({
         where: {
-            excercise_id: excercise_id,
+            excercise_name: excercise_name,
         },
         data: Object.assign(Object.assign({}, otherArgs), { target_regions: {
                 set: targetRegionArray,
@@ -111,7 +111,7 @@ const deleteExcercise = (_, args, context) => __awaiter(void 0, void 0, void 0, 
     const prisma = context.dataSources.prisma;
     const deletedExcercise = yield prisma.excercise.delete({
         where: {
-            excercise_id: args.excercise_id,
+            excercise_name: args.excercise_name,
         },
     });
     return {

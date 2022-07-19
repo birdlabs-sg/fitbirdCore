@@ -14,7 +14,7 @@ const getExcerciseQueryResolver = (parent, args, context, info) => __awaiter(voi
     const prisma = context.dataSources.prisma;
     return yield prisma.excercise.findUnique({
         where: {
-            excercise_id: parseInt(args.excercise_id),
+            excercise_name: args.excercise_name,
         },
     });
 });

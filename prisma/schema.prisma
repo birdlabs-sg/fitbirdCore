@@ -93,7 +93,7 @@ model User {
 model ExcerciseMetadata {
   excercise_metadata_state ExcerciseMetadataState @default(LEARNING)
   user                     User                   @relation(fields: [user_id], references: [user_id])
-  excercise                Excercise              @relation(fields: [excercise_id], references: [excercise_id])
+  excercise                Excercise              @relation(fields: [excercise_name], references: [excercise_name])
   haveRequiredEquipment    Boolean?
   preferred                Boolean?
   last_excecuted           DateTime?
@@ -103,10 +103,9 @@ model ExcerciseMetadata {
   rest_time_lower_bound    Int
   rest_time_upper_bound    Int
   user_id                  Int
-  excercise_id             Int
-  best_excercise_set_id    Int
+  excercise_name           String
 
-  @@id([user_id, excercise_id])
+  @@id([user_id, excercise_name])
 }
 
 model Measurement {
@@ -122,6 +121,7 @@ model Measurement {
 
 model Workout {
   workout_id         Int            @id @default(autoincrement())
+  workout_name       String
   user               User           @relation(fields: [user_id], references: [user_id])
   life_span          Int
   order_index        Int // Keeps track of the order of workout
@@ -129,7 +129,6 @@ model Workout {
   date_completed     DateTime?
   performance_rating Float?
   user_id            Int
-  workout_group_id   Int
   excercise_sets     ExcerciseSet[]
 }
 
@@ -145,8 +144,7 @@ model MuscleRegion {
 }
 
 model Excercise {
-  excercise_id               Int                  @id @default(autoincrement())
-  excercise_name             String
+  excercise_name             String               @id
   excercise_preparation      String?
   excercise_instructions     String?
   excercise_tips             String?
@@ -162,18 +160,16 @@ model Excercise {
 }
 
 model ExcerciseSet {
-  excercise_set_id              Int        @id @default(autoincrement())
-  excercise                     Excercise  @relation(fields: [excercise_id], references: [excercise_id])
-  workout                       Workout    @relation(fields: [workout_id], references: [workout_id], onDelete: Cascade)
-  workout_id                    Int
-  excercise_id                  Int
-  target_weight                 Float
-  weight_unit                   WeightUnit
-  target_reps                   Int
-  actual_weight                 Float?
-  actual_reps                   Int?
-  excerciseMetadataUser_id      Int
-  excerciseMetadataExcercise_id Int
+  excercise_set_id Int        @id @default(autoincrement())
+  excercise        Excercise  @relation(fields: [excercise_name], references: [excercise_name])
+  workout          Workout    @relation(fields: [workout_id], references: [workout_id], onDelete: Cascade)
+  workout_id       Int
+  excercise_name   String
+  target_weight    Float
+  weight_unit      WeightUnit
+  target_reps      Int
+  actual_weight    Float?
+  actual_reps      Int?
 }
 
 model BroadCast {

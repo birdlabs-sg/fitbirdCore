@@ -1,7 +1,7 @@
 const { gql } = require("apollo-server");
 
 export const mutateWorkout = gql`
-  "Response if mutating a excercise was successful"
+  "Response when mutating a workout"
   type mutateWorkoutResponse implements MutationResponse {
     code: String!
     success: Boolean!
@@ -9,62 +9,37 @@ export const mutateWorkout = gql`
     workout: Workout
   }
 
-  "Response if mutating the workout order succeeds"
-  type mutateWorkoutOrderResponse implements MutationResponse {
+  "Response when mutating multiple workouts"
+  type mutateWorkoutsResponse implements MutationResponse {
     code: String!
     success: Boolean!
     message: String!
-    workout_id: ID
     workouts: [Workout]
   }
 
-  "Optional input parameters for inline creation of excercise blocks within createWorkout mutation"
-  input createWorkoutExcerciseSetInput {
-    excercise_set_id: ID!
-    excercise_id: ID!
-    target_weight: Float!
-    weight_unit: WeightUnit!
-    target_reps: Int!
-  }
-
-  input completeWorkoutExcerciseSetInput {
-    excercise_set_id: ID!
-    excercise_id: ID!
+  input excerciseSetInput {
+    excercise_name: String!
     target_weight: Float!
     weight_unit: WeightUnit!
     target_reps: Int!
     actual_weight: Float
     actual_reps: Int
-  }
-
-  input updateWorkoutExcerciseSetInput {
-    excercise_set_id: ID!
-    excercise_id: ID!
-    target_weight: Float!
-    weight_unit: WeightUnit!
-    target_reps: Int!
-    actual_weight: Float
-    actual_reps: Int
-  }
-
-  input createWorkoutGroupInput {
-    life_span: Int!
-    workout_group_name: String!
   }
 
   type Mutation {
     "[PROTECTED] Creates a workout object for the requestor."
     createWorkout(
-      workout_group: createWorkoutGroupInput
+      life_span: Int!
+      workout_name: String!
       date_scheduled: String
-      excercise_sets: [createWorkoutExcerciseSetInput]
+      excercise_sets: [excerciseSetInput]!
     ): mutateWorkoutResponse
 
     "[PROTECTED] Updates a workout object (Must belong to the requestor). Note: This will replace any existing excercise sets."
     completeWorkout(
       workout_id: ID!
-      excercise_sets: [completeWorkoutExcerciseSetInput]!
-    ): mutateWorkoutOrderResponse
+      excercise_sets: [excerciseSetInput]!
+    ): mutateWorkoutsResponse
 
     "[PROTECTED] Updates a workout object (Must belong to the requestor). Note: This will replace any existing excercise sets."
     updateWorkout(
@@ -72,13 +47,13 @@ export const mutateWorkout = gql`
       date_scheduled: String
       date_completed: String
       performance_rating: Float
-      order_index: Int
-      excercise_sets: [updateWorkoutExcerciseSetInput]
+      life_span: Int
+      excercise_sets: [excerciseSetInput]
     ): mutateWorkoutResponse
 
-    updateWorkoutOrder(oldIndex: Int, newIndex: Int): mutateWorkoutOrderResponse
+    updateWorkoutOrder(oldIndex: Int, newIndex: Int): mutateWorkoutsResponse
 
     "[PROTECTED] Deletes a workout object (Must belong to the requestor)."
-    deleteWorkout(workout_id: ID!): mutateWorkoutOrderResponse
+    deleteWorkout(workout_id: ID!): mutateWorkoutsResponse
   }
 `;

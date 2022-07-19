@@ -9,7 +9,7 @@ export const excercisePerformanceQueryResolver = async (
   onlyAuthenticated(context);
   const prisma = context.dataSources.prisma;
 
-  let { excercise_id, span } = args;
+  let { excercise_name, span } = args;
 
   if (span == null) {
     span = 1;
@@ -19,13 +19,11 @@ export const excercisePerformanceQueryResolver = async (
 
   const workouts = await prisma.workout.findMany({
     where: {
-      workoutGroup: {
-        user_id: context.user.user_id,
-      },
+      user_id: context.user.user_id,
       date_completed: { not: null },
       excercise_sets: {
         some: {
-          excercise_id: parseInt(excercise_id),
+          excercise_name: excercise_name,
         },
       },
     },
@@ -42,7 +40,7 @@ export const excercisePerformanceQueryResolver = async (
     grouped_excercise_sets.push({
       date_completed: workout.date_completed,
       excercise_sets: workout.excercise_sets.filter(
-        (set: any) => set.excercise_id == excercise_id
+        (set: any) => set.excercise_name == excercise_name
       ),
     });
   }

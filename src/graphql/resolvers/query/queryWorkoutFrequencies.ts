@@ -22,9 +22,7 @@ export const workoutFrequencyQueryResolver = async (
     const count = await prisma.workout.aggregate({
       _count: true,
       where: {
-        workoutGroup: {
-          user_id: context.user.user_id,
-        },
+        user_id: context.user.user_id,
         date_completed: {
           gte: startDate,
           lt: endDate,

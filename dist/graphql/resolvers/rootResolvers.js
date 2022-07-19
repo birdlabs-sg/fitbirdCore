@@ -12,13 +12,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.resolvers = void 0;
 const generateFirebaseIdTokenResolver_1 = require("./mutation/generateFirebaseIdTokenResolver");
 const mutateUser_1 = require("./mutation/mutateUser");
-const mutateBroadcast_1 = require("./mutation/mutateBroadcast");
-const mutateExcercise_1 = require("./mutation/mutateExcercise");
 const mutateMeasurement_1 = require("./mutation/mutateMeasurement");
 const mutateMuscleRegion_1 = require("./mutation/mutateMuscleRegion");
 const mutateWorkout_1 = require("./mutation/mutateWorkout");
 const mutateSignup_1 = require("./mutation/mutateSignup");
-const queryBroadcasts_1 = require("./query/queryBroadcasts");
 const queryExcercises_1 = require("./query/queryExcercises");
 const queryNotifications_1 = require("./query/queryNotifications");
 const queryUser_1 = require("./query/queryUser");
@@ -27,7 +24,6 @@ const mutateExcerciseMetadata_1 = require("./mutation/mutateExcerciseMetadata");
 const queryWorkoutFrequencies_1 = require("./query/queryWorkoutFrequencies");
 const queryExcercise_1 = require("./query/queryExcercise");
 const queryExcercisePerformance_1 = require("./query/queryExcercisePerformance");
-const queryWorkoutsCompletedCount_1 = require("./query/queryWorkoutsCompletedCount");
 exports.resolvers = {
     //Mutations for create, update and delete operations
     Mutation: {
@@ -37,12 +33,6 @@ exports.resolvers = {
         createMeasurement: mutateMeasurement_1.createMeasurement,
         updateMeasurement: mutateMeasurement_1.updateMeasurement,
         deleteMeasurement: mutateMeasurement_1.deleteMeasurement,
-        createBroadcast: mutateBroadcast_1.createBroadcast,
-        updateBroadcast: mutateBroadcast_1.updateBroadcast,
-        deleteBroadcast: mutateBroadcast_1.deleteBroadcast,
-        createExcercise: mutateExcercise_1.createExcercise,
-        updateExcercise: mutateExcercise_1.updateExcercise,
-        deleteExcercise: mutateExcercise_1.deleteExcercise,
         createWorkout: mutateWorkout_1.createWorkout,
         updateWorkout: mutateWorkout_1.updateWorkout,
         deleteWorkout: mutateWorkout_1.deleteWorkout,
@@ -51,7 +41,6 @@ exports.resolvers = {
         createMuscleRegion: mutateMuscleRegion_1.createMuscleRegion,
         updateMuscleRegion: mutateMuscleRegion_1.updateMuscleRegion,
         deleteMuscleRegion: mutateMuscleRegion_1.deleteMuscleRegion,
-        createExcerciseMetadata: mutateExcerciseMetadata_1.createExcerciseMetadata,
         updateExcerciseMetadata: mutateExcerciseMetadata_1.updateExcerciseMetadata,
     },
     //Root Query: Top level querying logic here
@@ -60,12 +49,10 @@ exports.resolvers = {
         workouts: queryWorkouts_1.workoutsQueryResolver,
         getExcercise: queryExcercise_1.getExcerciseQueryResolver,
         excercises: queryExcercises_1.excercisesQueryResolver,
-        broadcasts: queryBroadcasts_1.broadCastsQueryResolver,
         notifications: queryNotifications_1.notificationsQueryResolver,
         users: queryUser_1.userQueryResolvers,
         workout_frequencies: queryWorkoutFrequencies_1.workoutFrequencyQueryResolver,
         getExcercisePerformance: queryExcercisePerformance_1.excercisePerformanceQueryResolver,
-        getWorkoutsCompletedCount: queryWorkoutsCompletedCount_1.getWorkoutsCompletedCountQueryResolver,
     },
     // Individual model querying here.
     User: {
@@ -119,14 +106,6 @@ exports.resolvers = {
     },
     // workout query
     Workout: {
-        workout_group(parent, args, context, info) {
-            return __awaiter(this, void 0, void 0, function* () {
-                const prisma = context.dataSources.prisma;
-                return yield prisma.workoutGroup.findUnique({
-                    where: { workout_group_id: parent.workout_group_id },
-                });
-            });
-        },
         excercise_sets(parent, args, context, info) {
             return __awaiter(this, void 0, void 0, function* () {
                 const prisma = context.dataSources.prisma;
@@ -139,16 +118,6 @@ exports.resolvers = {
             });
         },
     },
-    ExcerciseSet: {
-        excercise(parent, args, context, info) {
-            return __awaiter(this, void 0, void 0, function* () {
-                const prisma = context.dataSources.prisma;
-                return yield prisma.Excercise.findUnique({
-                    where: { excercise_id: parent.excercise_id },
-                });
-            });
-        },
-    },
     Excercise: {
         target_regions(parent, args, context, info) {
             return __awaiter(this, void 0, void 0, function* () {
@@ -156,7 +125,7 @@ exports.resolvers = {
                 return yield prisma.muscleRegion.findMany({
                     where: {
                         target_muscles: {
-                            some: { excercise_id: parent.excercise_id },
+                            some: { excercise_name: parent.excercise_name },
                         },
                     },
                 });
@@ -168,7 +137,7 @@ exports.resolvers = {
                 return yield prisma.muscleRegion.findMany({
                     where: {
                         stabilizer_muscles: {
-                            some: { excercise_id: parent.excercise_id },
+                            some: { excercise_name: parent.excercise_name },
                         },
                     },
                 });
@@ -180,7 +149,7 @@ exports.resolvers = {
                 return yield prisma.muscleRegion.findMany({
                     where: {
                         synergist_muscles: {
-                            some: { excercise_id: parent.excercise_id },
+                            some: { excercise_name: parent.excercise_name },
                         },
                     },
                 });
@@ -192,7 +161,7 @@ exports.resolvers = {
                 return yield prisma.muscleRegion.findMany({
                     where: {
                         dynamic_stabilizer_muscles: {
-                            some: { excercise_id: parent.excercise_id },
+                            some: { excercise_name: parent.excercise_name },
                         },
                     },
                 });
@@ -203,23 +172,9 @@ exports.resolvers = {
                 const prisma = context.dataSources.prisma;
                 return yield prisma.excerciseMetadata.findUnique({
                     where: {
-                        user_id_excercise_id: {
-                            excercise_id: parent.excercise_id,
+                        user_id_excercise_name: {
+                            excercise_name: parent.excercise_name,
                             user_id: context.user.user_id,
-                        },
-                    },
-                });
-            });
-        },
-    },
-    BroadCast: {
-        users(parent, args, context, info) {
-            return __awaiter(this, void 0, void 0, function* () {
-                const prisma = context.dataSources.prisma;
-                return yield prisma.user.findMany({
-                    where: {
-                        broadcasts: {
-                            some: { broad_cast_id: parent.broad_cast_id },
                         },
                     },
                 });

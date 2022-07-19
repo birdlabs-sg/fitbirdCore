@@ -2,6 +2,9 @@
 
 ## Note:
 
+[To inspect/manipulate database]
+`npx prisma studio`
+
 [Until docker-compose is implemented]
 To start dev environment,
 `npm run dev`

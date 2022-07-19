@@ -1,7 +1,5 @@
-import { AuthenticationError, ForbiddenError } from "apollo-server";
 import {
   reorderActiveWorkouts,
-  formatExcerciseSets,
   generateNextWorkout,
   enforceWorkoutExistsAndOwnership,
 } from "../../../service/workout_manager";
@@ -17,52 +15,35 @@ export const generateWorkouts = async (_: any, args: any, context: any) => {
 export const createWorkout = async (_: any, args: any, context: any) => {
   onlyAuthenticated(context);
   const prisma = context.dataSources.prisma;
-  const { excercise_sets, workout_group, ...otherArgs } = args;
-
-  // Format the excercise_sets for prisma creation.
-  const cleaned_excercise_sets = formatExcerciseSets(excercise_sets);
+  const { excercise_sets, ...otherArgs } = args;
 
   // Get all the active workouts
   const active_workouts = await prisma.workout.findMany({
     where: {
       date_completed: null,
-      workoutGroup: {
-        user_id: context.user.user_id,
-      },
+      user_id: context.user.user_id,
     },
     orderBy: {
       order_index: "asc",
     },
   });
 
-  // Create new workout group
-  const workoutGroup = await prisma.workoutGroup.create({
+  const workout = await prisma.workout.create({
     data: {
-      user: {
-        connect: { user_id: context.user.user_id },
+      user_id: context.user.user_id,
+      order_index: active_workouts.length,
+      ...otherArgs,
+      excercise_sets: {
+        create: excercise_sets,
       },
-      ...workout_group,
-      workouts: {
-        create: [
-          {
-            order_index: active_workouts.length,
-            ...otherArgs,
-            excercise_sets: {
-              create: cleaned_excercise_sets,
-            },
-          },
-        ],
-      },
-    },
-    include: {
-      workouts: true,
     },
   });
+
   return {
     code: "200",
     success: true,
     message: "Successfully created a workout.",
-    workout: workoutGroup.workouts[0],
+    workout: workout,
   };
 };
 
@@ -78,9 +59,7 @@ export const updateWorkoutOrder = async (_: any, args: any, context: any) => {
     message: "Successfully updated your workout!",
     workouts: await prisma.workout.findMany({
       where: {
-        workoutGroup: {
-          user_id: context.user.user_id,
-        },
+        user_id: context.user.user_id,
         date_completed: null,
       },
       orderBy: {
@@ -101,14 +80,8 @@ export const completeWorkout = async (_: any, args: any, context: any) => {
     where: {
       workout_id: parseInt(workout_id),
     },
-    include: {
-      workoutGroup: true,
-    },
   });
   enforceWorkoutExistsAndOwnership(context, targetWorkout);
-
-  // Format the excercise_sets and remove those that are to be deleted.
-  const excercise_sets_to_add = formatExcerciseSets(excercise_sets);
 
   // Complete the workout object by filling date_completed and new excercise_sets. All excercise sets not present in excercise_sets_to_add will be removed from the relationship.
   const completedWorkout = await prisma.workout.update({
@@ -119,7 +92,7 @@ export const completeWorkout = async (_: any, args: any, context: any) => {
       date_completed: new Date(),
       excercise_sets: {
         deleteMany: {},
-        createMany: { data: excercise_sets_to_add },
+        createMany: { data: excercise_sets },
       },
     },
     include: {
@@ -138,9 +111,7 @@ export const completeWorkout = async (_: any, args: any, context: any) => {
     workouts: await prisma.workout.findMany({
       where: {
         date_completed: null,
-        workoutGroup: {
-          user_id: context.user.user_id,
-        },
+        user_id: context.user.user_id,
       },
       orderBy: {
         order_index: "asc",
@@ -162,17 +133,11 @@ export const updateWorkout = async (_: any, args: any, context: any) => {
     where: {
       workout_id: parseInt(workout_id),
     },
-    include: {
-      workoutGroup: true,
-    },
   });
   enforceWorkoutExistsAndOwnership(context, targetWorkout);
 
   let updatedWorkout;
   if (excercise_sets != null) {
-    // Format the excercise_sets and remove those that are to be deleted.
-    const excercise_sets_to_add = formatExcerciseSets(excercise_sets);
-
     // Update the workout object with provided args. All excercise sets not present in excercise_sets_to_add will be removed from the relationship.
     updatedWorkout = await prisma.workout.update({
       where: {
@@ -182,7 +147,7 @@ export const updateWorkout = async (_: any, args: any, context: any) => {
         ...otherArgs,
         excercise_sets: {
           deleteMany: {},
-          createMany: { data: excercise_sets_to_add },
+          createMany: { data: excercise_sets },
         },
       },
       include: {
@@ -218,9 +183,6 @@ export const deleteWorkout = async (_: any, args: any, context: any) => {
     where: {
       workout_id: parseInt(args.workout_id),
     },
-    include: {
-      workoutGroup: true,
-    },
   });
   enforceWorkoutExistsAndOwnership(context, targetWorkout);
 
@@ -239,6 +201,7 @@ export const deleteWorkout = async (_: any, args: any, context: any) => {
     workouts: await prisma.workout.findMany({
       where: {
         date_completed: null,
+        user_id: context.user.user_id,
       },
       orderBy: {
         order_index: "asc",

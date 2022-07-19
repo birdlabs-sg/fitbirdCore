@@ -1,35 +1,4 @@
-import {
-  onlyAuthenticated,
-  onlyAdmin,
-} from "../../../service/firebase_service";
-
-export const createExcerciseMetadata = async (
-  _: any,
-  args: any,
-  context: any
-) => {
-  onlyAuthenticated(context);
-  const prisma = context.dataSources.prisma;
-  const { excercise_id, ...otherArgs } = args;
-
-  const newExcerciseMetadata = await prisma.excerciseMetadata.create({
-    data: {
-      ...otherArgs,
-      excercise: {
-        connect: { excercise_id: parseInt(excercise_id) },
-      },
-      user: {
-        connect: { user_id: context.user.user_id },
-      },
-    },
-  });
-  return {
-    code: "200",
-    success: true,
-    message: "Successfully created an excercise metadata!",
-    excercise: newExcerciseMetadata,
-  };
-};
+import { onlyAuthenticated } from "../../../service/firebase_service";
 
 export const updateExcerciseMetadata = async (
   _: any,
@@ -38,13 +7,13 @@ export const updateExcerciseMetadata = async (
 ) => {
   onlyAuthenticated(context);
   const prisma = context.dataSources.prisma;
-  const { excercise_id, ...otherArgs } = args;
+  const { excercise_name, ...otherArgs } = args;
 
   const updatedExcerciseMetadata = await prisma.excerciseMetadata.update({
     where: {
-      user_id_excercise_id: {
+      user_id_excercise_name: {
         user_id: context.user.user_id,
-        excercise_id: parseInt(excercise_id),
+        excercise_name: excercise_name,
       },
     },
     data: {

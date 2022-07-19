@@ -12,9 +12,7 @@ export const workoutsQueryResolver = async (
     case "ACTIVE":
       return await prisma.workout.findMany({
         where: {
-          workoutGroup: {
-            user_id: context.user.user_id,
-          },
+          user_id: context.user.user_id,
           date_completed: null,
         },
         orderBy: {
@@ -24,9 +22,7 @@ export const workoutsQueryResolver = async (
     case "COMPLETED":
       return await prisma.workout.findMany({
         where: {
-          workoutGroup: {
-            user_id: context.user.user_id,
-          },
+          user_id: context.user.user_id,
           date_completed: { not: null },
         },
         orderBy: {
@@ -36,9 +32,7 @@ export const workoutsQueryResolver = async (
     case "NONE":
       return await prisma.workout.findMany({
         where: {
-          workoutGroup: {
-            user_id: context.user.user_id,
-          },
+          user_id: context.user.user_id,
         },
       });
   }

@@ -97,10 +97,10 @@ async function loadExcercise(filepath) {
     }
 }
 
-async function deleteExcercise(excercise_id) {
+async function deleteExcercise(excercise_name) {
     deletedExcercise = await prisma.excercise.delete(
        { where: {
-        excercise_id : excercise_id
+        excercise_name : excercise_name
     }}
     )
 }

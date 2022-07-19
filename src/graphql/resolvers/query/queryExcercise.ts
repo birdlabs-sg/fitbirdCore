@@ -8,7 +8,7 @@ export const getExcerciseQueryResolver = async (
 
   return await prisma.excercise.findUnique({
     where: {
-      excercise_id: parseInt(args.excercise_id),
+      excercise_name: args.excercise_name,
     },
   });
 };
