@@ -27,6 +27,7 @@ import { updateExcerciseMetadata } from "./mutation/mutateExcerciseMetadata";
 import { workoutFrequencyQueryResolver } from "./query/queryWorkoutFrequencies";
 import { getExcerciseQueryResolver } from "./query/queryExcercise";
 import { excercisePerformanceQueryResolver } from "./query/queryExcercisePerformance";
+import { ArgumentNode } from "graphql";
 
 export const resolvers = {
   //Mutations for create, update and delete operations
@@ -59,49 +60,6 @@ export const resolvers = {
     users: userQueryResolvers,
     workout_frequencies: workoutFrequencyQueryResolver,
     getExcercisePerformance: excercisePerformanceQueryResolver,
-  },
-
-  // Individual model querying here.
-  User: {
-    async measurements(parent: any, args: any, context: any, info: any) {
-      const prisma = context.dataSources.prisma;
-      return await prisma.measurement.findMany({
-        where: {
-          user_id: parent.user_id,
-        },
-        include: {
-          muscle_region: true,
-        },
-      });
-    },
-    async workouts(parent: any, args: any, context: any, info: any) {
-      const prisma = context.dataSources.prisma;
-      return await prisma.workout.findMany({
-        where: {
-          user_id: parent.user_id,
-        },
-      });
-    },
-    async notifications(parent: any, args: any, context: any, info: any) {
-      const prisma = context.dataSources.prisma;
-      return await prisma.notification.findMany({
-        where: {
-          user_id: parent.user_id,
-        },
-      });
-    },
-    async broadcasts(parent: any, args: any, context: any, info: any) {
-      const prisma = context.dataSources.prisma;
-      return await prisma.broadCast.findMany({
-        where: {
-          users: {
-            some: {
-              user_id: parent.user_id,
-            },
-          },
-        },
-      });
-    },
   },
   // workout query
   Workout: {
@@ -149,7 +107,7 @@ export const resolvers = {
     },
     async dynamic_stabilizer_muscles(
       parent: any,
-      args: any,
+      args: ArgumentNode,
       context: any,
       info: any
     ) {

@@ -25,7 +25,6 @@ const workout_manager_1 = require("../../../service/workout_manager");
 const firebase_service_1 = require("../../../service/firebase_service");
 const generateWorkouts = (_, args, context) => __awaiter(void 0, void 0, void 0, function* () {
     (0, firebase_service_1.onlyAuthenticated)(context);
-    console.log(args);
     const { no_of_workouts } = args;
     const prisma = context.dataSources.prisma;
     const generatedWorkouts = [];
@@ -153,33 +152,21 @@ const updateWorkout = (_, args, context) => __awaiter(void 0, void 0, void 0, fu
         throw Error("You cannot update a completed workout");
     }
     yield (0, workout_manager_1.checkExistsAndOwnership)(context, workout_id, true);
-    let updatedWorkout;
-    if (excercise_sets != null) {
-        // Update the workout object with provided args. All excercise sets not present in excercise_sets_to_add will be removed from the relationship.
-        updatedWorkout = yield prisma.workout.update({
-            where: {
-                workout_id: parseInt(workout_id),
-            },
-            data: Object.assign(Object.assign({}, otherArgs), { excercise_sets: {
-                    deleteMany: {},
-                    createMany: { data: excercise_sets },
-                } }),
-            include: {
-                excercise_sets: true,
-            },
-        });
-    }
-    else {
-        updatedWorkout = yield prisma.workout.update({
-            where: {
-                workout_id: parseInt(workout_id),
-            },
-            data: Object.assign({}, otherArgs),
-            include: {
-                excercise_sets: true,
-            },
-        });
-    }
+    let updatedData = Object.assign(Object.assign({}, otherArgs), (excercise_sets && {
+        excercise_sets: {
+            deleteMany: {},
+            createMany: { data: excercise_sets },
+        },
+    }));
+    const updatedWorkout = yield prisma.workout.update({
+        where: {
+            workout_id: parseInt(workout_id),
+        },
+        data: updatedData,
+        include: {
+            excercise_sets: true,
+        },
+    });
     return {
         code: "200",
         success: true,
@@ -205,18 +192,7 @@ const deleteWorkout = (_, args, context) => __awaiter(void 0, void 0, void 0, fu
         code: "200",
         success: true,
         message: "Successfully deleted your workout!",
-        workouts: yield prisma.workout.findMany({
-            where: {
-                date_completed: null,
-                user_id: context.user.user_id,
-            },
-            orderBy: {
-                order_index: "asc",
-            },
-            include: {
-                excercise_sets: true,
-            },
-        }),
+        workouts: yield (0, workout_manager_1.getActiveWorkouts)(context),
     };
 });
 exports.deleteWorkout = deleteWorkout;

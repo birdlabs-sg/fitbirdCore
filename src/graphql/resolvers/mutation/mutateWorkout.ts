@@ -8,10 +8,10 @@ import {
   updateExcerciseMetadataWithCompletedWorkout,
 } from "../../../service/workout_manager";
 import { onlyAuthenticated } from "../../../service/firebase_service";
+import { Context } from "apollo-server-core";
 
 export const generateWorkouts = async (_: any, args: any, context: any) => {
   onlyAuthenticated(context);
-  console.log(args);
   const { no_of_workouts } = args;
   const prisma = context.dataSources.prisma;
   const generatedWorkouts = [];
@@ -154,37 +154,26 @@ export const updateWorkout = async (_: any, args: any, context: any) => {
   }
   await checkExistsAndOwnership(context, workout_id, true);
 
-  let updatedWorkout;
-  if (excercise_sets != null) {
-    // Update the workout object with provided args. All excercise sets not present in excercise_sets_to_add will be removed from the relationship.
-    updatedWorkout = await prisma.workout.update({
-      where: {
-        workout_id: parseInt(workout_id),
+  let updatedData = {
+    ...otherArgs,
+    ...(excercise_sets && {
+      excercise_sets: {
+        deleteMany: {},
+        createMany: { data: excercise_sets },
       },
-      data: {
-        ...otherArgs,
-        excercise_sets: {
-          deleteMany: {},
-          createMany: { data: excercise_sets },
-        },
-      },
-      include: {
-        excercise_sets: true,
-      },
-    });
-  } else {
-    updatedWorkout = await prisma.workout.update({
-      where: {
-        workout_id: parseInt(workout_id),
-      },
-      data: {
-        ...otherArgs,
-      },
-      include: {
-        excercise_sets: true,
-      },
-    });
-  }
+    }),
+  };
+
+  const updatedWorkout = await prisma.workout.update({
+    where: {
+      workout_id: parseInt(workout_id),
+    },
+    data: updatedData,
+    include: {
+      excercise_sets: true,
+    },
+  });
+
   return {
     code: "200",
     success: true,
@@ -207,21 +196,11 @@ export const deleteWorkout = async (_: any, args: any, context: any) => {
   });
   // reorder remaining workouts
   await reorderActiveWorkouts(context, null, null);
+
   return {
     code: "200",
     success: true,
     message: "Successfully deleted your workout!",
-    workouts: await prisma.workout.findMany({
-      where: {
-        date_completed: null,
-        user_id: context.user.user_id,
-      },
-      orderBy: {
-        order_index: "asc",
-      },
-      include: {
-        excercise_sets: true,
-      },
-    }),
+    workouts: await getActiveWorkouts(context),
   };
 };

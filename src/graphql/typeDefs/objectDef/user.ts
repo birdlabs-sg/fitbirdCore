@@ -19,9 +19,5 @@ export const User = gql`
     workout_frequency: Int
     workout_duration: Int
     automatic_scheduling: Boolean
-    measurements: [Measurement]
-    workouts: [Workout]
-    notifications: [Notification]
-    broadcasts: [BroadCast]
   }
 `;

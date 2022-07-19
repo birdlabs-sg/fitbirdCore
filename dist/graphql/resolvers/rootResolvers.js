@@ -55,56 +55,6 @@ exports.resolvers = {
         workout_frequencies: queryWorkoutFrequencies_1.workoutFrequencyQueryResolver,
         getExcercisePerformance: queryExcercisePerformance_1.excercisePerformanceQueryResolver,
     },
-    // Individual model querying here.
-    User: {
-        measurements(parent, args, context, info) {
-            return __awaiter(this, void 0, void 0, function* () {
-                const prisma = context.dataSources.prisma;
-                return yield prisma.measurement.findMany({
-                    where: {
-                        user_id: parent.user_id,
-                    },
-                    include: {
-                        muscle_region: true,
-                    },
-                });
-            });
-        },
-        workouts(parent, args, context, info) {
-            return __awaiter(this, void 0, void 0, function* () {
-                const prisma = context.dataSources.prisma;
-                return yield prisma.workout.findMany({
-                    where: {
-                        user_id: parent.user_id,
-                    },
-                });
-            });
-        },
-        notifications(parent, args, context, info) {
-            return __awaiter(this, void 0, void 0, function* () {
-                const prisma = context.dataSources.prisma;
-                return yield prisma.notification.findMany({
-                    where: {
-                        user_id: parent.user_id,
-                    },
-                });
-            });
-        },
-        broadcasts(parent, args, context, info) {
-            return __awaiter(this, void 0, void 0, function* () {
-                const prisma = context.dataSources.prisma;
-                return yield prisma.broadCast.findMany({
-                    where: {
-                        users: {
-                            some: {
-                                user_id: parent.user_id,
-                            },
-                        },
-                    },
-                });
-            });
-        },
-    },
     // workout query
     Workout: {
         excercise_sets(parent, args, context, info) {
