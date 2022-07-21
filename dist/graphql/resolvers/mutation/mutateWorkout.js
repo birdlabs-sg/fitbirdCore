@@ -148,9 +148,7 @@ const updateWorkout = (_, args, context) => __awaiter(void 0, void 0, void 0, fu
     (0, firebase_service_1.onlyAuthenticated)(context);
     const { workout_id, excercise_sets } = args, otherArgs = __rest(args, ["workout_id", "excercise_sets"]);
     const prisma = context.dataSources.prisma;
-    if (otherArgs.date_completed != null) {
-        throw Error("You cannot update a completed workout");
-    }
+    console.log("updateworkout");
     yield (0, workout_manager_1.checkExistsAndOwnership)(context, workout_id, true);
     let updatedData = Object.assign(Object.assign({}, otherArgs), (excercise_sets && {
         excercise_sets: {

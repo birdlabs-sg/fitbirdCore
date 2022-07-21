@@ -122,9 +122,6 @@ export const checkExistsAndOwnership = async (
   if (targetWorkout == null) {
     throw new Error("The workout does not exist.");
   }
-  if (onlyActive && targetWorkout.date_completed != null) {
-    throw new Error("You cannot amend a completed workout.");
-  }
   if (targetWorkout.user_id != context.user.user_id) {
     throw new AuthenticationError(
       "You are not authorized to remove this object"

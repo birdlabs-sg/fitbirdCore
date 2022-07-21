@@ -8,7 +8,6 @@ import {
   updateExcerciseMetadataWithCompletedWorkout,
 } from "../../../service/workout_manager";
 import { onlyAuthenticated } from "../../../service/firebase_service";
-import { Context } from "apollo-server-core";
 
 export const generateWorkouts = async (_: any, args: any, context: any) => {
   onlyAuthenticated(context);
@@ -68,6 +67,11 @@ export const createWorkout = async (_: any, args: any, context: any) => {
   onlyAuthenticated(context);
   const prisma = context.dataSources.prisma;
   const { excercise_sets, ...otherArgs } = args;
+
+  // Ensure that there is a max of 7 workouts
+  if ((await getActiveWorkoutCount(context)) > 6) {
+    throw Error("You can only have 7 active workouts.");
+  }
 
   const workout = await prisma.workout.create({
     data: {
@@ -148,10 +152,7 @@ export const updateWorkout = async (_: any, args: any, context: any) => {
   onlyAuthenticated(context);
   const { workout_id, excercise_sets, ...otherArgs } = args;
   const prisma = context.dataSources.prisma;
-
-  if (otherArgs.date_completed != null) {
-    throw Error("You cannot update a completed workout");
-  }
+  console.log("updateworkout");
   await checkExistsAndOwnership(context, workout_id, true);
 
   let updatedData = {

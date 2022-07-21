@@ -131,9 +131,6 @@ const checkExistsAndOwnership = (context, workout_id, onlyActive) => __awaiter(v
     if (targetWorkout == null) {
         throw new Error("The workout does not exist.");
     }
-    if (onlyActive && targetWorkout.date_completed != null) {
-        throw new Error("You cannot amend a completed workout.");
-    }
     if (targetWorkout.user_id != context.user.user_id) {
         throw new apollo_server_1.AuthenticationError("You are not authorized to remove this object");
     }

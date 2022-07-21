@@ -29,11 +29,11 @@ const queryTypeDef = gql`
     user: User
     workouts(filter: WorkoutFilter!): [Workout]
     excercises: [Excercise]
-    getExcercise(excercise_name: String!): Excercise
+    getExcercise(excercise_name: ID!): Excercise
     notifications: [Notification]
     workout_frequencies: [WorkoutFrequency]
     getExcercisePerformance(
-      excercise_name: String!
+      excercise_name: ID!
       span: Int
     ): ExcercisePerformance
     "This query is only available to administrators."
