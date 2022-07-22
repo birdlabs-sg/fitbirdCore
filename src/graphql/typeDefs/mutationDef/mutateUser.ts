@@ -25,6 +25,10 @@ export const mutateUser = gql`
       workout_frequency: Int
       workout_duration: Int
       automatic_scheduling: Boolean
+      compound_movement_rep_lower_bound: Int
+      compound_movement_rep_upper_bound: Int
+      isolated_movement_rep_lower_bound: Int
+      isolated_movement_rep_upper_bound: Int
     ): MutateUserResponse
   }
 `;

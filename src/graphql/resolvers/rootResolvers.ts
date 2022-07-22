@@ -28,6 +28,7 @@ import { workoutFrequencyQueryResolver } from "./query/queryWorkoutFrequencies";
 import { getExcerciseQueryResolver } from "./query/queryExcercise";
 import { excercisePerformanceQueryResolver } from "./query/queryExcercisePerformance";
 import { ArgumentNode } from "graphql";
+import { getExcerciseMetadatasQueryResolver } from "./query/queryExcerciseMetadatas";
 
 export const resolvers = {
   //Mutations for create, update and delete operations
@@ -60,6 +61,7 @@ export const resolvers = {
     users: userQueryResolvers,
     workout_frequencies: workoutFrequencyQueryResolver,
     getExcercisePerformance: excercisePerformanceQueryResolver,
+    getExcerciseMetadatas: getExcerciseMetadatasQueryResolver,
   },
   // workout query
   Workout: {

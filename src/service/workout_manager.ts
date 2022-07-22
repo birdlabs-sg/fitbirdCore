@@ -202,8 +202,11 @@ export const generateNextWorkout = async (
       return "EXCEED";
     }
   };
-  const lowerBound = 4;
-  const upperBound = 8;
+
+  const compoundLowerBound = context.user.compound_movement_rep_lower_bound;
+  const compoundUpperBound = context.user.compound_movement_rep_upper_bound;
+  const isolatedLowerBound = context.user.isolated_movement_rep_lower_bound;
+  const isolatedUpperBound = context.user.isolated_movement_rep_upper_bound;
 
   const new_excercise_sets = [];
   // TODO: give a more accurate benchmark
@@ -232,6 +235,21 @@ export const generateNextWorkout = async (
       workout_id,
       ...excercise_set_scaffold
     } = excercise_set;
+    const excerciseData = prisma.excercise.findUnique({
+      where: {
+        excercise_name: excercise_set.excercise_name,
+      },
+    });
+    var upperBound;
+    var lowerBound;
+    if (excerciseData.excercise_mechanics[0] == "COMPOUND") {
+      upperBound = compoundUpperBound;
+      lowerBound = compoundLowerBound;
+    } else {
+      upperBound = isolatedLowerBound;
+      lowerBound = isolatedUpperBound;
+    }
+
     const excerciseSetRating = rateExcerciseSet(excercise_set);
     if (excerciseSetRating == "SKIPPED") {
       // Skipped => maintain the target reps and target weight of that set
@@ -252,7 +270,9 @@ export const generateNextWorkout = async (
       if (newTargetReps > upperBound) {
         // hit the upper bound, recalibrate
         newTargetReps = (lowerBound + upperBound) / 2;
-        newTargetWeight = actual_weight + 2.5;
+        newTargetWeight = (Math.round(actual_weight * 0.025 * 4) / 4).toFixed(
+          2
+        );
       }
       excercise_set_scaffold.target_reps = newTargetReps;
       excercise_set_scaffold.target_weight = newTargetWeight;

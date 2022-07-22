@@ -79,6 +79,10 @@ const createWorkout = (_, args, context) => __awaiter(void 0, void 0, void 0, fu
     (0, firebase_service_1.onlyAuthenticated)(context);
     const prisma = context.dataSources.prisma;
     const { excercise_sets } = args, otherArgs = __rest(args, ["excercise_sets"]);
+    // Ensure that there is a max of 7 workouts
+    if ((yield (0, workout_manager_1.getActiveWorkoutCount)(context)) > 6) {
+        throw Error("You can only have 7 active workouts.");
+    }
     const workout = yield prisma.workout.create({
         data: Object.assign(Object.assign({ user_id: context.user.user_id, order_index: yield (0, workout_manager_1.getActiveWorkoutCount)(context) }, otherArgs), { excercise_sets: {
                 create: excercise_sets,
@@ -148,7 +152,6 @@ const updateWorkout = (_, args, context) => __awaiter(void 0, void 0, void 0, fu
     (0, firebase_service_1.onlyAuthenticated)(context);
     const { workout_id, excercise_sets } = args, otherArgs = __rest(args, ["workout_id", "excercise_sets"]);
     const prisma = context.dataSources.prisma;
-    console.log("updateworkout");
     yield (0, workout_manager_1.checkExistsAndOwnership)(context, workout_id, true);
     let updatedData = Object.assign(Object.assign({}, otherArgs), (excercise_sets && {
         excercise_sets: {
@@ -186,6 +189,7 @@ const deleteWorkout = (_, args, context) => __awaiter(void 0, void 0, void 0, fu
     });
     // reorder remaining workouts
     yield (0, workout_manager_1.reorderActiveWorkouts)(context, null, null);
+    console.log(args);
     return {
         code: "200",
         success: true,

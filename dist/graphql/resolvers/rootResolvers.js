@@ -24,6 +24,7 @@ const mutateExcerciseMetadata_1 = require("./mutation/mutateExcerciseMetadata");
 const queryWorkoutFrequencies_1 = require("./query/queryWorkoutFrequencies");
 const queryExcercise_1 = require("./query/queryExcercise");
 const queryExcercisePerformance_1 = require("./query/queryExcercisePerformance");
+const queryExcerciseMetadatas_1 = require("./query/queryExcerciseMetadatas");
 exports.resolvers = {
     //Mutations for create, update and delete operations
     Mutation: {
@@ -54,6 +55,7 @@ exports.resolvers = {
         users: queryUser_1.userQueryResolvers,
         workout_frequencies: queryWorkoutFrequencies_1.workoutFrequencyQueryResolver,
         getExcercisePerformance: queryExcercisePerformance_1.excercisePerformanceQueryResolver,
+        getExcerciseMetadatas: queryExcerciseMetadatas_1.getExcerciseMetadatasQueryResolver,
     },
     // workout query
     Workout: {

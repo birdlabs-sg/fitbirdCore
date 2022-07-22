@@ -36,6 +36,7 @@ const queryTypeDef = gql`
       excercise_name: ID!
       span: Int
     ): ExcercisePerformance
+    getExcerciseMetadatas(excercise_names_list: [ID]!): [ExcerciseMetadata]
     "This query is only available to administrators."
     users: [User]
   }

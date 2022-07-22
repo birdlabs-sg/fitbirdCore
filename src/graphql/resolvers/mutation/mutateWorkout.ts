@@ -152,7 +152,6 @@ export const updateWorkout = async (_: any, args: any, context: any) => {
   onlyAuthenticated(context);
   const { workout_id, excercise_sets, ...otherArgs } = args;
   const prisma = context.dataSources.prisma;
-  console.log("updateworkout");
   await checkExistsAndOwnership(context, workout_id, true);
 
   let updatedData = {
@@ -197,7 +196,7 @@ export const deleteWorkout = async (_: any, args: any, context: any) => {
   });
   // reorder remaining workouts
   await reorderActiveWorkouts(context, null, null);
-
+  console.log(args);
   return {
     code: "200",
     success: true,

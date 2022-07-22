@@ -65,29 +65,33 @@ enum ExcerciseMetadataState {
 }
 
 model User {
-  user_id                   Int                 @id @default(autoincrement())
-  email                     String              @unique
-  firebase_uid              String              @unique
-  displayName               String
-  prior_years_of_experience Float?
-  level_of_experience       LevelOfExperience?
-  age                       Int?
-  dark_mode                 Boolean             @default(false)
-  automatic_scheduling      Boolean             @default(true)
-  workout_frequency         Int?
-  workout_duration          Int?
-  goal                      Goal?
-  gender                    Gender?
-  weight                    Float?
-  height                    Float?
-  weight_unit               WeightUnit?
-  height_unit               LengthUnit?
-  phoneNumber               String?
-  measurements              Measurement[]
-  workouts                  Workout[]
-  notifications             Notification[]
-  broadcasts                BroadCast[]
-  excerciseMetadata         ExcerciseMetadata[]
+  user_id                           Int                 @id @default(autoincrement())
+  email                             String              @unique
+  firebase_uid                      String              @unique
+  displayName                       String
+  prior_years_of_experience         Float?
+  level_of_experience               LevelOfExperience?
+  age                               Int?
+  dark_mode                         Boolean             @default(false)
+  automatic_scheduling              Boolean             @default(true)
+  workout_frequency                 Int?
+  workout_duration                  Int?
+  goal                              Goal?
+  gender                            Gender?
+  weight                            Float?
+  height                            Float?
+  weight_unit                       WeightUnit?
+  height_unit                       LengthUnit?
+  phoneNumber                       String?
+  compound_movement_rep_lower_bound Int                 @default(3)
+  compound_movement_rep_upper_bound Int                 @default(10)
+  isolated_movement_rep_lower_bound Int                 @default(5)
+  isolated_movement_rep_upper_bound Int                 @default(15)
+  measurements                      Measurement[]
+  workouts                          Workout[]
+  notifications                     Notification[]
+  broadcasts                        BroadCast[]
+  excerciseMetadata                 ExcerciseMetadata[]
 }
 
 model ExcerciseMetadata {
