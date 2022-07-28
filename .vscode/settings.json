@@ -7,6 +7,9 @@
     },
     "files.exclude": {
         "**/dist": true,
-        "**/node_modules": true
+        "**/node_modules": true,
+        "**/excercise_data_set": true,
+        "**/cleaned_data_set": true,
+        "**/muscle_data_set": true,
     }
 }

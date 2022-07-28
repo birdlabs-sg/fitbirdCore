@@ -25,6 +25,7 @@ exports.User = gql `
     compound_movement_rep_upper_bound: Int
     isolated_movement_rep_lower_bound: Int
     isolated_movement_rep_upper_bound: Int
+    equipment_accessible: [Equipment]
   }
 `;
 //# sourceMappingURL=user.js.map

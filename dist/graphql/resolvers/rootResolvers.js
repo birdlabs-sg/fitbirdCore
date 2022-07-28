@@ -25,6 +25,8 @@ const queryWorkoutFrequencies_1 = require("./query/queryWorkoutFrequencies");
 const queryExcercise_1 = require("./query/queryExcercise");
 const queryExcercisePerformance_1 = require("./query/queryExcercisePerformance");
 const queryExcerciseMetadatas_1 = require("./query/queryExcerciseMetadatas");
+const queryWorkout_1 = require("./query/queryWorkout");
+const _ = require("lodash");
 exports.resolvers = {
     //Mutations for create, update and delete operations
     Mutation: {
@@ -49,6 +51,7 @@ exports.resolvers = {
     Query: {
         user: queryUser_1.userQueryResolvers,
         workouts: queryWorkouts_1.workoutsQueryResolver,
+        getWorkout: queryWorkout_1.workoutQueryResolver,
         getExcercise: queryExcercise_1.getExcerciseQueryResolver,
         excercises: queryExcercises_1.excercisesQueryResolver,
         notifications: queryNotifications_1.notificationsQueryResolver,
@@ -66,6 +69,48 @@ exports.resolvers = {
                     where: { workout_id: parent.workout_id },
                     include: {
                         excercise: true,
+                    },
+                });
+            });
+        },
+        excercise_set_groups(parent, args, context, info) {
+            return __awaiter(this, void 0, void 0, function* () {
+                const prisma = context.dataSources.prisma;
+                const excercise_sets = yield prisma.ExcerciseSet.findMany({
+                    where: { workout_id: parent.workout_id },
+                });
+                const excercise_map = _.groupBy(excercise_sets, "excercise_name");
+                const excercise_set_groups = [];
+                Object.entries(excercise_map).forEach(([key, value]) => {
+                    excercise_set_groups.push({
+                        excercise_name: key,
+                        excercise_sets: value,
+                    });
+                });
+                return excercise_set_groups;
+            });
+        },
+    },
+    ExcerciseSetGroup: {
+        excercise(parent, args, context, info) {
+            return __awaiter(this, void 0, void 0, function* () {
+                const prisma = context.dataSources.prisma;
+                return yield prisma.excercise.findUnique({
+                    where: {
+                        excercise_name: parent.excercise_name,
+                    },
+                });
+            });
+        },
+        excerciseMetadata(parent, args, context, info) {
+            return __awaiter(this, void 0, void 0, function* () {
+                const prisma = context.dataSources.prisma;
+                return yield prisma.excerciseMetadata.findUnique({
+                    where: {
+                        user_id_excercise_name: {
+                            user_id: context.user.user_id,
+                            excercise_name: parent.excercise_name,
+                        },
                     },
                 });
             });
@@ -115,19 +160,6 @@ exports.resolvers = {
                     where: {
                         dynamic_stabilizer_muscles: {
                             some: { excercise_name: parent.excercise_name },
-                        },
-                    },
-                });
-            });
-        },
-        excerciseMetadata(parent, args, context, info) {
-            return __awaiter(this, void 0, void 0, function* () {
-                const prisma = context.dataSources.prisma;
-                return yield prisma.excerciseMetadata.findUnique({
-                    where: {
-                        user_id_excercise_name: {
-                            excercise_name: parent.excercise_name,
-                            user_id: context.user.user_id,
                         },
                     },
                 });

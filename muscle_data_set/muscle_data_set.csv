@@ -1,0 +1,48 @@
+muscle_region_name,muscle_region_type
+Adductors,HIPS
+Biceps Brachii,UPPER_ARM
+Brachialis,UPPER_ARM
+Brachioradialis,FORE_ARM
+"Deltoid, Anterior",SHOULDER
+"Deltoid, Lateral",SHOULDER
+"Deltoid, Posterior",SHOULDER
+Deep Hip External Rotators,HIPS
+Erector Spinae,WAIST
+Gastrocnemius,CALVES
+Gluteus Maximus,THIGHS
+Gluteus Medius,THIGHS
+Gluteus Minimus,THIGHS
+Gracilis,THIGHS
+Hamstrings,THIGHS
+Iliopsoas,HIPS
+Infraspinatus,BACK
+Latissimus Dorsi,BACK
+Levator Scapulae,BACK
+Obliques,WAIST
+Pectineous,HIPS
+"Pectoralis Major, Clavicular Head",CHEST
+"Pectoralis Major, Sternal Head",CHEST
+"Teres Major",BACK
+"Teres Minor",BACK
+Tibialis Anterior,CALVES
+Transverse Abdominus,WAIST
+"Trapezius, Lower Fibers",BACK
+"Trapezius,  Middle Fibers",BACK
+"Trapezius,  Upper Fibers",BACK
+Triceps Brachii,UPPER_ARM
+"Wrist Extensors",FORE_ARM
+"Wrist Flexors",FORE_ARM
+Pectoralis Minor,CHEST
+Popliteus,CALVES
+Quadratus Lumborum,WAIST
+Quadriceps,THIGHS
+Rectus Abdominis,WAIST
+Rhomboids,BACK
+Sartorius,THIGHS
+Serratus Anterior,WAIST
+Soleus,CALVES
+Splenius,NECK
+Sternocleidomastoid,NECK
+Subscapularis,BACK
+Supraspinatus,SHOULDERS
+Tensor Fasciae Latae,HIPS

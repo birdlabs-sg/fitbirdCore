@@ -24,6 +24,41 @@ exports.Enum = gql `
     FT
   }
 
+  enum ExcerciseSetGroupState {
+    DELETED_TEMPORARILY
+    DELETED_PERMANANTLY
+    REPLACED_TEMPORARILY
+    REPLACED_PERMANANTLY
+    NORMAL_OPERATION
+  }
+
+  enum Equipment {
+    DUMBBELL
+    BARBELL
+    KETTLEBELL
+    CABLE
+    LEVER
+    SUSPENSION
+    T_BAR
+    MACHINE
+    TRAP_BAR
+    SLED
+    SMITH
+  }
+
+  enum MuscleRegionType {
+    HIPS
+    UPPER_ARM
+    SHOULDER
+    WAIST
+    CALVES
+    THIGHS
+    BACK
+    CHEST
+    FORE_ARM
+    NECK
+  }
+
   enum ExcerciseMetadataState {
     LEARNING
     INCREASED_DIFFICULTY

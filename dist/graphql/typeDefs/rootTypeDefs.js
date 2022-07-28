@@ -29,6 +29,7 @@ const queryTypeDef = gql `
   type Query {
     user: User
     workouts(filter: WorkoutFilter!): [Workout]
+    getWorkout(workout_id: ID!): Workout
     excercises: [Excercise]
     getExcercise(excercise_name: ID!): Excercise
     notifications: [Notification]

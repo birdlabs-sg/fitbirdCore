@@ -115,9 +115,10 @@ exports.updateWorkoutOrder = updateWorkoutOrder;
 // Note: Client have to send in all the excercise_sets or it will be treated that the excercise_set is to be deleted
 const completeWorkout = (_, args, context) => __awaiter(void 0, void 0, void 0, function* () {
     (0, firebase_service_1.onlyAuthenticated)(context);
-    const { workout_id, excercise_sets } = args;
+    const { workout_id, excercise_set_groups } = args;
     const prisma = context.dataSources.prisma;
     yield (0, workout_manager_1.checkExistsAndOwnership)(context, workout_id, false);
+    const [current_workout_excercise_sets, next_workout_excercise_sets] = (0, workout_manager_1.excerciseSetGroupsTransformer)(excercise_set_groups);
     const completedWorkout = yield prisma.workout.update({
         where: {
             workout_id: parseInt(workout_id),
@@ -126,7 +127,7 @@ const completeWorkout = (_, args, context) => __awaiter(void 0, void 0, void 0, 
             date_completed: new Date(),
             excercise_sets: {
                 deleteMany: {},
-                createMany: { data: excercise_sets },
+                createMany: { data: current_workout_excercise_sets },
             },
         },
         include: {
@@ -134,9 +135,10 @@ const completeWorkout = (_, args, context) => __awaiter(void 0, void 0, void 0, 
         },
     });
     // Updates best set if available. TODO: Change excercise state
+    yield (0, workout_manager_1.generateExcerciseMetadata)(context, completedWorkout);
     yield (0, workout_manager_1.updateExcerciseMetadataWithCompletedWorkout)(context, completedWorkout);
     yield (0, workout_manager_1.reorderActiveWorkouts)(context, null, null);
-    yield (0, workout_manager_1.generateNextWorkout)(context, completedWorkout);
+    yield (0, workout_manager_1.generateNextWorkout)(context, completedWorkout, next_workout_excercise_sets);
     return {
         code: "200",
         success: true,
@@ -152,7 +154,7 @@ const updateWorkout = (_, args, context) => __awaiter(void 0, void 0, void 0, fu
     (0, firebase_service_1.onlyAuthenticated)(context);
     const { workout_id, excercise_sets } = args, otherArgs = __rest(args, ["workout_id", "excercise_sets"]);
     const prisma = context.dataSources.prisma;
-    yield (0, workout_manager_1.checkExistsAndOwnership)(context, workout_id, true);
+    yield (0, workout_manager_1.checkExistsAndOwnership)(context, workout_id, false);
     let updatedData = Object.assign(Object.assign({}, otherArgs), (excercise_sets && {
         excercise_sets: {
             deleteMany: {},
@@ -168,6 +170,7 @@ const updateWorkout = (_, args, context) => __awaiter(void 0, void 0, void 0, fu
             excercise_sets: true,
         },
     });
+    yield (0, workout_manager_1.updateExcerciseMetadataWithCompletedWorkout)(context, updatedWorkout);
     return {
         code: "200",
         success: true,
@@ -189,7 +192,6 @@ const deleteWorkout = (_, args, context) => __awaiter(void 0, void 0, void 0, fu
     });
     // reorder remaining workouts
     yield (0, workout_manager_1.reorderActiveWorkouts)(context, null, null);
-    console.log(args);
     return {
         code: "200",
         success: true,

@@ -6,6 +6,7 @@ import {
   getActiveWorkouts,
   generateExcerciseMetadata,
   updateExcerciseMetadataWithCompletedWorkout,
+  excerciseSetGroupsTransformer,
 } from "../../../service/workout_manager";
 import { onlyAuthenticated } from "../../../service/firebase_service";
 
@@ -112,10 +113,12 @@ export const updateWorkoutOrder = async (_: any, args: any, context: any) => {
 // Note: Client have to send in all the excercise_sets or it will be treated that the excercise_set is to be deleted
 export const completeWorkout = async (_: any, args: any, context: any) => {
   onlyAuthenticated(context);
-  const { workout_id, excercise_sets } = args;
+  const { workout_id, excercise_set_groups } = args;
   const prisma = context.dataSources.prisma;
-
   await checkExistsAndOwnership(context, workout_id, false);
+
+  const [current_workout_excercise_sets, next_workout_excercise_sets] =
+    excerciseSetGroupsTransformer(excercise_set_groups);
 
   const completedWorkout = await prisma.workout.update({
     where: {
@@ -125,7 +128,7 @@ export const completeWorkout = async (_: any, args: any, context: any) => {
       date_completed: new Date(),
       excercise_sets: {
         deleteMany: {},
-        createMany: { data: excercise_sets },
+        createMany: { data: current_workout_excercise_sets },
       },
     },
     include: {
@@ -133,9 +136,15 @@ export const completeWorkout = async (_: any, args: any, context: any) => {
     },
   });
   // Updates best set if available. TODO: Change excercise state
+  await generateExcerciseMetadata(context, completedWorkout);
   await updateExcerciseMetadataWithCompletedWorkout(context, completedWorkout);
+
   await reorderActiveWorkouts(context, null, null);
-  await generateNextWorkout(context, completedWorkout);
+  await generateNextWorkout(
+    context,
+    completedWorkout,
+    next_workout_excercise_sets
+  );
 
   return {
     code: "200",
@@ -152,8 +161,7 @@ export const updateWorkout = async (_: any, args: any, context: any) => {
   onlyAuthenticated(context);
   const { workout_id, excercise_sets, ...otherArgs } = args;
   const prisma = context.dataSources.prisma;
-  await checkExistsAndOwnership(context, workout_id, true);
-
+  await checkExistsAndOwnership(context, workout_id, false);
   let updatedData = {
     ...otherArgs,
     ...(excercise_sets && {
@@ -173,7 +181,7 @@ export const updateWorkout = async (_: any, args: any, context: any) => {
       excercise_sets: true,
     },
   });
-
+  await updateExcerciseMetadataWithCompletedWorkout(context, updatedWorkout);
   return {
     code: "200",
     success: true,
@@ -196,7 +204,7 @@ export const deleteWorkout = async (_: any, args: any, context: any) => {
   });
   // reorder remaining workouts
   await reorderActiveWorkouts(context, null, null);
-  console.log(args);
+
   return {
     code: "200",
     success: true,

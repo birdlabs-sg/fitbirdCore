@@ -3,49 +3,24 @@ const { PrismaClient } = require('@prisma/client')
 const prisma = new PrismaClient()
 const csv=require('csvtojson') 
 
-async function loadExcercise(filepath) {
-    let allArgs = []
-    var files = require('fs').readdirSync('./excercise_data_set/');
-    for (i = 0 ; i < files.length ; i++) {
-        if (files[i] != ".DS_Store" 
-        && files[i] != "CardioExercises.csv" 
-        && files[i] != "KettlebellExercises.csv" 
-        && files[i] != "PowerExercises.csv"
-        && files[i] != "OtherExercises.csv"
-        && files[i] != "OlympicWeightlifting.csv") {
-            filepath = "./excercise_data_set/" + files[i]
-                parsedExcercises = await csv()
-                .fromFile(filepath)
-                .then((jsonObjList) => {
-                    const parsedFile = []
-                    for (jsonObj of jsonObjList) {
-                        args = {
-                            "excercise_name": jsonObj.excercise_name,
-                            "excercise_preparation": jsonObj.preparation,
-                            "excercise_instructions": jsonObj.execution,
-                            "excercise_tips": jsonObj.comments,
-                            "excercise_utility": JSON.parse(jsonObj.utility.replace(/'/g, "\"")).map(e => e.toUpperCase()),
-                            "excercise_mechanics": JSON.parse(jsonObj.mechanics.replace(/'/g, "\"")).map(e => e.toUpperCase()),
-                            "excercise_force": JSON.parse(jsonObj.force.replace(/'/g, "\"")).map(e => e.toUpperCase()),
-                            "target_regions": JSON.parse(jsonObj.target_muscles.replace(/'/g, "\"")),
-                            "synergist_muscles":JSON.parse(jsonObj.synergist_muscles.replace(/'/g, "\"")),
-                            "dynamic_stabilizer_muscles": JSON.parse(jsonObj.dynamic_stabilizer_muscles.replace(/'/g, "\"")),
-                            "stabilizer_muscles": JSON.parse(jsonObj.stabalizer_muscles.replace(/'/g, "\"")),
-                        }
-                        parsedFile.push(args)
-                    }
-                    return parsedFile
-                })
-                allArgs = allArgs.concat(parsedExcercises)
+async function loadExcercise() {
+    var files = require('fs').readdirSync('./cleaned_data_set/');
+    var combinedExcerciseJsonList = []
+    for (file of files) {
+        if (file != ".DS_Store") {
+            file_path = './cleaned_data_set/' + file
+            excerciseJson = require('fs').readFileSync(file_path, "utf8")
+            parsedExcerciseList = eval(JSON.parse(excerciseJson))
+            combinedExcerciseJsonList = parsedExcerciseList.concat(combinedExcerciseJsonList)
         }
     }
+    const uniqueExcerciseList = combinedExcerciseJsonList.filter((e, i) => combinedExcerciseJsonList.findIndex(a => a["excercise_name"] === e["excercise_name"]) === i);
 
-    const uniqueArgs = allArgs.filter((e, i) => allArgs.findIndex(a => a["excercise_name"] === e["excercise_name"]) === i);
-
-    for (excercise of uniqueArgs) {
+    for (excercise of uniqueExcerciseList) {
         // iterate through each excercises
         targetRegionArray = []
         for (muscle_name of excercise.target_regions) {
+            if (muscle_name == null) continue
             muscle_region = await prisma.muscleRegion.findFirst({where: {
                 muscle_region_name: muscle_name,
             }})
@@ -54,6 +29,7 @@ async function loadExcercise(filepath) {
 
         synergistMusclesArray = []
         for (muscle_name of excercise.synergist_muscles) {
+             if (muscle_name == null) continue
             muscle_region = await prisma.muscleRegion.findFirst({where: {
                 muscle_region_name: muscle_name,
             }})
@@ -62,6 +38,7 @@ async function loadExcercise(filepath) {
 
         dynamicStabilizerMusclesArray = []
         for (muscle_name of excercise.dynamic_stabilizer_muscles) {
+             if (muscle_name == null) continue
             muscle_region = await prisma.muscleRegion.findFirst({where: {
                 muscle_region_name: muscle_name,
             }})
@@ -70,6 +47,7 @@ async function loadExcercise(filepath) {
 
         stabilizerMusclesArray = []
         for (muscle_name of excercise.stabilizer_muscles) {
+             if (muscle_name == null) continue
             muscle_region = await prisma.muscleRegion.findFirst({where: {
                 muscle_region_name: muscle_name,
             }})
@@ -79,22 +57,40 @@ async function loadExcercise(filepath) {
         newArgs = {
             ...excercise,
             target_regions: {
-                connect: targetRegionArray
+                connect: targetRegionArray ?? []
             },
             stabilizer_muscles: {
-                connect: stabilizerMusclesArray
+                connect: stabilizerMusclesArray ?? []
             },
             synergist_muscles: {
-                connect: synergistMusclesArray
+                connect: synergistMusclesArray ?? []
             },
             dynamic_stabilizer_muscles: {
-                connect: dynamicStabilizerMusclesArray
+                connect: dynamicStabilizerMusclesArray ?? []
             },
         }
         const newExcercises = await prisma.excercise.create({
             data: newArgs
         })
+        console.log(newExcercises)
     }
+}
+
+async function loadMuscleGroups(){
+    muscleData = require("./muscle_data_set/muscle_data_set.json")
+    for (muscle of muscleData) {
+        existingMuscleGroup =  await prisma.muscleRegion.findUnique({
+            where: {
+                muscle_region_name: muscle.muscle_region_name
+            }
+        })
+        if (existingMuscleGroup == null) {
+        await prisma.muscleRegion.create({
+            data: muscle
+        })
+        }
+    }
+    console.log("Generated all muscle groups")
 }
 
 async function deleteExcercise(excercise_name) {
@@ -110,8 +106,6 @@ async function getExcercises() {
     excercises = await prisma.excercise.findMany()
 }
 
-loadExcercise()
-
-
-
+loadMuscleGroups().then(() => loadExcercise());
+// loadExcercise()
 

@@ -29,6 +29,9 @@ import { getExcerciseQueryResolver } from "./query/queryExcercise";
 import { excercisePerformanceQueryResolver } from "./query/queryExcercisePerformance";
 import { ArgumentNode } from "graphql";
 import { getExcerciseMetadatasQueryResolver } from "./query/queryExcerciseMetadatas";
+import { workoutQueryResolver } from "./query/queryWorkout";
+
+const _ = require("lodash");
 
 export const resolvers = {
   //Mutations for create, update and delete operations
@@ -55,6 +58,7 @@ export const resolvers = {
   Query: {
     user: userQueryResolvers,
     workouts: workoutsQueryResolver,
+    getWorkout: workoutQueryResolver,
     getExcercise: getExcerciseQueryResolver,
     excercises: excercisesQueryResolver,
     notifications: notificationsQueryResolver,
@@ -71,6 +75,50 @@ export const resolvers = {
         where: { workout_id: parent.workout_id },
         include: {
           excercise: true,
+        },
+      });
+    },
+
+    async excercise_set_groups(
+      parent: any,
+      args: any,
+      context: any,
+      info: any
+    ) {
+      const prisma = context.dataSources.prisma;
+      const excercise_sets = await prisma.ExcerciseSet.findMany({
+        where: { workout_id: parent.workout_id },
+      });
+      const excercise_map = _.groupBy(excercise_sets, "excercise_name");
+      const excercise_set_groups = [];
+      Object.entries(excercise_map).forEach(([key, value]) => {
+        excercise_set_groups.push({
+          excercise_name: key,
+          excercise_sets: value,
+        });
+      });
+      return excercise_set_groups;
+    },
+  },
+
+  ExcerciseSetGroup: {
+    async excercise(parent: any, args: any, context: any, info: any) {
+      const prisma = context.dataSources.prisma;
+      return await prisma.excercise.findUnique({
+        where: {
+          excercise_name: parent.excercise_name,
+        },
+      });
+    },
+
+    async excerciseMetadata(parent: any, args: any, context: any, info: any) {
+      const prisma = context.dataSources.prisma;
+      return await prisma.excerciseMetadata.findUnique({
+        where: {
+          user_id_excercise_name: {
+            user_id: context.user.user_id,
+            excercise_name: parent.excercise_name,
+          },
         },
       });
     },
@@ -118,17 +166,6 @@ export const resolvers = {
         where: {
           dynamic_stabilizer_muscles: {
             some: { excercise_name: parent.excercise_name },
-          },
-        },
-      });
-    },
-    async excerciseMetadata(parent: any, args: any, context: any, info: any) {
-      const prisma = context.dataSources.prisma;
-      return await prisma.excerciseMetadata.findUnique({
-        where: {
-          user_id_excercise_name: {
-            excercise_name: parent.excercise_name,
-            user_id: context.user.user_id,
           },
         },
       });

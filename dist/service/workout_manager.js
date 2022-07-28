@@ -20,9 +20,46 @@ var __rest = (this && this.__rest) || function (s, e) {
     return t;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.generateNextWorkout = exports.reorderActiveWorkouts = exports.checkExistsAndOwnership = exports.getActiveWorkoutCount = exports.updateExcerciseMetadataWithCompletedWorkout = exports.generateExcerciseMetadata = exports.getActiveWorkouts = void 0;
+exports.generateNextWorkout = exports.reorderActiveWorkouts = exports.checkExistsAndOwnership = exports.getActiveWorkoutCount = exports.updateExcerciseMetadataWithCompletedWorkout = exports.generateExcerciseMetadata = exports.getActiveWorkouts = exports.excerciseSetGroupsTransformer = void 0;
 const apollo_server_1 = require("apollo-server");
 const _ = require("lodash");
+// Transform the incoming excerciseSetGroups into excercise_sets
+const excerciseSetGroupsTransformer = (excercise_set_groups) => {
+    var current_workout_excercise_sets = [];
+    var next_workout_excercise_sets = [];
+    for (var excercise_set_group of excercise_set_groups) {
+        switch (excercise_set_group.excercise_set_group_state) {
+            case "DELETED_PERMANANTLY" /* DELETED_PERMANANTLY */:
+                // 1. Will not be in subsequent workouts
+                // 2. Will not be in the crrent workout
+                break;
+            case "DELETED_TEMPORARILY" /* DELETED_TEMPORARILY */:
+                // 1. Will conitnue to be in subsequent workouts
+                // 2. Will not be in the current workout
+                next_workout_excercise_sets = next_workout_excercise_sets.concat(excercise_set_group.excercise_sets);
+                break;
+            case "REPLACED_PERMANANTLY" /* REPLACED_PERMANANTLY */:
+                // 1. Will be in subsequent workouts
+                // 2. Will be in the current workout
+                next_workout_excercise_sets = next_workout_excercise_sets.concat(excercise_set_group.excercise_sets);
+                current_workout_excercise_sets = current_workout_excercise_sets.concat(excercise_set_group.excercise_sets);
+                break;
+            case "REPLACED_TEMPORARILY" /* REPLACED_TEMPORARILY */:
+                // 1. Will not be in subsequent workouts
+                // 2. Will be in the current workout
+                current_workout_excercise_sets = current_workout_excercise_sets.concat(excercise_set_group.excercise_sets);
+                break;
+            case "NORMAL_OPERATION" /* NORMAL_OPERATION */:
+                // 1. Will be in subsequent workouts
+                // 2. Will be in the current workout
+                next_workout_excercise_sets = next_workout_excercise_sets.concat(excercise_set_group.excercise_sets);
+                current_workout_excercise_sets = current_workout_excercise_sets.concat(excercise_set_group.excercise_sets);
+                break;
+        }
+    }
+    return [current_workout_excercise_sets, next_workout_excercise_sets];
+};
+exports.excerciseSetGroupsTransformer = excerciseSetGroupsTransformer;
 // Gets all active workouts
 const getActiveWorkouts = (context) => __awaiter(void 0, void 0, void 0, function* () {
     const prisma = context.dataSources.prisma;
@@ -63,12 +100,11 @@ const generateExcerciseMetadata = (context, workout) => __awaiter(void 0, void 0
 exports.generateExcerciseMetadata = generateExcerciseMetadata;
 // updates a excerciseMetadata with the stats of the completed workout
 const updateExcerciseMetadataWithCompletedWorkout = (context, workout) => __awaiter(void 0, void 0, void 0, function* () {
-    // TODO: Algorithm to bring shift states
-    // TODO: More efficient algo for comparison and updating
+    // TODO: Refactor into progressive overload algo
     const prisma = context.dataSources.prisma;
     const excercise_map = _.groupBy(workout.excercise_sets, "excercise_name");
     for (var [excercise_name, excercise_sets] of Object.entries(excercise_map)) {
-        const oldMetadata = yield prisma.excerciseMetadata.findUnique({
+        let oldMetadata = yield prisma.excerciseMetadata.findUnique({
             where: {
                 user_id_excercise_name: {
                     user_id: context.user.user_id,
@@ -76,6 +112,14 @@ const updateExcerciseMetadataWithCompletedWorkout = (context, workout) => __awai
                 },
             },
         });
+        if (oldMetadata == null) {
+            oldMetadata = yield prisma.excerciseMetadata.create({
+                data: {
+                    user_id: context.user.user_id,
+                    excercise_name: excercise_name,
+                },
+            });
+        }
         let best_set = {
             actual_weight: oldMetadata.best_weight,
             actual_reps: oldMetadata.best_rep,
@@ -168,9 +212,9 @@ const reorderActiveWorkouts = (context, oldIndex, newIndex) => __awaiter(void 0,
     }
 });
 exports.reorderActiveWorkouts = reorderActiveWorkouts;
-const generateNextWorkout = (context, previousWorkout) => __awaiter(void 0, void 0, void 0, function* () {
+const generateNextWorkout = (context, previousWorkout, next_workout_excercise_sets) => __awaiter(void 0, void 0, void 0, function* () {
     const prisma = context.dataSources.prisma;
-    const { excercise_sets, life_span, workout_name } = previousWorkout;
+    const { life_span, workout_name } = previousWorkout;
     const rateExcerciseSet = (excercise_set) => {
         // TODO: Can return a multiplier value based off how far he is from the bench mark next.
         if (excercise_set.actual_rep == null || excercise_set.actual_rep == null) {
@@ -206,7 +250,6 @@ const generateNextWorkout = (context, previousWorkout) => __awaiter(void 0, void
     const compoundUpperBound = context.user.compound_movement_rep_upper_bound;
     const isolatedLowerBound = context.user.isolated_movement_rep_lower_bound;
     const isolatedUpperBound = context.user.isolated_movement_rep_upper_bound;
-    const new_excercise_sets = [];
     // TODO: give a more accurate benchmark
     // We consider the set to fail when the actual reps is lower than the benchmark.
     // Bench marks are calculated as follows:
@@ -221,10 +264,15 @@ const generateNextWorkout = (context, previousWorkout) => __awaiter(void 0, void
     // 1. Failed => maintain the actual reps and actual weight of that set
     // 2. Higher => maintain the actual reps and actual weight of that set + 1
     // 3. Maintain => increase by 1 rep
+    // Don't need progressive overload because it was NOT completed in previous workout
+    const excercise_sets_without_progressive_overload = _.differenceWith(next_workout_excercise_sets, previousWorkout.excercise_sets, (x, y) => x["excercise_name"] === y["excercise_name"]);
+    // Need progressive overload because it was completed in the previous workout
+    const excercise_sets_to_progressive_overload = _.differenceWith(next_workout_excercise_sets, excercise_sets_without_progressive_overload, (x, y) => x["excercise_name"] === y["excercise_name"]);
+    const progressively_overloaded_excercise_sets = [];
     // Create subsequent sets
-    for (let excercise_set of excercise_sets) {
+    for (let excercise_set of excercise_sets_to_progressive_overload) {
         const { actual_reps, actual_weight, excercise_set_id, workout_id } = excercise_set, excercise_set_scaffold = __rest(excercise_set, ["actual_reps", "actual_weight", "excercise_set_id", "workout_id"]);
-        const excerciseData = prisma.excercise.findUnique({
+        const excerciseData = yield prisma.excercise.findUnique({
             where: {
                 excercise_name: excercise_set.excercise_name,
             },
@@ -242,12 +290,12 @@ const generateNextWorkout = (context, previousWorkout) => __awaiter(void 0, void
         const excerciseSetRating = rateExcerciseSet(excercise_set);
         if (excerciseSetRating == "SKIPPED") {
             // Skipped => maintain the target reps and target weight of that set
-            new_excercise_sets.push(excercise_set_scaffold);
+            progressively_overloaded_excercise_sets.push(excercise_set_scaffold);
         }
         else if (excerciseSetRating == "FAILED") {
             excercise_set_scaffold["target_reps"] = actual_reps;
             excercise_set_scaffold["target_weight"] = actual_weight;
-            new_excercise_sets.push(excercise_set_scaffold);
+            progressively_overloaded_excercise_sets.push(excercise_set_scaffold);
         }
         else if (excerciseSetRating == "EXCEED" ||
             excerciseSetRating == "MAINTAINED") {
@@ -259,11 +307,11 @@ const generateNextWorkout = (context, previousWorkout) => __awaiter(void 0, void
             if (newTargetReps > upperBound) {
                 // hit the upper bound, recalibrate
                 newTargetReps = (lowerBound + upperBound) / 2;
-                newTargetWeight = (Math.round(actual_weight * 0.025 * 4) / 4).toFixed(2);
+                newTargetWeight = parseFloat((Math.round(actual_weight * 0.025 * 4) / 4).toFixed(2));
             }
             excercise_set_scaffold.target_reps = newTargetReps;
             excercise_set_scaffold.target_weight = newTargetWeight;
-            new_excercise_sets.push(excercise_set_scaffold);
+            progressively_overloaded_excercise_sets.push(excercise_set_scaffold);
         }
     }
     // Create the workout and slot behind the rest of the queue.
@@ -274,7 +322,7 @@ const generateNextWorkout = (context, previousWorkout) => __awaiter(void 0, void
             life_span: life_span - 1,
             order_index: yield (0, exports.getActiveWorkoutCount)(context),
             excercise_sets: {
-                create: new_excercise_sets,
+                create: progressively_overloaded_excercise_sets.concat(excercise_sets_without_progressive_overload),
             },
         },
     });

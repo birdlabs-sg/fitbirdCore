@@ -1,7 +1,4 @@
-import {
-  onlyAdmin,
-  onlyAuthenticated,
-} from "../../../service/firebase_service";
+import { onlyAuthenticated } from "../../../service/firebase_service";
 
 export const updateUser = async (_: any, args: any, context: any) => {
   onlyAuthenticated(context);

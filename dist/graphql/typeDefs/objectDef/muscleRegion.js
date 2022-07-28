@@ -8,6 +8,7 @@ exports.MuscleRegion = gql `
     muscle_region_id: ID!
     muscle_region_name: String
     muscle_region_description: String
+    muscle_region_type: MuscleRegionType
   }
 `;
 //# sourceMappingURL=muscleRegion.js.map

@@ -1,7 +1,10 @@
 interface ExcerciseSet {
+  excercise_set_id: String;
+  workout_id: String;
   excercise_name: String;
-  target_weight: Float32Array;
+  target_weight: number;
+  target_reps: number;
   weight_unit: String;
-  actual_reps: Number;
-  actual_weight: Float32Array;
+  actual_reps: number;
+  actual_weight: number;
 }

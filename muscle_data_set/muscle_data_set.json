@@ -1,0 +1,190 @@
+[
+  {
+    "muscle_region_name": "Adductors",
+    "muscle_region_type": "HIPS"
+  },
+  {
+    "muscle_region_name": "Biceps Brachii",
+    "muscle_region_type": "UPPER_ARM"
+  },
+  {
+    "muscle_region_name": "Brachialis",
+    "muscle_region_type": "UPPER_ARM"
+  },
+  {
+    "muscle_region_name": "Brachioradialis",
+    "muscle_region_type": "FORE_ARM"
+  },
+  {
+    "muscle_region_name": "Deltoid, Anterior",
+    "muscle_region_type": "SHOULDER"
+  },
+  {
+    "muscle_region_name": "Deltoid, Lateral",
+    "muscle_region_type": "SHOULDER"
+  },
+  {
+    "muscle_region_name": "Deltoid, Posterior",
+    "muscle_region_type": "SHOULDER"
+  },
+  {
+    "muscle_region_name": "Deep Hip External Rotators",
+    "muscle_region_type": "HIPS"
+  },
+  {
+    "muscle_region_name": "Erector Spinae",
+    "muscle_region_type": "WAIST"
+  },
+  {
+    "muscle_region_name": "Gastrocnemius",
+    "muscle_region_type": "CALVES"
+  },
+  {
+    "muscle_region_name": "Gluteus Maximus",
+    "muscle_region_type": "THIGHS"
+  },
+  {
+    "muscle_region_name": "Gluteus Medius",
+    "muscle_region_type": "THIGHS"
+  },
+  {
+    "muscle_region_name": "Gluteus Minimus",
+    "muscle_region_type": "THIGHS"
+  },
+  {
+    "muscle_region_name": "Gracilis",
+    "muscle_region_type": "THIGHS"
+  },
+  {
+    "muscle_region_name": "Hamstrings",
+    "muscle_region_type": "THIGHS"
+  },
+  {
+    "muscle_region_name": "Iliopsoas",
+    "muscle_region_type": "HIPS"
+  },
+  {
+    "muscle_region_name": "Infraspinatus",
+    "muscle_region_type": "BACK"
+  },
+  {
+    "muscle_region_name": "Latissimus Dorsi",
+    "muscle_region_type": "BACK"
+  },
+  {
+    "muscle_region_name": "Levator Scapulae",
+    "muscle_region_type": "BACK"
+  },
+  {
+    "muscle_region_name": "Obliques",
+    "muscle_region_type": "WAIST"
+  },
+  {
+    "muscle_region_name": "Pectineous",
+    "muscle_region_type": "HIPS"
+  },
+  {
+    "muscle_region_name": "Pectoralis Major, Clavicular Head",
+    "muscle_region_type": "CHEST"
+  },
+  {
+    "muscle_region_name": "Pectoralis Major, Sternal Head",
+    "muscle_region_type": "CHEST"
+  },
+  {
+    "muscle_region_name": "Teres Major",
+    "muscle_region_type": "BACK"
+  },
+  {
+    "muscle_region_name": "Teres Minor",
+    "muscle_region_type": "BACK"
+  },
+  {
+    "muscle_region_name": "Tibialis Anterior",
+    "muscle_region_type": "CALVES"
+  },
+  {
+    "muscle_region_name": "Transverse Abdominus",
+    "muscle_region_type": "WAIST"
+  },
+  {
+    "muscle_region_name": "Trapezius, Lower Fibers",
+    "muscle_region_type": "BACK"
+  },
+  {
+    "muscle_region_name": "Trapezius,  Middle Fibers",
+    "muscle_region_type": "BACK"
+  },
+  {
+    "muscle_region_name": "Trapezius,  Upper Fibers",
+    "muscle_region_type": "BACK"
+  },
+  {
+    "muscle_region_name": "Triceps Brachii",
+    "muscle_region_type": "UPPER_ARM"
+  },
+  {
+    "muscle_region_name": "Wrist Extensors",
+    "muscle_region_type": "FORE_ARM"
+  },
+  {
+    "muscle_region_name": "Wrist Flexors",
+    "muscle_region_type": "FORE_ARM"
+  },
+  {
+    "muscle_region_name": "Pectoralis Minor",
+    "muscle_region_type": "CHEST"
+  },
+  {
+    "muscle_region_name": "Popliteus",
+    "muscle_region_type": "CALVES"
+  },
+  {
+    "muscle_region_name": "Quadratus Lumborum",
+    "muscle_region_type": "WAIST"
+  },
+  {
+    "muscle_region_name": "Quadriceps",
+    "muscle_region_type": "THIGHS"
+  },
+  {
+    "muscle_region_name": "Rectus Abdominis",
+    "muscle_region_type": "WAIST"
+  },
+  {
+    "muscle_region_name": "Rhomboids",
+    "muscle_region_type": "BACK"
+  },
+  {
+    "muscle_region_name": "Sartorius",
+    "muscle_region_type": "THIGHS"
+  },
+  {
+    "muscle_region_name": "Serratus Anterior",
+    "muscle_region_type": "WAIST"
+  },
+  {
+    "muscle_region_name": "Soleus",
+    "muscle_region_type": "CALVES"
+  },
+  {
+    "muscle_region_name": "Splenius",
+    "muscle_region_type": "NECK"
+  },
+  {
+    "muscle_region_name": "Sternocleidomastoid",
+    "muscle_region_type": "NECK"
+  },
+  {
+    "muscle_region_name": "Subscapularis",
+    "muscle_region_type": "BACK"
+  },
+  {
+    "muscle_region_name": "Supraspinatus",
+    "muscle_region_type": "SHOULDER"
+  },
+  {
+    "muscle_region_name": "Tensor Fasciae Latae",
+    "muscle_region_type": "HIPS"
+  }
+]

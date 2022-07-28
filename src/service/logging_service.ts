@@ -39,7 +39,6 @@ export const logger = {
       async willSendResponse(context: any) {
         if (context.request.operationName !== "IntrospectionQuery") {
           console.log(`[RESPONSE] ${new Date()}`);
-          // console.log(context.response)
         }
       },
     };

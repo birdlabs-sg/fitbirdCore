@@ -25,6 +25,15 @@ CREATE TYPE "ExcerciseUtility" AS ENUM ('BASIC', 'AUXILIARY');
 -- CreateEnum
 CREATE TYPE "ExcerciseMetadataState" AS ENUM ('LEARNING', 'INCREASED_DIFFICULTY', 'DECREASED_DIFFICULTY', 'MAINTAINENCE');
 
+-- CreateEnum
+CREATE TYPE "Equipment" AS ENUM ('DUMBBELL', 'BARBELL', 'KETTLEBELL', 'CABLE', 'LEVER', 'SUSPENSION', 'T_BAR', 'MACHINE', 'TRAP_BAR', 'SLED', 'SMITH');
+
+-- CreateEnum
+CREATE TYPE "MuscleRegionType" AS ENUM ('HIPS', 'UPPER_ARM', 'SHOULDER', 'WAIST', 'CALVES', 'THIGHS', 'BACK', 'CHEST', 'FORE_ARM', 'NECK');
+
+-- CreateEnum
+CREATE TYPE "ExcerciseSetGroupState" AS ENUM ('DELETED_TEMPORARILY', 'DELETED_PERMANANTLY', 'REPLACEMENT_TEMPORARILY', 'REPLACEMENT_PERMANANTLY', 'NORMAL_OPERATION');
+
 -- CreateTable
 CREATE TABLE "User" (
     "user_id" SERIAL NOT NULL,
@@ -45,6 +54,11 @@ CREATE TABLE "User" (
     "weight_unit" "WeightUnit",
     "height_unit" "LengthUnit",
     "phoneNumber" TEXT,
+    "compound_movement_rep_lower_bound" INTEGER NOT NULL DEFAULT 3,
+    "compound_movement_rep_upper_bound" INTEGER NOT NULL DEFAULT 10,
+    "isolated_movement_rep_lower_bound" INTEGER NOT NULL DEFAULT 5,
+    "isolated_movement_rep_upper_bound" INTEGER NOT NULL DEFAULT 15,
+    "equipment_accessible" "Equipment"[],
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("user_id")
 );
@@ -58,8 +72,8 @@ CREATE TABLE "ExcerciseMetadata" (
     "best_weight" DOUBLE PRECISION NOT NULL DEFAULT 0,
     "weight_unit" "WeightUnit" NOT NULL DEFAULT E'KG',
     "best_rep" INTEGER NOT NULL DEFAULT 0,
-    "rest_time_lower_bound" INTEGER NOT NULL,
-    "rest_time_upper_bound" INTEGER NOT NULL,
+    "rest_time_lower_bound" INTEGER NOT NULL DEFAULT 90,
+    "rest_time_upper_bound" INTEGER NOT NULL DEFAULT 180,
     "user_id" INTEGER NOT NULL,
     "excercise_name" TEXT NOT NULL,
 
@@ -93,10 +107,21 @@ CREATE TABLE "Workout" (
 );
 
 -- CreateTable
+CREATE TABLE "ExcerciseSetGroup" (
+    "excercise_set_group_id" SERIAL NOT NULL,
+    "excercise_name" TEXT NOT NULL,
+    "workout_id" INTEGER NOT NULL,
+    "excercise_set_group_state" "ExcerciseSetGroupState" NOT NULL,
+
+    CONSTRAINT "ExcerciseSetGroup_pkey" PRIMARY KEY ("excercise_set_group_id")
+);
+
+-- CreateTable
 CREATE TABLE "MuscleRegion" (
     "muscle_region_id" SERIAL NOT NULL,
     "muscle_region_name" TEXT NOT NULL,
     "muscle_region_description" TEXT,
+    "muscle_region_type" "MuscleRegionType" NOT NULL,
 
     CONSTRAINT "MuscleRegion_pkey" PRIMARY KEY ("muscle_region_id")
 );
@@ -110,6 +135,7 @@ CREATE TABLE "Excercise" (
     "excercise_utility" "ExcerciseUtility"[],
     "excercise_mechanics" "ExcerciseMechanics"[],
     "excercise_force" "ExcerciseForce"[],
+    "equipment_required" "Equipment"[],
 
     CONSTRAINT "Excercise_pkey" PRIMARY KEY ("excercise_name")
 );
@@ -117,13 +143,12 @@ CREATE TABLE "Excercise" (
 -- CreateTable
 CREATE TABLE "ExcerciseSet" (
     "excercise_set_id" SERIAL NOT NULL,
-    "workout_id" INTEGER NOT NULL,
-    "excercise_name" TEXT NOT NULL,
     "target_weight" DOUBLE PRECISION NOT NULL,
     "weight_unit" "WeightUnit" NOT NULL,
     "target_reps" INTEGER NOT NULL,
     "actual_weight" DOUBLE PRECISION,
     "actual_reps" INTEGER,
+    "excercise_set_group_id" INTEGER NOT NULL,
 
     CONSTRAINT "ExcerciseSet_pkey" PRIMARY KEY ("excercise_set_id")
 );
@@ -232,10 +257,13 @@ ALTER TABLE "Measurement" ADD CONSTRAINT "Measurement_muscle_region_id_fkey" FOR
 ALTER TABLE "Workout" ADD CONSTRAINT "Workout_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "User"("user_id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "ExcerciseSet" ADD CONSTRAINT "ExcerciseSet_workout_id_fkey" FOREIGN KEY ("workout_id") REFERENCES "Workout"("workout_id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "ExcerciseSetGroup" ADD CONSTRAINT "ExcerciseSetGroup_workout_id_fkey" FOREIGN KEY ("workout_id") REFERENCES "Workout"("workout_id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "ExcerciseSet" ADD CONSTRAINT "ExcerciseSet_excercise_name_fkey" FOREIGN KEY ("excercise_name") REFERENCES "Excercise"("excercise_name") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "ExcerciseSetGroup" ADD CONSTRAINT "ExcerciseSetGroup_excercise_name_fkey" FOREIGN KEY ("excercise_name") REFERENCES "Excercise"("excercise_name") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ExcerciseSet" ADD CONSTRAINT "ExcerciseSet_excercise_set_group_id_fkey" FOREIGN KEY ("excercise_set_group_id") REFERENCES "ExcerciseSetGroup"("excercise_set_group_id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Notification" ADD CONSTRAINT "Notification_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "User"("user_id") ON DELETE RESTRICT ON UPDATE CASCADE;

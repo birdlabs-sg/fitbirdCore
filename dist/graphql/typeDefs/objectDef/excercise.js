@@ -16,7 +16,7 @@ exports.Excercise = gql `
     stabilizer_muscles: [MuscleRegion]
     synergist_muscles: [MuscleRegion]
     dynamic_stabilizer_muscles: [MuscleRegion]
-    excerciseMetadata: ExcerciseMetadata
+    equipment_required: [Equipment]
   }
 `;
 //# sourceMappingURL=excercise.js.map

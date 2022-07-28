@@ -62,7 +62,6 @@ exports.logger = {
                     return __awaiter(this, void 0, void 0, function* () {
                         if (context.request.operationName !== "IntrospectionQuery") {
                             console.log(`[RESPONSE] ${new Date()}`);
-                            // console.log(context.response)
                         }
                     });
                 },

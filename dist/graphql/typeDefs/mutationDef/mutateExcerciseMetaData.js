@@ -20,6 +20,14 @@ exports.mutateExcerciseMetadata = gql `
       preferred: Boolean
       haveRequiredEquipment: Boolean
     ): mutateExcerciseMetaDataResponse
+
+    createExcerciseMetadata(
+      excercise_name: ID!
+      rest_time_lower_bound: Int!
+      rest_time_upper_bound: Int!
+      preferred: Boolean
+      haveRequiredEquipment: Boolean
+    ): mutateExcerciseMetaDataResponse
   }
 `;
 //# sourceMappingURL=mutateExcerciseMetaData.js.map

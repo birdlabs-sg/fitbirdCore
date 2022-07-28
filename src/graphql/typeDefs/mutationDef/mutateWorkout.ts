@@ -17,6 +17,21 @@ export const mutateWorkout = gql`
     workouts: [Workout]
   }
 
+  input excerciseSetGroupInput {
+    excercise_name: String!
+    excercise_set_group_state: ExcerciseSetGroupState!
+    excerciseMetadata: excerciseMetaDataInput
+    excercise_sets: [excerciseSetInput]!
+  }
+
+  input excerciseMetaDataInput {
+    excercise_name: ID!
+    rest_time_lower_bound: Int
+    rest_time_upper_bound: Int
+    preferred: Boolean
+    haveRequiredEquipment: Boolean
+  }
+
   input excerciseSetInput {
     excercise_name: String!
     target_weight: Float!
@@ -38,7 +53,7 @@ export const mutateWorkout = gql`
     "[PROTECTED] Updates a workout object (Must belong to the requestor). Note: This will replace any existing excercise sets."
     completeWorkout(
       workout_id: ID!
-      excercise_sets: [excerciseSetInput]!
+      excercise_set_groups: [excerciseSetGroupInput]!
     ): mutateWorkoutsResponse
 
     "[PROTECTED] Updates a workout object (Must belong to the requestor). Note: This will replace any existing excercise sets."
