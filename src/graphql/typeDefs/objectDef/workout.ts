@@ -11,13 +11,12 @@ export const Workout = gql`
     date_completed: String
     performance_rating: Float
     excercise_set_groups: [ExcerciseSetGroup]
-    "to remove if works"
-    excercise_sets: [ExcerciseSet]
   }
   type ExcerciseSetGroup {
     excercise_name: String!
     excercise: Excercise
     excerciseMetadata: ExcerciseMetadata
+    excercise_set_group_state: ExcerciseSetGroupState
     excercise_sets: [ExcerciseSet]!
   }
 `;

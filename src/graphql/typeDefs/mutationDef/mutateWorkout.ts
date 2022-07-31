@@ -33,7 +33,6 @@ export const mutateWorkout = gql`
   }
 
   input excerciseSetInput {
-    excercise_name: String!
     target_weight: Float!
     weight_unit: WeightUnit!
     target_reps: Int!
@@ -46,8 +45,7 @@ export const mutateWorkout = gql`
     createWorkout(
       life_span: Int!
       workout_name: String!
-      date_scheduled: String
-      excercise_sets: [excerciseSetInput]!
+      excercise_set_groups: [excerciseSetGroupInput]!
     ): mutateWorkoutResponse
 
     "[PROTECTED] Updates a workout object (Must belong to the requestor). Note: This will replace any existing excercise sets."
@@ -63,7 +61,7 @@ export const mutateWorkout = gql`
       date_scheduled: String
       performance_rating: Float
       life_span: Int
-      excercise_sets: [excerciseSetInput]
+      excercise_set_groups: [excerciseSetGroupInput]
     ): mutateWorkoutResponse
 
     updateWorkoutOrder(oldIndex: Int, newIndex: Int): mutateWorkoutsResponse

@@ -62,32 +62,12 @@ exports.resolvers = {
     },
     // workout query
     Workout: {
-        excercise_sets(parent, args, context, info) {
-            return __awaiter(this, void 0, void 0, function* () {
-                const prisma = context.dataSources.prisma;
-                return yield prisma.ExcerciseSet.findMany({
-                    where: { workout_id: parent.workout_id },
-                    include: {
-                        excercise: true,
-                    },
-                });
-            });
-        },
         excercise_set_groups(parent, args, context, info) {
             return __awaiter(this, void 0, void 0, function* () {
                 const prisma = context.dataSources.prisma;
-                const excercise_sets = yield prisma.ExcerciseSet.findMany({
+                return yield prisma.excerciseSetGroup.findMany({
                     where: { workout_id: parent.workout_id },
                 });
-                const excercise_map = _.groupBy(excercise_sets, "excercise_name");
-                const excercise_set_groups = [];
-                Object.entries(excercise_map).forEach(([key, value]) => {
-                    excercise_set_groups.push({
-                        excercise_name: key,
-                        excercise_sets: value,
-                    });
-                });
-                return excercise_set_groups;
             });
         },
     },
@@ -111,6 +91,16 @@ exports.resolvers = {
                             user_id: context.user.user_id,
                             excercise_name: parent.excercise_name,
                         },
+                    },
+                });
+            });
+        },
+        excercise_sets(parent, args, context, info) {
+            return __awaiter(this, void 0, void 0, function* () {
+                const prisma = context.dataSources.prisma;
+                return yield prisma.excerciseSet.findMany({
+                    where: {
+                        excercise_set_group_id: parent.excercise_set_group_id,
                     },
                 });
             });

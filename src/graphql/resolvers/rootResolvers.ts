@@ -69,16 +69,6 @@ export const resolvers = {
   },
   // workout query
   Workout: {
-    async excercise_sets(parent: any, args: any, context: any, info: any) {
-      const prisma = context.dataSources.prisma;
-      return await prisma.ExcerciseSet.findMany({
-        where: { workout_id: parent.workout_id },
-        include: {
-          excercise: true,
-        },
-      });
-    },
-
     async excercise_set_groups(
       parent: any,
       args: any,
@@ -86,18 +76,9 @@ export const resolvers = {
       info: any
     ) {
       const prisma = context.dataSources.prisma;
-      const excercise_sets = await prisma.ExcerciseSet.findMany({
+      return await prisma.excerciseSetGroup.findMany({
         where: { workout_id: parent.workout_id },
       });
-      const excercise_map = _.groupBy(excercise_sets, "excercise_name");
-      const excercise_set_groups = [];
-      Object.entries(excercise_map).forEach(([key, value]) => {
-        excercise_set_groups.push({
-          excercise_name: key,
-          excercise_sets: value,
-        });
-      });
-      return excercise_set_groups;
     },
   },
 
@@ -119,6 +100,15 @@ export const resolvers = {
             user_id: context.user.user_id,
             excercise_name: parent.excercise_name,
           },
+        },
+      });
+    },
+
+    async excercise_sets(parent: any, args: any, context: any, info: any) {
+      const prisma = context.dataSources.prisma;
+      return await prisma.excerciseSet.findMany({
+        where: {
+          excercise_set_group_id: parent.excercise_set_group_id,
         },
       });
     },

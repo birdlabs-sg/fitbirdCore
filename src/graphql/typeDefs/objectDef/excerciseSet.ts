@@ -9,6 +9,5 @@ export const ExcerciseSet = gql`
     target_reps: Int
     actual_weight: Float
     actual_reps: Int
-    excercise_name: String
   }
 `;

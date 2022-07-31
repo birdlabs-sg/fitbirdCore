@@ -8,7 +8,7 @@ export const excercisePerformanceQueryResolver = async (
 ) => {
   onlyAuthenticated(context);
   const prisma = context.dataSources.prisma;
-
+  console.log("inside here");
   let { excercise_name, span } = args;
 
   if (span == null) {
@@ -17,31 +17,21 @@ export const excercisePerformanceQueryResolver = async (
 
   const grouped_excercise_sets = [];
 
-  const workouts = await prisma.workout.findMany({
+  const excerciseSetGroups = await prisma.excerciseSetGroup.findMany({
     where: {
-      user_id: context.user.user_id,
-      date_completed: { not: null },
-      excercise_sets: {
-        some: {
-          excercise_name: excercise_name,
-        },
+      workout: {
+        user_id: context.user.user_id,
+        date_completed: { not: null },
       },
+      excercise_name: excercise_name,
     },
-    take: span,
-    include: {
-      excercise_sets: true,
-    },
-    orderBy: {
-      date_completed: "desc",
-    },
+    include: { workout: true, excercise_sets: true },
   });
 
-  for (var workout of workouts) {
+  for (var excerciseSetGroup of excerciseSetGroups) {
     grouped_excercise_sets.push({
-      date_completed: workout.date_completed,
-      excercise_sets: workout.excercise_sets.filter(
-        (set: any) => set.excercise_name == excercise_name
-      ),
+      date_completed: excerciseSetGroup.workout.date_completed,
+      excercise_sets: excerciseSetGroup.excercise_sets,
     });
   }
 
