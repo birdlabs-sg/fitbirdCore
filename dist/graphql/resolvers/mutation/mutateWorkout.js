@@ -21,56 +21,16 @@ var __rest = (this && this.__rest) || function (s, e) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteWorkout = exports.updateWorkout = exports.completeWorkout = exports.updateWorkoutOrder = exports.createWorkout = exports.generateWorkouts = void 0;
-const workout_manager_1 = require("../../../service/workout_manager");
+const workout_manager_1 = require("../../../service/workout_manager/workout_manager");
 const firebase_service_1 = require("../../../service/firebase_service");
+const workout_generator_1 = require("../../../service/workout_manager/workout_generator");
 const util = require("util");
 const generateWorkouts = (_, args, context) => __awaiter(void 0, void 0, void 0, function* () {
     (0, firebase_service_1.onlyAuthenticated)(context);
     const { no_of_workouts } = args;
     const prisma = context.dataSources.prisma;
-    const generatedWorkouts = [];
     // Just a mockup for now. TODO: Create a service that links up with lichuan's recommendation algorithm
-    for (let i = 0; i < no_of_workouts; i++) {
-        generatedWorkouts.push(yield prisma.workout.create({
-            data: {
-                user_id: context.user.user_id,
-                order_index: yield (0, workout_manager_1.getActiveWorkoutCount)(context),
-                life_span: 25,
-                workout_name: `Test workout: ${i}`,
-                excercise_sets: {
-                    create: [
-                        {
-                            target_reps: 10,
-                            target_weight: 80,
-                            weight_unit: "KG",
-                            excercise_name: "Barbell Close Grip Bench Press",
-                            actual_weight: null,
-                            actual_reps: null,
-                        },
-                        {
-                            target_reps: 10,
-                            target_weight: 80,
-                            weight_unit: "KG",
-                            excercise_name: "Barbell Close Grip Bench Press",
-                            actual_weight: null,
-                            actual_reps: null,
-                        },
-                        {
-                            target_reps: 30,
-                            target_weight: 5,
-                            weight_unit: "KG",
-                            excercise_name: "Machine-assisted Triceps Dip",
-                            actual_reps: null,
-                            actual_weight: null,
-                        },
-                    ],
-                },
-            },
-            include: {
-                excercise_sets: true,
-            },
-        }));
-    }
+    const generatedWorkouts = (0, workout_generator_1.workoutGenerator)(no_of_workouts, context);
     return generatedWorkouts;
 });
 exports.generateWorkouts = generateWorkouts;
@@ -122,10 +82,7 @@ const completeWorkout = (_, args, context) => __awaiter(void 0, void 0, void 0, 
     const { workout_id, excercise_set_groups } = args;
     const prisma = context.dataSources.prisma;
     yield (0, workout_manager_1.checkExistsAndOwnership)(context, workout_id, false);
-    console.log("EXCERCISE SET GROUPS: ", util.inspect(excercise_set_groups, false, true, true));
     const [current_workout_excercise_group_sets, next_workout_excercise_group_sets,] = (0, workout_manager_1.excerciseSetGroupsTransformer)(excercise_set_groups);
-    console.log(current_workout_excercise_group_sets, "CURRENT");
-    console.log(next_workout_excercise_group_sets, "NEXT");
     const completedWorkout = yield prisma.workout.update({
         where: {
             workout_id: parseInt(workout_id),
@@ -145,7 +102,6 @@ const completeWorkout = (_, args, context) => __awaiter(void 0, void 0, void 0, 
     yield (0, workout_manager_1.updateExcerciseMetadataWithCompletedWorkout)(context, completedWorkout);
     yield (0, workout_manager_1.reorderActiveWorkouts)(context, null, null);
     yield (0, workout_manager_1.generateNextWorkout)(context, completedWorkout, next_workout_excercise_group_sets);
-    console.log("here7");
     return {
         code: "200",
         success: true,
@@ -191,14 +147,12 @@ const deleteWorkout = (_, args, context) => __awaiter(void 0, void 0, void 0, fu
     const prisma = context.dataSources.prisma;
     // Get the workout of interest
     yield (0, workout_manager_1.checkExistsAndOwnership)(context, args.workout_id, false);
-    console.log("here! deleted");
     // delete the workout
     yield prisma.workout.delete({
         where: {
             workout_id: parseInt(args.workout_id),
         },
     });
-    console.log("here! deleted");
     // reorder remaining workouts
     yield (0, workout_manager_1.reorderActiveWorkouts)(context, null, null);
     return {

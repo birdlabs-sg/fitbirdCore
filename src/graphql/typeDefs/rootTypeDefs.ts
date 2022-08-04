@@ -30,6 +30,7 @@ const queryTypeDef = gql`
     workouts(filter: WorkoutFilter!): [Workout]
     getWorkout(workout_id: ID!): Workout
     excercises: [Excercise]
+    excludedExcercises: [Excercise]
     getExcercise(excercise_name: ID!): Excercise
     notifications: [Notification]
     workout_frequencies: [WorkoutFrequency]

@@ -8,7 +8,6 @@ export const excercisePerformanceQueryResolver = async (
 ) => {
   onlyAuthenticated(context);
   const prisma = context.dataSources.prisma;
-  console.log("inside here");
   let { excercise_name, span } = args;
 
   if (span == null) {
@@ -26,6 +25,7 @@ export const excercisePerformanceQueryResolver = async (
       excercise_name: excercise_name,
     },
     include: { workout: true, excercise_sets: true },
+    take: span,
   });
 
   for (var excerciseSetGroup of excerciseSetGroups) {

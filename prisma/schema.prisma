@@ -76,6 +76,9 @@ enum Equipment {
   TRAP_BAR
   SLED
   SMITH
+  BENCH
+  MEDICINE_BALL
+  PREACHER
 }
 
 enum MuscleRegionType {
@@ -207,6 +210,8 @@ model Excercise {
   synergist_muscles          MuscleRegion[]       @relation(name: "synergist")
   dynamic_stabilizer_muscles MuscleRegion[]       @relation(name: "dynamic")
   equipment_required         Equipment[]
+  body_weight                Boolean
+  assisted                   Boolean
   excercise_set_groups       ExcerciseSetGroup[]
   excerciseMetadata          ExcerciseMetadata[]
 }

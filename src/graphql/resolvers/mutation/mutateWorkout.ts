@@ -8,59 +8,17 @@ import {
   updateExcerciseMetadataWithCompletedWorkout,
   excerciseSetGroupsTransformer,
   formatExcerciseSetGroups,
-} from "../../../service/workout_manager";
+} from "../../../service/workout_manager/workout_manager";
 import { onlyAuthenticated } from "../../../service/firebase_service";
+import { workoutGenerator } from "../../../service/workout_manager/workout_generator";
 const util = require("util");
 
 export const generateWorkouts = async (_: any, args: any, context: any) => {
   onlyAuthenticated(context);
   const { no_of_workouts } = args;
   const prisma = context.dataSources.prisma;
-  const generatedWorkouts = [];
   // Just a mockup for now. TODO: Create a service that links up with lichuan's recommendation algorithm
-  for (let i = 0; i < no_of_workouts; i++) {
-    generatedWorkouts.push(
-      await prisma.workout.create({
-        data: {
-          user_id: context.user.user_id,
-          order_index: await getActiveWorkoutCount(context),
-          life_span: 25,
-          workout_name: `Test workout: ${i}`,
-          excercise_sets: {
-            create: [
-              {
-                target_reps: 10,
-                target_weight: 80,
-                weight_unit: "KG",
-                excercise_name: "Barbell Close Grip Bench Press",
-                actual_weight: null,
-                actual_reps: null,
-              },
-              {
-                target_reps: 10,
-                target_weight: 80,
-                weight_unit: "KG",
-                excercise_name: "Barbell Close Grip Bench Press",
-                actual_weight: null,
-                actual_reps: null,
-              },
-              {
-                target_reps: 30,
-                target_weight: 5,
-                weight_unit: "KG",
-                excercise_name: "Machine-assisted Triceps Dip",
-                actual_reps: null,
-                actual_weight: null,
-              },
-            ],
-          },
-        },
-        include: {
-          excercise_sets: true,
-        },
-      })
-    );
-  }
+  const generatedWorkouts = workoutGenerator(no_of_workouts, context);
   return generatedWorkouts;
 };
 
@@ -123,10 +81,6 @@ export const completeWorkout = async (_: any, args: any, context: any) => {
   const { workout_id, excercise_set_groups } = args;
   const prisma = context.dataSources.prisma;
   await checkExistsAndOwnership(context, workout_id, false);
-  console.log(
-    "EXCERCISE SET GROUPS: ",
-    util.inspect(excercise_set_groups, false, true, true)
-  );
   const [
     current_workout_excercise_group_sets,
     next_workout_excercise_group_sets,
@@ -216,7 +170,6 @@ export const deleteWorkout = async (_: any, args: any, context: any) => {
   });
   // reorder remaining workouts
   await reorderActiveWorkouts(context, null, null);
-
   return {
     code: "200",
     success: true,

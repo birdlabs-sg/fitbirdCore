@@ -1,1 +1,1 @@
-{"version":3,"file":"excercise.js","sourceRoot":"","sources":["../../../../src/graphql/typeDefs/objectDef/excercise.ts"],"names":[],"mappings":";;;AAAA,MAAM,EAAE,GAAG,EAAE,GAAG,OAAO,CAAC,eAAe,CAAC,CAAC;AAE5B,QAAA,SAAS,GAAG,GAAG,CAAA;;;;;;;;;;;;;;;;CAgB3B,CAAC"}
+{"version":3,"file":"excercise.js","sourceRoot":"","sources":["../../../../src/graphql/typeDefs/objectDef/excercise.ts"],"names":[],"mappings":";;;AAAA,MAAM,EAAE,GAAG,EAAE,GAAG,OAAO,CAAC,eAAe,CAAC,CAAC;AAE5B,QAAA,SAAS,GAAG,GAAG,CAAA;;;;;;;;;;;;;;;;;;CAkB3B,CAAC"}

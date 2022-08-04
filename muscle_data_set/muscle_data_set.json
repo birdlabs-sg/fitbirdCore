@@ -4,12 +4,36 @@
     "muscle_region_type": "HIPS"
   },
   {
+    "muscle_region_name": "Abductors",
+    "muscle_region_type": "HIPS"
+  },
+  {
+    "muscle_region_name": "Brachioradialis",
+    "muscle_region_type": "FORE_ARM"
+  },
+  {
     "muscle_region_name": "Biceps Brachii",
     "muscle_region_type": "UPPER_ARM"
   },
   {
     "muscle_region_name": "Brachialis",
     "muscle_region_type": "UPPER_ARM"
+  },
+  {
+    "muscle_region_name": "Quadriceps",
+    "muscle_region_type": "THIGHS"
+  },
+  {
+    "muscle_region_name": "Longus colli",
+    "muscle_region_type": "NECK"
+  },
+  {
+    "muscle_region_name": "Piriformis",
+    "muscle_region_type": "HIPS"
+  },
+  {
+    "muscle_region_name": "Obturator externus",
+    "muscle_region_type": "HIPS"
   },
   {
     "muscle_region_name": "Brachioradialis",
@@ -33,7 +57,7 @@
   },
   {
     "muscle_region_name": "Erector Spinae",
-    "muscle_region_type": "WAIST"
+    "muscle_region_type": "BACK"
   },
   {
     "muscle_region_name": "Gastrocnemius",
@@ -112,12 +136,20 @@
     "muscle_region_type": "BACK"
   },
   {
-    "muscle_region_name": "Trapezius,  Middle Fibers",
+    "muscle_region_name": "Trapezius, Middle Fibers",
     "muscle_region_type": "BACK"
   },
   {
-    "muscle_region_name": "Trapezius,  Upper Fibers",
+    "muscle_region_name": "Trapezius, Upper Fibers",
     "muscle_region_type": "BACK"
+  },
+  {
+    "muscle_region_name": "Pronators",
+    "muscle_region_type": "UPPER_ARM"
+  },
+  {
+    "muscle_region_name": "Supinator",
+    "muscle_region_type": "UPPER_ARM"
   },
   {
     "muscle_region_name": "Triceps Brachii",
@@ -186,5 +218,29 @@
   {
     "muscle_region_name": "Tensor Fasciae Latae",
     "muscle_region_type": "HIPS"
+  },
+  {
+    "muscle_region_name": "Quadratus Lumborum",
+    "muscle_region_type": "BACK"
+  },
+  {
+    "muscle_region_name": "Iliopsoas Lumborum",
+    "muscle_region_type": "HIPS"
+  },
+  {
+    "muscle_region_name": "Iliopsoas Thoracis",
+    "muscle_region_type": "HIPS"
+  },
+  {
+    "muscle_region_name": "Psoas Major",
+    "muscle_region_type": "HIPS"
+  },
+  {
+    "muscle_region_name": "Iliocastalis Lumborum",
+    "muscle_region_type": "BACK"
+  },
+  {
+    "muscle_region_name": "Iliocastalis Thoracis",
+    "muscle_region_type": "BACK"
   }
 ]

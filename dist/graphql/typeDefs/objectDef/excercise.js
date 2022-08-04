@@ -17,6 +17,8 @@ exports.Excercise = gql `
     synergist_muscles: [MuscleRegion]
     dynamic_stabilizer_muscles: [MuscleRegion]
     equipment_required: [Equipment]
+    body_weight: Boolean
+    assisted: Boolean
   }
 `;
 //# sourceMappingURL=excercise.js.map
