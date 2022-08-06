@@ -4,13 +4,15 @@ import {
   getActiveWorkoutCount,
   checkExistsAndOwnership,
   getActiveWorkouts,
-  generateExcerciseMetadata,
   updateExcerciseMetadataWithCompletedWorkout,
   excerciseSetGroupsTransformer,
   formatExcerciseSetGroups,
+  extractMetadatas,
+  generateOrUpdateExcerciseMetadata,
 } from "../../../service/workout_manager/workout_manager";
 import { onlyAuthenticated } from "../../../service/firebase_service";
 import { workoutGenerator } from "../../../service/workout_manager/workout_generator";
+import { Workout } from "@prisma/client";
 const util = require("util");
 
 export const generateWorkouts = async (_: any, args: any, context: any) => {
@@ -29,15 +31,18 @@ export const createWorkout = async (_: any, args: any, context: any) => {
   const prisma = context.dataSources.prisma;
   const { excercise_set_groups, ...otherArgs } = args;
 
+  const [excerciseSetGroups, excerciseMetadatas] =
+    extractMetadatas(excercise_set_groups);
+
   // Ensure that there is a max of 7 workouts
   if ((await getActiveWorkoutCount(context)) > 6) {
     throw Error("You can only have 7 active workouts.");
   }
 
   const formattedExcerciseSetGroups =
-    formatExcerciseSetGroups(excercise_set_groups);
+    formatExcerciseSetGroups(excerciseSetGroups);
 
-  const workout = await prisma.workout.create({
+  const workout: Workout = await prisma.workout.create({
     data: {
       user_id: context.user.user_id,
       order_index: await getActiveWorkoutCount(context),
@@ -52,8 +57,8 @@ export const createWorkout = async (_: any, args: any, context: any) => {
       },
     },
   });
+  await generateOrUpdateExcerciseMetadata(context, excerciseMetadatas);
 
-  await generateExcerciseMetadata(context, workout);
   return {
     code: "200",
     success: true,
@@ -81,12 +86,16 @@ export const completeWorkout = async (_: any, args: any, context: any) => {
   const { workout_id, excercise_set_groups } = args;
   const prisma = context.dataSources.prisma;
   await checkExistsAndOwnership(context, workout_id, false);
+
+  const [excerciseSetGroups, excerciseMetadatas] =
+    extractMetadatas(excercise_set_groups);
+
   const [
     current_workout_excercise_group_sets,
     next_workout_excercise_group_sets,
-  ] = excerciseSetGroupsTransformer(excercise_set_groups);
+  ] = excerciseSetGroupsTransformer(excerciseSetGroups);
 
-  const completedWorkout = await prisma.workout.update({
+  const completedWorkout: Workout = await prisma.workout.update({
     where: {
       workout_id: parseInt(workout_id),
     },
@@ -101,8 +110,12 @@ export const completeWorkout = async (_: any, args: any, context: any) => {
       excercise_set_groups: { include: { excercise_sets: true } },
     },
   });
-  await generateExcerciseMetadata(context, completedWorkout);
+
+  // in-case there is no associated excercise metadata
+  await generateOrUpdateExcerciseMetadata(context, excerciseMetadatas);
+
   await updateExcerciseMetadataWithCompletedWorkout(context, completedWorkout);
+
   await reorderActiveWorkouts(context, null, null);
   await generateNextWorkout(
     context,
@@ -127,12 +140,22 @@ export const updateWorkout = async (_: any, args: any, context: any) => {
   const prisma = context.dataSources.prisma;
   await checkExistsAndOwnership(context, workout_id, false);
 
+  // extract out metadatas
+  const excercise_metadatas = [];
+  const excerciseSetGroups = excercise_set_groups?.map(
+    (excercise_set_group) => {
+      const { excercise_metadata, ...excerciseSetGroup } = excercise_set_group;
+      excercise_metadatas.push(excercise_metadata);
+      return excerciseSetGroup;
+    }
+  );
+
   let updatedData = {
     ...otherArgs,
-    ...(excercise_set_groups && {
+    ...(excerciseSetGroups && {
       excercise_set_groups: {
         deleteMany: {},
-        create: formatExcerciseSetGroups(excercise_set_groups),
+        create: formatExcerciseSetGroups(excerciseSetGroups),
       },
     }),
   };
@@ -147,7 +170,7 @@ export const updateWorkout = async (_: any, args: any, context: any) => {
     },
   });
 
-  await generateExcerciseMetadata(context, updatedWorkout);
+  await generateOrUpdateExcerciseMetadata(context, excercise_metadatas);
 
   return {
     code: "200",

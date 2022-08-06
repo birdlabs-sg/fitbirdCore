@@ -20,10 +20,20 @@ var __rest = (this && this.__rest) || function (s, e) {
     return t;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.generateNextWorkout = exports.reorderActiveWorkouts = exports.checkExistsAndOwnership = exports.getActiveWorkoutCount = exports.updateExcerciseMetadataWithCompletedWorkout = exports.generateExcerciseMetadata = exports.getActiveWorkouts = exports.excerciseSetGroupsTransformer = exports.formatExcerciseSetGroups = void 0;
+exports.generateNextWorkout = exports.reorderActiveWorkouts = exports.checkExistsAndOwnership = exports.getActiveWorkoutCount = exports.updateExcerciseMetadataWithCompletedWorkout = exports.generateOrUpdateExcerciseMetadata = exports.getActiveWorkouts = exports.excerciseSetGroupsTransformer = exports.formatExcerciseSetGroups = exports.extractMetadatas = void 0;
 const apollo_server_1 = require("apollo-server");
 const _ = require("lodash");
 const util = require("util");
+const extractMetadatas = (rawExcerciseSetGroups) => {
+    var excercise_metadatas = [];
+    rawExcerciseSetGroups = rawExcerciseSetGroups.map((rawExcerciseSetGroup) => {
+        const { excercise_metadata } = rawExcerciseSetGroup, excerciseSetGroup = __rest(rawExcerciseSetGroup, ["excercise_metadata"]);
+        excercise_metadatas.push(excercise_metadata);
+        return excerciseSetGroup;
+    });
+    return [rawExcerciseSetGroups, excercise_metadatas];
+};
+exports.extractMetadatas = extractMetadatas;
 const formatExcerciseSetGroups = (rawExcerciseSetGroups) => {
     const formattedData = rawExcerciseSetGroups.map((rawExcerciseSetGroup) => (Object.assign(Object.assign({}, rawExcerciseSetGroup), { excercise_sets: { create: rawExcerciseSetGroup.excercise_sets } })));
     return formattedData;
@@ -81,30 +91,39 @@ const getActiveWorkouts = (context) => __awaiter(void 0, void 0, void 0, functio
 });
 exports.getActiveWorkouts = getActiveWorkouts;
 // Generates excerciseMetadata if it's not available for any of the excercises in a workout
-const generateExcerciseMetadata = (context, workout) => __awaiter(void 0, void 0, void 0, function* () {
+const generateOrUpdateExcerciseMetadata = (context, excercise_metadatas) => __awaiter(void 0, void 0, void 0, function* () {
     const prisma = context.dataSources.prisma;
-    const excercise_names = workout.excercise_set_groups.map((excercise_set_groups) => excercise_set_groups.excercise_name);
-    for (var excercise_name of excercise_names) {
+    for (var excercise_metadata of excercise_metadatas) {
         const excerciseMetadata = yield prisma.excerciseMetadata.findUnique({
             where: {
                 user_id_excercise_name: {
                     user_id: context.user.user_id,
-                    excercise_name: excercise_name,
+                    excercise_name: excercise_metadata.excercise_name,
                 },
             },
         });
         if (excerciseMetadata == null) {
-            yield prisma.excerciseMetadata.create({
-                data: {
-                    user_id: context.user.user_id,
-                    excercise_name: excercise_name,
+            // create one with the excerciseMetadata provided
+            const metadata = yield prisma.excerciseMetadata.create({
+                data: Object.assign({ user_id: context.user.user_id }, excercise_metadata),
+            });
+        }
+        else {
+            // update the excerciseMetadata with provided ones
+            const metadata = yield prisma.excerciseMetadata.update({
+                where: {
+                    user_id_excercise_name: {
+                        user_id: context.user.user_id,
+                        excercise_name: excercise_metadata.excercise_name,
+                    },
                 },
+                data: Object.assign({ user_id: context.user.user_id }, excercise_metadata),
             });
         }
     }
 });
-exports.generateExcerciseMetadata = generateExcerciseMetadata;
-// updates a excerciseMetadata with the stats of the completed workout
+exports.generateOrUpdateExcerciseMetadata = generateOrUpdateExcerciseMetadata;
+// updates a excerciseMetadata with the stats of the completed workout if present
 const updateExcerciseMetadataWithCompletedWorkout = (context, workout) => __awaiter(void 0, void 0, void 0, function* () {
     // TODO: Refactor into progressive overload algo
     const prisma = context.dataSources.prisma;
@@ -147,10 +166,10 @@ const updateExcerciseMetadataWithCompletedWorkout = (context, workout) => __awai
                 },
             },
             data: {
-                best_weight: best_set.actual_weight,
                 best_rep: best_set.actual_reps,
+                best_weight: best_set.actual_weight,
                 weight_unit: best_set.weight_unit,
-                last_excecuted: new Date(),
+                last_excecuted: new Date().toISOString(),
             },
         });
     }

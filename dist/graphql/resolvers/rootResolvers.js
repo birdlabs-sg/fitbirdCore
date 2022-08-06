@@ -155,6 +155,19 @@ exports.resolvers = {
                 });
             });
         },
+        excercise_metadata(parent, args, context, info) {
+            return __awaiter(this, void 0, void 0, function* () {
+                const prisma = context.dataSources.prisma;
+                return yield prisma.excerciseMetadata.findUnique({
+                    where: {
+                        user_id_excercise_name: {
+                            user_id: context.user.user_id,
+                            excercise_name: parent.excercise_name,
+                        },
+                    },
+                });
+            });
+        },
     },
 };
 //# sourceMappingURL=rootResolvers.js.map

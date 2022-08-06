@@ -1,7 +1,20 @@
+import { Workout } from "@prisma/client";
 import { AuthenticationError } from "apollo-server";
 
 const _ = require("lodash");
 const util = require("util");
+
+export const extractMetadatas = (
+  rawExcerciseSetGroups: rawExcerciseSetGroupsInput[]
+): [rawExcerciseSetGroupsInput[], excerciseMetaDataInput[]] => {
+  var excercise_metadatas: Array<excerciseMetaDataInput> = [];
+  rawExcerciseSetGroups = rawExcerciseSetGroups.map((rawExcerciseSetGroup) => {
+    const { excercise_metadata, ...excerciseSetGroup } = rawExcerciseSetGroup;
+    excercise_metadatas.push(excercise_metadata);
+    return excerciseSetGroup;
+  });
+  return [rawExcerciseSetGroups, excercise_metadatas];
+};
 
 export const formatExcerciseSetGroups = (
   rawExcerciseSetGroups: rawExcerciseSetGroupsInput[]
@@ -19,7 +32,6 @@ export const excerciseSetGroupsTransformer = (
 ): [rawExcerciseSetGroupsInput[], rawExcerciseSetGroupsInput[]] => {
   var current_excercise_group_sets: Array<rawExcerciseSetGroupsInput> = [];
   var next_excercise_group_sets: Array<rawExcerciseSetGroupsInput> = [];
-
   for (var excercise_set_group of excercise_set_groups) {
     switch (excercise_set_group.excercise_set_group_state) {
       case ExcerciseSetGroupState.DELETED_PERMANANTLY:
@@ -68,39 +80,54 @@ export const getActiveWorkouts = async (context: any) => {
 };
 
 // Generates excerciseMetadata if it's not available for any of the excercises in a workout
-export const generateExcerciseMetadata = async (context: any, workout: any) => {
+export const generateOrUpdateExcerciseMetadata = async (
+  context: any,
+  excercise_metadatas: excerciseMetaDataInput[]
+) => {
   const prisma = context.dataSources.prisma;
-  const excercise_names = workout.excercise_set_groups.map(
-    (excercise_set_groups) => excercise_set_groups.excercise_name
-  );
-  for (var excercise_name of excercise_names) {
+  for (var excercise_metadata of excercise_metadatas) {
     const excerciseMetadata = await prisma.excerciseMetadata.findUnique({
       where: {
         user_id_excercise_name: {
           user_id: context.user.user_id,
-          excercise_name: excercise_name,
+          excercise_name: excercise_metadata.excercise_name,
         },
       },
     });
     if (excerciseMetadata == null) {
-      await prisma.excerciseMetadata.create({
+      // create one with the excerciseMetadata provided
+      const metadata = await prisma.excerciseMetadata.create({
         data: {
           user_id: context.user.user_id,
-          excercise_name: excercise_name,
+          ...excercise_metadata,
+        },
+      });
+    } else {
+      // update the excerciseMetadata with provided ones
+      const metadata = await prisma.excerciseMetadata.update({
+        where: {
+          user_id_excercise_name: {
+            user_id: context.user.user_id,
+            excercise_name: excercise_metadata.excercise_name,
+          },
+        },
+        data: {
+          user_id: context.user.user_id,
+          ...excercise_metadata,
         },
       });
     }
   }
 };
 
-// updates a excerciseMetadata with the stats of the completed workout
+// updates a excerciseMetadata with the stats of the completed workout if present
 export const updateExcerciseMetadataWithCompletedWorkout = async (
   context: any,
   workout: any
 ) => {
   // TODO: Refactor into progressive overload algo
-
   const prisma = context.dataSources.prisma;
+
   for (var excercise_group_set of workout.excercise_set_groups) {
     let oldMetadata = await prisma.excerciseMetadata.findUnique({
       where: {
@@ -123,6 +150,7 @@ export const updateExcerciseMetadataWithCompletedWorkout = async (
       actual_reps: oldMetadata.best_rep,
       weight_unit: oldMetadata.weight_unit,
     };
+
     for (let excercise_set of excercise_group_set.excercise_sets) {
       if (best_set.actual_weight < excercise_set.actual_weight) {
         best_set = {
@@ -140,10 +168,10 @@ export const updateExcerciseMetadataWithCompletedWorkout = async (
         },
       },
       data: {
-        best_weight: best_set.actual_weight,
         best_rep: best_set.actual_reps,
+        best_weight: best_set.actual_weight,
         weight_unit: best_set.weight_unit,
-        last_excecuted: new Date(),
+        last_excecuted: new Date().toISOString(),
       },
     });
   }

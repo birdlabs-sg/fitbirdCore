@@ -7,7 +7,7 @@ import {
   Workout,
 } from "@prisma/client";
 import {
-  generateExcerciseMetadata,
+  generateOrUpdateExcerciseMetadata,
   getActiveWorkoutCount,
 } from "./workout_manager";
 const _ = require("lodash");
@@ -160,26 +160,22 @@ export const workoutGenerator = async (
     }
     let createdWorkout;
     // create workout and generate the associated excercisemetadata
-    try {
-      createdWorkout = await prisma.workout.create({
-        data: {
-          workout_name: workout_name_list.splice(
-            (Math.random() * workout_name_list.length) | 0,
-            1
-          )[0],
-          order_index: await getActiveWorkoutCount(context),
-          user_id: user.user_id,
-          life_span: 12,
-          excercise_set_groups: { create: list_of_excercises },
-        },
-        include: {
-          excercise_set_groups: true,
-        },
-      });
-    } catch (e) {
-      console.log(e);
-    }
-    generateExcerciseMetadata(context, createdWorkout);
+
+    createdWorkout = await prisma.workout.create({
+      data: {
+        workout_name: workout_name_list.splice(
+          (Math.random() * workout_name_list.length) | 0,
+          1
+        )[0],
+        order_index: await getActiveWorkoutCount(context),
+        user_id: user.user_id,
+        life_span: 12,
+        excercise_set_groups: { create: list_of_excercises },
+      },
+      include: {
+        excercise_set_groups: true,
+      },
+    });
 
     // push the result ot the list
     generated_workout_list.push(createdWorkout);

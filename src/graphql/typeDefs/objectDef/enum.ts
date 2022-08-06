@@ -42,6 +42,7 @@ export const Enum = gql`
     TRAP_BAR
     SLED
     SMITH
+    BENCH
   }
 
   enum MuscleRegionType {

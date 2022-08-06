@@ -17,5 +17,6 @@ export const Excercise = gql`
     equipment_required: [Equipment]
     body_weight: Boolean
     assisted: Boolean
+    excercise_metadata: ExcerciseMetadata
   }
 `;

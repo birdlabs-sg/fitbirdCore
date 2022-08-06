@@ -147,7 +147,7 @@ export const resolvers = {
     },
     async dynamic_stabilizer_muscles(
       parent: any,
-      args: ArgumentNode,
+      args: any,
       context: any,
       info: any
     ) {
@@ -156,6 +156,17 @@ export const resolvers = {
         where: {
           dynamic_stabilizer_muscles: {
             some: { excercise_name: parent.excercise_name },
+          },
+        },
+      });
+    },
+    async excercise_metadata(parent: any, args: any, context: any, info: any) {
+      const prisma = context.dataSources.prisma;
+      return await prisma.excerciseMetadata.findUnique({
+        where: {
+          user_id_excercise_name: {
+            user_id: context.user.user_id,
+            excercise_name: parent.excercise_name,
           },
         },
       });

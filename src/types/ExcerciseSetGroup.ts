@@ -16,6 +16,11 @@ interface excerciseMetaDataInput {
   rest_time_upper_bound: Number;
   preferred: Boolean;
   haveRequiredEquipment: Boolean;
+  excercise_metadata_state: String;
+  last_excecuted: String;
+  best_weight: Number;
+  best_rep: Number;
+  weight_unit: WeightUnit;
 }
 
 interface excerciseSetInput {
@@ -29,7 +34,7 @@ interface excerciseSetInput {
 interface rawExcerciseSetGroupsInput {
   excercise_name: String;
   excercise_set_group_state: ExcerciseSetGroupState;
-  excerciseMetadata?: excerciseMetaDataInput;
+  excercise_metadata?: excerciseMetaDataInput;
   excercise_sets: excerciseSetInput[];
 }
 

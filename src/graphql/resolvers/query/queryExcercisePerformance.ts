@@ -25,6 +25,11 @@ export const excercisePerformanceQueryResolver = async (
       excercise_name: excercise_name,
     },
     include: { workout: true, excercise_sets: true },
+    orderBy: {
+      workout: {
+        date_completed: "desc",
+      },
+    },
     take: span,
   });
 

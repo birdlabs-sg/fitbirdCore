@@ -22,7 +22,7 @@ exports.mutateWorkout = gql `
   input excerciseSetGroupInput {
     excercise_name: String!
     excercise_set_group_state: ExcerciseSetGroupState!
-    excerciseMetadata: excerciseMetaDataInput
+    excercise_metadata: excerciseMetaDataInput!
     excercise_sets: [excerciseSetInput]!
   }
 
@@ -32,6 +32,11 @@ exports.mutateWorkout = gql `
     rest_time_upper_bound: Int
     preferred: Boolean
     haveRequiredEquipment: Boolean
+    excercise_metadata_state: String
+    last_excecuted: String
+    best_weight: Float
+    best_rep: Int
+    weight_unit: WeightUnit
   }
 
   input excerciseSetInput {
