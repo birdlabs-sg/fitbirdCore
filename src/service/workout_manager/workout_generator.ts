@@ -6,10 +6,7 @@ import {
   User,
   Workout,
 } from "@prisma/client";
-import {
-  generateOrUpdateExcerciseMetadata,
-  getActiveWorkoutCount,
-} from "./workout_manager";
+import { getActiveWorkoutCount } from "./workout_manager";
 const _ = require("lodash");
 
 const rotations_type: MuscleRegionType[][] = [
