@@ -2,6 +2,9 @@ const { Equipment } = require("@prisma/client");
 const csv = require("csvtojson");
 const { flatten } = require("lodash");
 const { json } = require("stream/consumers");
+const { PrismaClient } = require("@prisma/client");
+// NOTE: haven't account for different format AKA the CARDIOexcercises, olmpic excercises etc.
+const prisma = new PrismaClient();
 
 const muscle_data_path = "./muscle_data_set/muscle_data_set.json";
 
@@ -9,6 +12,8 @@ const muscleData = require(muscle_data_path);
 var stringSimilarity = require("string-similarity");
 
 const equipment = Object.keys(Equipment);
+
+console.log(equipment);
 
 async function loadData() {
   const musceData = muscleData.map((muscle) => muscle.muscle_region_name);
@@ -72,6 +77,13 @@ function parseJson(excerciseJson, muscleList) {
         JSON.stringify(arg).replace(regex, "").replace(/-/g, "_").toLowerCase()
       )
       .reduce((a, b) => a + b);
+    if (
+      normalizedArgs.includes("padding") ||
+      normalizedArgs.includes("apparatus")
+    ) {
+      // skipped
+      continue;
+    }
     const updatedArgs = {
       ...args,
       equipment_required: equipment
@@ -83,6 +95,27 @@ function parseJson(excerciseJson, muscleList) {
           if (
             equipment_name == "TRAP_BAR" &&
             normalizedArgs.includes("trapbar")
+          ) {
+            return equipment_name;
+          }
+          if (
+            equipment_name == "PARALLEL_BARS" &&
+            normalizedArgs.includes("parallelbars")
+          ) {
+            console.log("foundparra");
+            return equipment_name;
+          }
+          if (
+            equipment_name == "STABILITY_BALL" &&
+            normalizedArgs.includes("stabilityball")
+          ) {
+            return equipment_name;
+          }
+          if (
+            equipment_name == "PULL_UP_BAR" &&
+            (normalizedArgs.includes("pullup") ||
+              normalizedArgs.includes("highbar") ||
+              normalizedArgs.includes("chinup"))
           ) {
             return equipment_name;
           }
@@ -100,7 +133,8 @@ function parseJson(excerciseJson, muscleList) {
         normalizedArgs.includes("pushup") ||
         normalizedArgs.includes("suspension") ||
         normalizedArgs.includes("assisted") ||
-        (!normalizedArgs.includes("dumbbell") &&
+        normalizedArgs.includes("assisted") ||
+        (!normalizedArgs.includes("weighted") &&
           !normalizedArgs.includes("barbell") &&
           !normalizedArgs.includes("kettlebell") &&
           !normalizedArgs.includes("cable") &&
@@ -118,7 +152,6 @@ function parseJson(excerciseJson, muscleList) {
 
 function excerciseMatcher(muscleRegion, muscleList) {
   if (muscleRegion.includes("Abductors")) {
-    console.log("contains Abductors");
     return "Abductors";
   } else if (muscleRegion.includes("Pronator")) {
     console.log("contains pronator");
@@ -198,15 +231,13 @@ async function combineData() {
   );
 }
 
-// async function deleteExcercise(excercise_name) {
-//   deletedExcercise = await prisma.excercise.delete({
-//     where: {
-//       excercise_name: excercise_name,
-//     },
-//   });
-
+// async function deleteExcercises() {
+//   deletedExcercise = await prisma.excercise.deleteMany({});
+// }
 // async function getExcercises() {
 //   excercises = await prisma.excercise.findMany();
 // }
 
 loadData().then(() => combineData());
+
+// deleteExcercises();
