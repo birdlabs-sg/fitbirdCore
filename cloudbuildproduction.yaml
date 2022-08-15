@@ -12,7 +12,7 @@ steps:
     args:
       - "run"
       - "deploy"
-      - "fitbird-core-test" #name of server
+      - "fitbird-core-production" #name of server
       - "--image"
       - "gcr.io/$PROJECT_ID/fitbird_core/$COMMIT_SHA" #name of image
       - "--region"
