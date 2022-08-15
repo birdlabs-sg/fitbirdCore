@@ -58,6 +58,7 @@ export const authenticate = async (token: any) => {
   if (!token) {
     return { authenticated: false, user: null, isAdmin: null };
   }
+  console.log("Authenticating");
   try {
     const fireBaseUser = await firebase.auth().verifyIdToken(token);
     const user = await prisma.user.findUnique({
@@ -75,6 +76,7 @@ export const authenticate = async (token: any) => {
 
 export const onlyAuthenticated = (context: any) => {
   if (!context.authenticated) {
+    console.log("not authenticated!!@@");
     throw new AuthenticationError("You are not authenticated.");
   }
 };
