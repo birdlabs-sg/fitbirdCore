@@ -1,11 +1,17 @@
 steps:
   # build docker image
   - name: "gcr.io/cloud-builders/docker"
-    args: ["build", "-t", "gcr.io/$PROJECT_ID/fitbird_core/$COMMIT_SHA", "."]
+    args:
+      [
+        "build",
+        "-t",
+        "gcr.io/$PROJECT_ID/fitbird_core/staging/$COMMIT_SHA",
+        ".",
+      ]
 
   # push image to image registry
   - name: "gcr.io/cloud-builders/docker"
-    args: ["push", "gcr.io/$PROJECT_ID/fitbird_core/$COMMIT_SHA"]
+    args: ["push", "gcr.io/$PROJECT_ID/fitbird_core/staging/$COMMIT_SHA"]
 
   # deploy image to cloud run
   - name: "gcr.io/cloud-builders/gcloud"
@@ -14,7 +20,7 @@ steps:
       - "deploy"
       - "fitbird-core-test" #name of server
       - "--image"
-      - "gcr.io/$PROJECT_ID/fitbird_core/$COMMIT_SHA" #name of image
+      - "gcr.io/$PROJECT_ID/fitbird_core/staging/$COMMIT_SHA" #name of image
       - "--region"
       - "asia-southeast1"
       - "--platform"
@@ -22,4 +28,4 @@ steps:
       - "--allow-unauthenticated"
 
 images:
-  - "gcr.io/$PROJECT_ID/fitbird_core/$COMMIT_SHA"
+  - "gcr.io/$PROJECT_ID/fitbird_core/staging/$COMMIT_SHA"
