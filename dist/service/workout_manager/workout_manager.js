@@ -276,6 +276,8 @@ const generateNextWorkout = (context, previousWorkout, next_workout_excercise_se
         const compoundUpperBound = context.user.compound_movement_rep_upper_bound;
         const isolatedLowerBound = context.user.isolated_movement_rep_lower_bound;
         const isolatedUpperBound = context.user.isolated_movement_rep_upper_bound;
+        const bodyWeightLowerBound = context.user.body_weight_rep_lower_bound;
+        const bodyWeightUpperBound = context.user.body_weight_rep_upper_bound;
         for (let excercise_set_group of excercise_set_groups) {
             const overloadedSets = [];
             for (let excercise_set of excercise_set_group.excercise_sets) {
@@ -287,13 +289,19 @@ const generateNextWorkout = (context, previousWorkout, next_workout_excercise_se
                 });
                 var upperBound;
                 var lowerBound;
-                if (excerciseData.excercise_mechanics[0] == "COMPOUND") {
+                if (excerciseData.excercise_mechanics[0] == "COMPOUND" &&
+                    excerciseData.body_weight == false) {
                     upperBound = compoundUpperBound;
                     lowerBound = compoundLowerBound;
                 }
-                else {
+                else if (excerciseData.excercise_mechanics[0] == "ISOLATED" &&
+                    excerciseData.body_weight == false) {
                     upperBound = isolatedLowerBound;
                     lowerBound = isolatedUpperBound;
+                }
+                else {
+                    upperBound = bodyWeightLowerBound;
+                    lowerBound = bodyWeightUpperBound;
                 }
                 const excerciseSetRating = rateExcerciseSet(excercise_set);
                 if (excerciseSetRating == "SKIPPED") {

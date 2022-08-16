@@ -82,7 +82,6 @@ const authenticate = (token) => __awaiter(void 0, void 0, void 0, function* () {
     if (!token) {
         return { authenticated: false, user: null, isAdmin: null };
     }
-    console.log("Authenticating");
     try {
         const fireBaseUser = yield firebase.auth().verifyIdToken(token);
         const user = yield prisma.user.findUnique({
@@ -93,15 +92,13 @@ const authenticate = (token) => __awaiter(void 0, void 0, void 0, function* () {
         return { authenticated: true, user: user, isAdmin: !!fireBaseUser.admin };
     }
     catch (e) {
-        console.log(e);
-        console.log("HAVE TOKEN BUT FAILED TO AUTHENTICATE@");
+        console.log("HAVE TOKEN BUT FAILED TO AUTHENTICATE");
         return { authenticated: false, user: null, isAdmin: null };
     }
 });
 exports.authenticate = authenticate;
 const onlyAuthenticated = (context) => {
     if (!context.authenticated) {
-        console.log("not authenticated!!@@");
         throw new apollo_server_1.AuthenticationError("You are not authenticated.");
     }
 };

@@ -26,12 +26,14 @@ const queryExcercise_1 = require("./query/queryExcercise");
 const queryExcercisePerformance_1 = require("./query/queryExcercisePerformance");
 const queryExcerciseMetadatas_1 = require("./query/queryExcerciseMetadatas");
 const queryWorkout_1 = require("./query/queryWorkout");
+const generateNotificationResolver_1 = require("./mutation/generateNotificationResolver");
 const _ = require("lodash");
 exports.resolvers = {
     //Mutations for create, update and delete operations
     Mutation: {
         signup: mutateSignup_1.mutateSignup,
         generateFirebaseIdToken: generateFirebaseIdTokenResolver_1.generateFirebaseIdTokenResolver,
+        generateNotification: generateNotificationResolver_1.generateNotificationResolver,
         updateUser: mutateUser_1.updateUser,
         createMeasurement: mutateMeasurement_1.createMeasurement,
         updateMeasurement: mutateMeasurement_1.updateMeasurement,

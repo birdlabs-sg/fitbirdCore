@@ -128,6 +128,8 @@ model User {
   compound_movement_rep_upper_bound Int                 @default(10)
   isolated_movement_rep_lower_bound Int                 @default(5)
   isolated_movement_rep_upper_bound Int                 @default(15)
+  body_weight_rep_lower_bound       Int                 @default(8)
+  body_weight_rep_upper_bound       Int                 @default(20)
   equipment_accessible              Equipment[]
   measurements                      Measurement[]
   workouts                          Workout[]
@@ -138,8 +140,8 @@ model User {
 
 model ExcerciseMetadata {
   excercise_metadata_state ExcerciseMetadataState @default(LEARNING)
-  user                     User                   @relation(fields: [user_id], references: [user_id])
-  excercise                Excercise              @relation(fields: [excercise_name], references: [excercise_name])
+  user                     User                   @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
+  excercise                Excercise              @relation(fields: [excercise_name], references: [excercise_name], onDelete: Cascade)
   haveRequiredEquipment    Boolean?
   preferred                Boolean?
   last_excecuted           DateTime?
@@ -168,7 +170,7 @@ model Measurement {
 model Workout {
   workout_id           Int                 @id @default(autoincrement())
   workout_name         String
-  user                 User                @relation(fields: [user_id], references: [user_id])
+  user                 User                @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
   life_span            Int
   order_index          Int // Keeps track of the order of workout
   date_scheduled       DateTime?
