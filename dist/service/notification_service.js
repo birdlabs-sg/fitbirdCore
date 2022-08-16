@@ -46,6 +46,11 @@ const generateNotification = (token, title, body) => __awaiter(void 0, void 0, v
             priority: "high",
         },
         apns: {
+            payload: {
+                aps: {
+                    contentAvailable: true,
+                },
+            },
             headers: {
                 "apns-priority": "10",
             },

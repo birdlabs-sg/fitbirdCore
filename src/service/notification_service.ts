@@ -16,6 +16,11 @@ export const generateNotification = async (
       priority: "high",
     },
     apns: {
+      payload: {
+        aps: {
+          contentAvailable: true,
+        },
+      },
       headers: {
         "apns-priority": "10",
       },
