@@ -30,6 +30,7 @@ import { excercisePerformanceQueryResolver } from "./query/queryExcercisePerform
 import { ArgumentNode } from "graphql";
 import { getExcerciseMetadatasQueryResolver } from "./query/queryExcerciseMetadatas";
 import { workoutQueryResolver } from "./query/queryWorkout";
+import { generateNotificationResolver } from "./mutation/generateNotificationResolver";
 
 const _ = require("lodash");
 
@@ -38,6 +39,7 @@ export const resolvers = {
   Mutation: {
     signup: mutateSignup,
     generateFirebaseIdToken: generateFirebaseIdTokenResolver,
+    generateNotification: generateNotificationResolver,
     updateUser: updateUser,
     createMeasurement: createMeasurement,
     updateMeasurement: updateMeasurement,

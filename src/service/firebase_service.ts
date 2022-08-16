@@ -58,7 +58,6 @@ export const authenticate = async (token: any) => {
   if (!token) {
     return { authenticated: false, user: null, isAdmin: null };
   }
-  console.log("Authenticating");
   try {
     const fireBaseUser = await firebase.auth().verifyIdToken(token);
     const user = await prisma.user.findUnique({
@@ -68,15 +67,13 @@ export const authenticate = async (token: any) => {
     });
     return { authenticated: true, user: user, isAdmin: !!fireBaseUser.admin };
   } catch (e) {
-    console.log(e);
-    console.log("HAVE TOKEN BUT FAILED TO AUTHENTICATE@");
+    console.log("HAVE TOKEN BUT FAILED TO AUTHENTICATE");
     return { authenticated: false, user: null, isAdmin: null };
   }
 };
 
 export const onlyAuthenticated = (context: any) => {
   if (!context.authenticated) {
-    console.log("not authenticated!!@@");
     throw new AuthenticationError("You are not authenticated.");
   }
 };

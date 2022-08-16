@@ -24,6 +24,7 @@ const mutateExcerciseMetaData_1 = require("./mutationDef/mutateExcerciseMetaData
 const workoutFrequency_1 = require("./objectDef/workoutFrequency");
 const excercisePerformance_1 = require("./objectDef/excercisePerformance");
 const mutateGenerateWorkouts_1 = require("./mutationDef/mutateGenerateWorkouts");
+const mutateNotification_1 = require("./mutationDef/mutateNotification");
 const queryTypeDef = gql `
   "This is the root query to resources. Require ADMIN permission to access all, otherwise resources are scoped to the user issuing the request."
   type Query {
@@ -63,6 +64,7 @@ const mutationTypeDefs = [
     mutateUser_1.mutateUser,
     mutateExcerciseMetaData_1.mutateExcerciseMetadata,
     mutateGenerateWorkouts_1.mutateGenerateWorkouts,
+    mutateNotification_1.mutateNotification,
 ];
 const objectTypeDefs = [
     queryTypeDef,
