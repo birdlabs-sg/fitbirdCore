@@ -58,3 +58,8 @@ Plugins:
 
 - Prettier
 - Prisma
+
+## Connecting to production database
+
+You will have to use the cloud sql auth proxy (https://cloud.google.com/sql/docs/mysql/connect-admin-proxy)
+`./cloud_sql_proxy -instances=INSTANCE_CONNECTION_NAME=tcp:3306 &`

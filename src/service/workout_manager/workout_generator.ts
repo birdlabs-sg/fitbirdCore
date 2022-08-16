@@ -229,14 +229,14 @@ const formatAndGenerateExcerciseSets = async (
     ) {
       // body-weight, isolated excercise
       targetWeight = 0;
-      targetReps = user.isolated_movement_rep_lower_bound;
+      targetReps = user.body_weight_rep_lower_bound;
     } else if (
       excercise.body_weight == true &&
       excercise.excercise_mechanics == ExcerciseMechanics.COMPOUND
     ) {
       // body-weight, compound excercise
       targetWeight = 0;
-      targetReps = user.compound_movement_rep_lower_bound;
+      targetReps = user.body_weight_rep_lower_bound;
     }
     excercise_sets = new Array(5).fill({
       target_weight: targetWeight,

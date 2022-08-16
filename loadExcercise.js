@@ -1,7 +1,6 @@
 const { PrismaClient } = require("@prisma/client");
 // NOTE: haven't account for different format AKA the CARDIOexcercises, olmpic excercises etc.
 const prisma = new PrismaClient();
-const csv = require("csvtojson");
 
 async function loadExcercise() {
   uniqueExcerciseList = require("./cleaned_data_set/combined_excercises.json");
