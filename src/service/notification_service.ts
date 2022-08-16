@@ -19,6 +19,7 @@ export const generateNotification = async (
       payload: {
         aps: {
           contentAvailable: true,
+          mutableContent: true,
         },
       },
       headers: {

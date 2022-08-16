@@ -49,6 +49,7 @@ const generateNotification = (token, title, body) => __awaiter(void 0, void 0, v
             payload: {
                 aps: {
                     contentAvailable: true,
+                    mutableContent: true,
                 },
             },
             headers: {
