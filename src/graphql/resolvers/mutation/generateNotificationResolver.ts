@@ -8,8 +8,7 @@ export const generateNotificationResolver = async (
 ) => {
   onlyAuthenticated(context);
   const { token, title, body } = args;
-  const notificationLog = await generateNotification(token, title, body);
-  console.log(`generated: ${notificationLog}`);
+  await generateNotification(token, title, body);
   return {
     code: "200",
     success: true,

@@ -105,6 +105,17 @@ enum ExcerciseSetGroupState {
   NORMAL_OPERATION
 }
 
+// FOR SETS ONLY (Affects their next workout sets, does not affect the current workout's sets)
+// any set that fail will cause the rest time to increase by 1.25x for the next set. 
+// This is effect temporary, will reset back to lower limit in the next workout
+enum FailureReason {
+  INSUFFICIENT_TIME // (Means that user this session need rush off) No change
+  INSUFFICIENT_REST_TIME // Permanantly increases the lower limit of rest time by 1.25x
+  TOO_DIFFICULT // Reduce rep (Or reduce weight if at lower limit of weight range)
+  LOW_MOOD // (Means that user not enough motivation) No change
+  INSUFFICIENT_SLEEP // (Means that user not enough sleep recently) No change
+}
+
 model User {
   user_id                           Int                 @id @default(autoincrement())
   email                             String              @unique
@@ -188,6 +199,7 @@ model ExcerciseSetGroup {
   excercise_name            String
   workout_id                Int
   excercise_set_group_state ExcerciseSetGroupState
+  failure_reason            FailureReason?
 }
 
 model MuscleRegion {

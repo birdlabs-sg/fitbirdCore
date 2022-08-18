@@ -20,6 +20,7 @@ exports.Workout = gql `
     excerciseMetadata: ExcerciseMetadata
     excercise_set_group_state: ExcerciseSetGroupState
     excercise_sets: [ExcerciseSet]!
+    failure_reason: FailureReason
   }
 `;
 //# sourceMappingURL=workout.js.map
