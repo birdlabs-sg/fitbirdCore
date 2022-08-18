@@ -22,6 +22,7 @@ export const mutateWorkout = gql`
     excercise_set_group_state: ExcerciseSetGroupState!
     excercise_metadata: excerciseMetaDataInput!
     excercise_sets: [excerciseSetInput]!
+    failure_reason: FailureReason
   }
 
   input excerciseMetaDataInput {

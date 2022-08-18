@@ -3,6 +3,7 @@ interface excerciseSetGroupInput {
   excercise_set_group_state: ExcerciseSetGroupState;
   excerciseMetadata: excerciseMetaDataInput;
   excercise_sets: ExcerciseSet[];
+  failure_reason: FailureReason;
 }
 
 const enum WeightUnit {
@@ -24,11 +25,11 @@ interface excerciseMetaDataInput {
 }
 
 interface excerciseSetInput {
-  target_weight: Number;
+  target_weight: number;
   weight_unit: WeightUnit;
-  target_reps: Number;
-  actual_weight: Number;
-  actual_reps: Number;
+  target_reps: number;
+  actual_weight: number;
+  actual_reps: number;
 }
 
 interface rawExcerciseSetGroupsInput {
@@ -36,6 +37,7 @@ interface rawExcerciseSetGroupsInput {
   excercise_set_group_state: ExcerciseSetGroupState;
   excercise_metadata?: excerciseMetaDataInput;
   excercise_sets: excerciseSetInput[];
+  failure_reason: FailureReason;
 }
 
 const enum ExcerciseSetGroupState {
@@ -44,4 +46,12 @@ const enum ExcerciseSetGroupState {
   REPLACEMENT_TEMPORARILY = "REPLACEMENT_TEMPORARILY",
   REPLACEMENT_PERMANANTLY = "REPLACEMENT_PERMANANTLY",
   NORMAL_OPERATION = "NORMAL_OPERATION",
+}
+
+enum FailureReason {
+  INSUFFICIENT_TIME = "INSUFFICIENT_TIME",
+  INSUFFICIENT_REST_TIME = "INSUFFICIENT_REST_TIME",
+  TOO_DIFFICULT = "TOO_DIFFICULT",
+  LOW_MOOD = "LOW_MOOD",
+  INSUFFICIENT_SLEEP = "INSUFFICIENT_SLEEP",
 }
