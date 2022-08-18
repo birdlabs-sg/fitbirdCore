@@ -86,4 +86,12 @@ export const Enum = gql`
     COMPLETED
     NONE
   }
+
+  enum FailureReason {
+    INSUFFICIENT_TIME
+    INSUFFICIENT_REST_TIME
+    TOO_DIFFICULT
+    LOW_MOOD
+    INSUFFICIENT_SLEEP
+  }
 `;
