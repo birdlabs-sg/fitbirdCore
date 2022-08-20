@@ -8,7 +8,7 @@ import {
 } from "@prisma/client";
 import { getActiveWorkoutCount } from "./workout_manager";
 const _ = require("lodash");
-
+// rotations_type is the list of possible rotations for a workout plan
 const rotations_type: MuscleRegionType[][] = [
   [
     MuscleRegionType.THIGHS,
@@ -32,6 +32,7 @@ const rotations_type: MuscleRegionType[][] = [
     MuscleRegionType.UPPER_ARM,
   ],
 ];
+/////////////////////////////////////
 
 export const workoutGenerator = async (
   numberOfWorkouts: Number,
@@ -39,7 +40,7 @@ export const workoutGenerator = async (
 ) => {
   const prisma: PrismaClient = context.dataSources.prisma;
   const user: User = context.user;
-
+  // random workout names
   const workout_name_list: string[] = [
     "Sexy Sparrow",
     "Odd Osprey",
@@ -54,12 +55,14 @@ export const workoutGenerator = async (
     "Wacky Woodpecker",
     "Charming Canary",
   ];
+  //////////////////////////////////
 
-  // guard clause
+  // guard clause ( maximum number of workouts)
   if (numberOfWorkouts > 7) {
     throw Error("Can only generate 7 workouts maximum.");
   }
   const generated_workout_list: Workout[] = [];
+  /////////////////////////////////
 
   // Contains a list of equipment that the user has NO access to.
   const user_constaints = _.differenceWith(
@@ -67,10 +70,13 @@ export const workoutGenerator = async (
     user.equipment_accessible,
     _.isEqual
   );
+  //////////////////////////////
+
   // Randomly select a rotation plan for the requestor
   const randomRotation: MuscleRegionType[] =
     rotations_type[Math.floor(Math.random() * rotations_type.length)];
   var excercise_pointer = 0;
+  //////////////////////////////
 
   // Core logic that generates the excercises
   for (let day = 0; day < numberOfWorkouts; day++) {
@@ -81,7 +87,7 @@ export const workoutGenerator = async (
       // Each workout will have 5 excercises. First 3 follows the rotation_type in a round robin fashion
       // Last 2 are waist excercises (ABS)
       if (excercise_pointer > randomRotation.length - 1) {
-        // Reset the pointer so that it goes in a round robin fashion
+        // Reset the pointer so that it goes in a round robin fashion -> exercise_pointer is the indication of the
         excercise_pointer = 0;
       }
       if (excercise_index == 3) {

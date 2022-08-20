@@ -24,6 +24,7 @@ enum LengthUnit {
 
 enum WeightUnit {
   KG
+
   LB
 }
 

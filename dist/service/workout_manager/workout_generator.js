@@ -13,6 +13,7 @@ exports.workoutGenerator = void 0;
 const client_1 = require("@prisma/client");
 const workout_manager_1 = require("./workout_manager");
 const _ = require("lodash");
+// rotations_type is the list of possible rotations for a workout plan
 const rotations_type = [
     [
         client_1.MuscleRegionType.THIGHS,
@@ -36,9 +37,11 @@ const rotations_type = [
         client_1.MuscleRegionType.UPPER_ARM,
     ],
 ];
+/////////////////////////////////////
 const workoutGenerator = (numberOfWorkouts, context) => __awaiter(void 0, void 0, void 0, function* () {
     const prisma = context.dataSources.prisma;
     const user = context.user;
+    // random workout names
     const workout_name_list = [
         "Sexy Sparrow",
         "Odd Osprey",
@@ -53,16 +56,20 @@ const workoutGenerator = (numberOfWorkouts, context) => __awaiter(void 0, void 0
         "Wacky Woodpecker",
         "Charming Canary",
     ];
-    // guard clause
+    //////////////////////////////////
+    // guard clause ( maximum number of workouts)
     if (numberOfWorkouts > 7) {
         throw Error("Can only generate 7 workouts maximum.");
     }
     const generated_workout_list = [];
+    /////////////////////////////////
     // Contains a list of equipment that the user has NO access to.
     const user_constaints = _.differenceWith(Object.keys(client_1.Equipment), user.equipment_accessible, _.isEqual);
+    //////////////////////////////
     // Randomly select a rotation plan for the requestor
     const randomRotation = rotations_type[Math.floor(Math.random() * rotations_type.length)];
     var excercise_pointer = 0;
+    //////////////////////////////
     // Core logic that generates the excercises
     for (let day = 0; day < numberOfWorkouts; day++) {
         // Outer-loop is to create the workouts
@@ -72,7 +79,7 @@ const workoutGenerator = (numberOfWorkouts, context) => __awaiter(void 0, void 0
             // Each workout will have 5 excercises. First 3 follows the rotation_type in a round robin fashion
             // Last 2 are waist excercises (ABS)
             if (excercise_pointer > randomRotation.length - 1) {
-                // Reset the pointer so that it goes in a round robin fashion
+                // Reset the pointer so that it goes in a round robin fashion -> exercise_pointer is the indication of the
                 excercise_pointer = 0;
             }
             if (excercise_index == 3) {
