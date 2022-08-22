@@ -92,7 +92,7 @@ const authenticate = (token) => __awaiter(void 0, void 0, void 0, function* () {
         return { authenticated: true, user: user, isAdmin: !!fireBaseUser.admin };
     }
     catch (e) {
-        console.log("HAVE TOKEN BUT FAILED TO AUTHENTICATE");
+        console.log("HAVE TOKEN BUT FAILED TO AUTHENTICATE", e);
         return { authenticated: false, user: null, isAdmin: null };
     }
 });
