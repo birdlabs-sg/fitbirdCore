@@ -30,7 +30,13 @@ const generateWorkouts = (_, args, context) => __awaiter(void 0, void 0, void 0,
     const { no_of_workouts } = args;
     const prisma = context.dataSources.prisma;
     // Just a mockup for now. TODO: Create a service that links up with lichuan's recommendation algorithm
-    const generatedWorkouts = (0, workout_generator_1.workoutGenerator)(no_of_workouts, context);
+    let generatedWorkouts;
+    try {
+        generatedWorkouts = (0, workout_generator_1.workoutGenerator)(no_of_workouts, context);
+    }
+    catch (e) {
+        console.log(e);
+    }
     return generatedWorkouts;
 });
 exports.generateWorkouts = generateWorkouts;
