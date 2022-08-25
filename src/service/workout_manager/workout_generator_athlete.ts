@@ -8,25 +8,22 @@ import {
 } from "@prisma/client";
 import { getActiveWorkoutCount } from "./workout_manager";
 const _ = require("lodash");
-const workout_name_list: string[] = [
-  "leg 1",
-  "upper",
-  "leg 2"
-];
+const workout_name_list: string[] = ["lower 1", "upper", "lower 2"];
+// issue 1: hips and calves might not have been available yet
 const rotations_type: MuscleRegionType[][] = [
   //lower
   [
     //preparation
     MuscleRegionType.THIGHS,
-    MuscleRegionType.HIPS,
+    MuscleRegionType.THIGHS,
     MuscleRegionType.THIGHS,
     //main
-    MuscleRegionType.HIPS,
-    MuscleRegionType.CALVES,
+    MuscleRegionType.THIGHS,
+    MuscleRegionType.THIGHS,
     MuscleRegionType.THIGHS,
     //accessory
-    MuscleRegionType.HIPS,
-    MuscleRegionType.CALVES,
+    MuscleRegionType.THIGHS,
+    MuscleRegionType.THIGHS,
   ],
   //upper
   [
@@ -42,16 +39,16 @@ const rotations_type: MuscleRegionType[][] = [
   //2nd lower
   [
     //preparation
-    MuscleRegionType.CALVES,
-    MuscleRegionType.HIPS,
+    MuscleRegionType.THIGHS,
+    MuscleRegionType.THIGHS,
     MuscleRegionType.THIGHS,
     //main
-    MuscleRegionType.HIPS,
-    MuscleRegionType.HIPS,
-    MuscleRegionType.CALVES,
+    MuscleRegionType.THIGHS,
+    MuscleRegionType.THIGHS,
+    MuscleRegionType.THIGHS,
     //accessory
-    MuscleRegionType.HIPS,
-    MuscleRegionType.CALVES,
+    MuscleRegionType.THIGHS,
+    MuscleRegionType.THIGHS,
   ],
 ];
 
@@ -64,6 +61,7 @@ export const workoutGeneratorAthlete = async (
 ) => {
   const prisma: PrismaClient = context.dataSources.prisma;
   const user: User = context.user;
+  
   if (numberOfWorkouts > 6) {
     throw Error("Can only generate 6 workouts maximum.");
   }
@@ -75,53 +73,81 @@ export const workoutGeneratorAthlete = async (
   );
   // Outer-loop is to create the workouts
   let list_of_excercises = [];
-  let rotation: MuscleRegionType[] = rotations_type[0];
+  let lower_1_rotation = await excercise_query(
+    rotations_type[0],
+    user_constaints,
+    prisma,
+    user,
+    context,
+    numberOfWorkouts
+  );
+  let upper_rotation = await excercise_query(
+    rotations_type[1],
+    user_constaints,
+    prisma,
+    user,
+    context,
+    numberOfWorkouts
+  );
+  let lower_2_rotation = await excercise_query(
+    rotations_type[2],
+    user_constaints,
+    prisma,
+    user,
+    context,
+    numberOfWorkouts
+  );
+  let createdWorkout;
   switch (numberOfWorkouts) {
     case 1:
-      rotation = rotations_type[0];
-      await excercise_query(
-        rotation,
-        list_of_excercises,
-        user_constaints,
-        prisma,
-        user,
-        context,
-        generated_workout_list,
-        workout_name_list[0],
-        false
-      );
+            createdWorkout = await prisma.workout.create({
+              data: {
+                workout_name: workout_name_list[0],
+                order_index: await getActiveWorkoutCount(context),
+                user_id: user.user_id,
+                life_span: 12,
+                excercise_set_groups: { create: lower_1_rotation },
+              },
+              include: {
+                excercise_set_groups: true,
+              },
+            });
+            generated_workout_list.push(createdWorkout);
       break;
     case 2:
       for (let day = 0; day < numberOfWorkouts; day++) {
         switch (day) {
           case 0:
-            rotation = rotations_type[0];
-            await excercise_query(
-              rotation,
-              list_of_excercises,
-              user_constaints,
-              prisma,
-              user,
-              context,
-              generated_workout_list,
-              workout_name_list[0],
-              false
-            );
+            createdWorkout = await prisma.workout.create({
+              data: {
+                workout_name: workout_name_list[0],
+                order_index: await getActiveWorkoutCount(context),
+                user_id: user.user_id,
+                life_span: 12,
+                excercise_set_groups: { create: lower_1_rotation },
+              },
+              include: {
+                excercise_set_groups: true,
+              },
+            });
+
+            generated_workout_list.push(createdWorkout);
             break;
-          case 1:
-            rotation = rotations_type[1];
-            await excercise_query(
-              rotation,
-              list_of_excercises,
-              user_constaints,
-              prisma,
-              user,
-              context,
-              generated_workout_list,
-              workout_name_list[1],
-              false
-            );
-            break;
+              case 1:
+                createdWorkout = await prisma.workout.create({
+                  data: {
+                    workout_name: workout_name_list[1],
+                    order_index: await getActiveWorkoutCount(context),
+                    user_id: user.user_id,
+                    life_span: 12,
+                    excercise_set_groups: { create: upper_rotation },
+                  },
+                  include: {
+                    excercise_set_groups: true,
+                  },
+                });
+                generated_workout_list.push(createdWorkout);
+                break;
           default:
         }
       }
@@ -130,46 +156,49 @@ export const workoutGeneratorAthlete = async (
       for (let day = 0; day < numberOfWorkouts; day++) {
         switch (day) {
           case 0:
-            rotation = rotations_type[0];
-            await excercise_query(
-              rotation,
-              list_of_excercises,
-              user_constaints,
-              prisma,
-              user,
-              context,
-              generated_workout_list,
-              workout_name_list[0],
-              false
-            );
+            createdWorkout = await prisma.workout.create({
+              data: {
+                workout_name: workout_name_list[0],
+                order_index: await getActiveWorkoutCount(context),
+                user_id: user.user_id,
+                life_span: 12,
+                excercise_set_groups: { create: lower_1_rotation },
+              },
+              include: {
+                excercise_set_groups: true,
+              },
+            });
+            generated_workout_list.push(createdWorkout);
             break;
           case 1:
-            rotation = rotations_type[1];
-            await excercise_query(
-              rotation,
-              list_of_excercises,
-              user_constaints,
-              prisma,
-              user,
-              context,
-              generated_workout_list,
-              workout_name_list[1],
-              false
-            );
+            createdWorkout = await prisma.workout.create({
+              data: {
+                workout_name: workout_name_list[1],
+                order_index: await getActiveWorkoutCount(context),
+                user_id: user.user_id,
+                life_span: 12,
+                excercise_set_groups: { create: upper_rotation },
+              },
+              include: {
+                excercise_set_groups: true,
+              },
+            });
+            generated_workout_list.push(createdWorkout);
             break;
           case 2:
-            rotation = rotations_type[0];
-            await excercise_query(
-              rotation,
-              list_of_excercises,
-              user_constaints,
-              prisma,
-              user,
-              context,
-              generated_workout_list,
-              workout_name_list[0],
-              false
-            );
+            createdWorkout = await prisma.workout.create({
+              data: {
+                workout_name: workout_name_list[0],
+                order_index: await getActiveWorkoutCount(context),
+                user_id: user.user_id,
+                life_span: 12,
+                excercise_set_groups: { create: lower_1_rotation },
+              },
+              include: {
+                excercise_set_groups: true,
+              },
+            });
+            generated_workout_list.push(createdWorkout);
             break;
           default:
         }
@@ -179,60 +208,64 @@ export const workoutGeneratorAthlete = async (
       for (let day = 0; day < numberOfWorkouts; day++) {
         switch (day) {
           case 0:
-            rotation = rotations_type[0];
-            await excercise_query(
-              rotation,
-              list_of_excercises,
-              user_constaints,
-              prisma,
-              user,
-              context,
-              generated_workout_list,
-              workout_name_list[0],
-              false
-            );
+            createdWorkout = await prisma.workout.create({
+              data: {
+                workout_name: workout_name_list[0],
+                order_index: await getActiveWorkoutCount(context),
+                user_id: user.user_id,
+                life_span: 12,
+                excercise_set_groups: { create: lower_1_rotation },
+              },
+              include: {
+                excercise_set_groups: true,
+              },
+            });
+            generated_workout_list.push(createdWorkout);
             break;
           case 1:
-            rotation = rotations_type[1];
-            await excercise_query(
-              rotation,
-              list_of_excercises,
-              user_constaints,
-              prisma,
-              user,
-              context,
-              generated_workout_list,
-              workout_name_list[1],
-              false
-            );
+            createdWorkout = await prisma.workout.create({
+              data: {
+                workout_name: workout_name_list[1],
+                order_index: await getActiveWorkoutCount(context),
+                user_id: user.user_id,
+                life_span: 12,
+                excercise_set_groups: { create: upper_rotation },
+              },
+              include: {
+                excercise_set_groups: true,
+              },
+            });
+            generated_workout_list.push(createdWorkout);
             break;
           case 2:
-            rotation = rotations_type[0];
-            await excercise_query(
-              rotation,
-              list_of_excercises,
-              user_constaints,
-              prisma,
-              user,
-              context,
-              generated_workout_list,
-              workout_name_list[0],
-              false
-            );
+            createdWorkout = await prisma.workout.create({
+              data: {
+                workout_name: workout_name_list[0],
+                order_index: await getActiveWorkoutCount(context),
+                user_id: user.user_id,
+                life_span: 12,
+                excercise_set_groups: { create: lower_1_rotation },
+              },
+              include: {
+                excercise_set_groups: true,
+              },
+            });
+            generated_workout_list.push(createdWorkout);
             break;
           case 3:
-            rotation = rotations_type[1];
-            await excercise_query(
-              rotation,
-              list_of_excercises,
-              user_constaints,
-              prisma,
-              user,
-              context,
-              generated_workout_list,
-              workout_name_list[1],
-              false
-            );
+            createdWorkout = await prisma.workout.create({
+              data: {
+                workout_name: workout_name_list[1],
+                order_index: await getActiveWorkoutCount(context),
+                user_id: user.user_id,
+                life_span: 12,
+                excercise_set_groups: { create: upper_rotation },
+              },
+              include: {
+                excercise_set_groups: true,
+              },
+            });
+            generated_workout_list.push(createdWorkout);
             break;
           default:
         }
@@ -242,74 +275,79 @@ export const workoutGeneratorAthlete = async (
       for (let day = 0; day < numberOfWorkouts; day++) {
         switch (day) {
           case 0:
-            rotation = rotations_type[0];
-            await excercise_query(
-              rotation,
-              list_of_excercises,
-              user_constaints,
-              prisma,
-              user,
-              context,
-              generated_workout_list,
-              workout_name_list[0],
-              false
-            );
+            createdWorkout = await prisma.workout.create({
+              data: {
+                workout_name: workout_name_list[0],
+                order_index: await getActiveWorkoutCount(context),
+                user_id: user.user_id,
+                life_span: 12,
+                excercise_set_groups: { create: lower_1_rotation },
+              },
+              include: {
+                excercise_set_groups: true,
+              },
+            });
+            generated_workout_list.push(createdWorkout);
             break;
           case 1:
-            rotation = rotations_type[1];
-            await excercise_query(
-              rotation,
-              list_of_excercises,
-              user_constaints,
-              prisma,
-              user,
-              context,
-              generated_workout_list,
-              workout_name_list[1],
-              false
-            );
+            createdWorkout = await prisma.workout.create({
+              data: {
+                workout_name: workout_name_list[1],
+                order_index: await getActiveWorkoutCount(context),
+                user_id: user.user_id,
+                life_span: 12,
+                excercise_set_groups: { create: upper_rotation },
+              },
+              include: {
+                excercise_set_groups: true,
+              },
+            });
+            generated_workout_list.push(createdWorkout);
             break;
           case 2:
-            rotation = rotations_type[2];
-            await excercise_query(
-              rotation,
-              list_of_excercises,
-              user_constaints,
-              prisma,
-              user,
-              context,
-              generated_workout_list,
-              workout_name_list[2],
-              false
-            );
+            createdWorkout = await prisma.workout.create({
+              data: {
+                workout_name: workout_name_list[2],
+                order_index: await getActiveWorkoutCount(context),
+                user_id: user.user_id,
+                life_span: 12,
+                excercise_set_groups: { create: lower_2_rotation },
+              },
+              include: {
+                excercise_set_groups: true,
+              },
+            });
+            generated_workout_list.push(createdWorkout);
             break;
           case 3:
-            rotation = rotations_type[0];
-            await excercise_query(
-              rotation,
-              list_of_excercises,
-              user_constaints,
-              prisma,
-              user,
-              context,
-              generated_workout_list,
-              workout_name_list[0],
-              false
-            );
+            createdWorkout = await prisma.workout.create({
+              data: {
+                workout_name: workout_name_list[0],
+                order_index: await getActiveWorkoutCount(context),
+                user_id: user.user_id,
+                life_span: 12,
+                excercise_set_groups: { create: lower_1_rotation },
+              },
+              include: {
+                excercise_set_groups: true,
+              },
+            });
+            generated_workout_list.push(createdWorkout);
             break;
           case 4:
-            rotation = rotations_type[1];
-            await excercise_query(
-              rotation,
-              list_of_excercises,
-              user_constaints,
-              prisma,
-              user,
-              context,
-              generated_workout_list,
-              workout_name_list[1],
-              false
-            );
+            createdWorkout = await prisma.workout.create({
+              data: {
+                workout_name: workout_name_list[1],
+                order_index: await getActiveWorkoutCount(context),
+                user_id: user.user_id,
+                life_span: 12,
+                excercise_set_groups: { create: upper_rotation },
+              },
+              include: {
+                excercise_set_groups: true,
+              },
+            });
+            generated_workout_list.push(createdWorkout);
             break;
           default:
         }
@@ -319,88 +357,94 @@ export const workoutGeneratorAthlete = async (
       for (let day = 0; day < numberOfWorkouts; day++) {
         switch (day) {
           case 0:
-            rotation = rotations_type[0];
-            await excercise_query(
-              rotation,
-              list_of_excercises,
-              user_constaints,
-              prisma,
-              user,
-              context,
-              generated_workout_list,
-              workout_name_list[0],
-              true
-            );
+            createdWorkout = await prisma.workout.create({
+              data: {
+                workout_name: workout_name_list[0],
+                order_index: await getActiveWorkoutCount(context),
+                user_id: user.user_id,
+                life_span: 12,
+                excercise_set_groups: { create: lower_1_rotation },
+              },
+              include: {
+                excercise_set_groups: true,
+              },
+            });
+            generated_workout_list.push(createdWorkout);
             break;
           case 1:
-            rotation = rotations_type[1];
-            await excercise_query(
-              rotation,
-              list_of_excercises,
-              user_constaints,
-              prisma,
-              user,
-              context,
-              generated_workout_list,
-              workout_name_list[1],
-              true
-            );
+            createdWorkout = await prisma.workout.create({
+              data: {
+                workout_name: workout_name_list[2],
+                order_index: await getActiveWorkoutCount(context),
+                user_id: user.user_id,
+                life_span: 12,
+                excercise_set_groups: { create: lower_2_rotation },
+              },
+              include: {
+                excercise_set_groups: true,
+              },
+            });
+            generated_workout_list.push(createdWorkout);
             break;
           case 2:
-            rotation = rotations_type[2];
-            await excercise_query(
-              rotation,
-              list_of_excercises,
-              user_constaints,
-              prisma,
-              user,
-              context,
-              generated_workout_list,
-              workout_name_list[2],
-              true
-            );
+            createdWorkout = await prisma.workout.create({
+              data: {
+                workout_name: workout_name_list[1],
+                order_index: await getActiveWorkoutCount(context),
+                user_id: user.user_id,
+                life_span: 12,
+                excercise_set_groups: { create: upper_rotation },
+              },
+              include: {
+                excercise_set_groups: true,
+              },
+            });
+            generated_workout_list.push(createdWorkout);
             break;
           case 3:
-            rotation = rotations_type[0];
-            await excercise_query(
-              rotation,
-              list_of_excercises,
-              user_constaints,
-              prisma,
-              user,
-              context,
-              generated_workout_list,
-              workout_name_list[0],
-              true
-            );
+            createdWorkout = await prisma.workout.create({
+              data: {
+                workout_name: workout_name_list[0],
+                order_index: await getActiveWorkoutCount(context),
+                user_id: user.user_id,
+                life_span: 12,
+                excercise_set_groups: { create: lower_1_rotation },
+              },
+              include: {
+                excercise_set_groups: true,
+              },
+            });
+            generated_workout_list.push(createdWorkout);
             break;
           case 4:
-            rotation = rotations_type[1];
-            await excercise_query(
-              rotation,
-              list_of_excercises,
-              user_constaints,
-              prisma,
-              user,
-              context,
-              generated_workout_list,
-              workout_name_list[1],
-              true
-            );
+            createdWorkout = await prisma.workout.create({
+              data: {
+                workout_name: workout_name_list[2],
+                order_index: await getActiveWorkoutCount(context),
+                user_id: user.user_id,
+                life_span: 12,
+                excercise_set_groups: { create: lower_2_rotation },
+              },
+              include: {
+                excercise_set_groups: true,
+              },
+            });
+            generated_workout_list.push(createdWorkout);
             break;
-          case 4:
-            rotation = rotations_type[2];
-            await excercise_query(
-              rotation,
-              list_of_excercises,
-              user_constaints,
-              prisma,
-              user,
-              context,
-              generated_workout_list,
-              workout_name_list[2],
-              true
-            );
+          case 5:
+            createdWorkout = await prisma.workout.create({
+              data: {
+                workout_name: workout_name_list[1],
+                order_index: await getActiveWorkoutCount(context),
+                user_id: user.user_id,
+                life_span: 12,
+                excercise_set_groups: { create: upper_rotation },
+              },
+              include: {
+                excercise_set_groups: true,
+              },
+            });
+            generated_workout_list.push(createdWorkout);
             break;
           default:
         }
@@ -408,22 +452,20 @@ export const workoutGeneratorAthlete = async (
       break;
     default:
   }
+
   return generated_workout_list;
 };
 //function to create exercise list to be inserted into the DB (for each workout)
 const excercise_query = async (
   rotation: MuscleRegionType[],
-  list_of_excercises: any,
   user_constaints: any,
   prisma: PrismaClient,
   user: User,
   context: any,
-  generated_workout_list: any,
-  workout_name:string,
-  six: boolean
+  numberOfWorkouts: Number
 ) => {
-  list_of_excercises = [];
-  if (six) {
+  let list_of_excercises = [];
+  if (numberOfWorkouts>5) {
     for (let exercise_index = 0; exercise_index < 5; exercise_index++) {
       if (exercise_index < 2) {
         const excercises_in_category = await prisma.excercise.findMany({
@@ -646,24 +688,7 @@ const excercise_query = async (
       }
     }
   }
-
-  let createdWorkout;
-  // create workout and generate the associated excercisemetadata in DB
-  createdWorkout = await prisma.workout.create({
-    data: {
-      workout_name: workout_name,
-      order_index: await getActiveWorkoutCount(context),
-      user_id: user.user_id,
-      life_span: 12,
-      excercise_set_groups: { create: list_of_excercises },
-    },
-    include: {
-      excercise_set_groups: true,
-    },
-  });
-
-  // push the result ot the list
-  generated_workout_list.push(createdWorkout);
+  return list_of_excercises;
 };
 
 const formatAndGenerateExcerciseSets = async (
@@ -700,14 +725,14 @@ const formatAndGenerateExcerciseSets = async (
       excercise.excercise_mechanics == ExcerciseMechanics.COMPOUND
     ) {
       // Compound non-body weight excercises
-      targetWeight = 50;
+      targetWeight = 0;
       targetReps = user.compound_movement_rep_lower_bound;
     } else if (
       excercise.body_weight == false &&
       excercise.excercise_mechanics == ExcerciseMechanics.ISOLATED
     ) {
       // Isolated non-body weight excercises
-      targetWeight = 20;
+      targetWeight = 0;
       targetReps = user.isolated_movement_rep_lower_bound;
     } else if (
       excercise.body_weight == true &&

@@ -15,24 +15,23 @@ import { workoutGenerator } from "../../../service/workout_manager/workout_gener
 import { workoutGeneratorAthlete } from "../../../service/workout_manager/workout_generator_athlete";
 import { Goal, Workout } from "@prisma/client";
 const util = require("util");
-_
+
 export const generateWorkouts = async (_: any, args: any, context: any) => {
   onlyAuthenticated(context);
   const { no_of_workouts } = args;
   const prisma = context.dataSources.prisma;
   // Just a mockup for now. TODO: Create a service that links up with lichuan's recommendation algorithm
-
-  if(context.user.Goal===Goal.ATHLETICISM){
+  if(context.user.goal===Goal.ATHLETICISM){
     const generatedWorkouts = workoutGeneratorAthlete(no_of_workouts, context);
     return generatedWorkouts;
   }
   //to do:strength and body recomp
-  else if(context.user.Goal===Goal.STRENGTH){
+  else if(context.user.goal===Goal.STRENGTH){
     const generatedWorkouts = workoutGenerator(no_of_workouts, context);
     return generatedWorkouts;
 
   }
-  else if (context.user.Goal===Goal.BODY_RECOMPOSITION){
+  else if (context.user.goal===Goal.BODY_RECOMPOSITION){
     const generatedWorkouts = workoutGenerator(no_of_workouts, context);
     return generatedWorkouts;
   }
@@ -43,7 +42,6 @@ export const generateWorkouts = async (_: any, args: any, context: any) => {
     return generatedWorkouts;
   }
   
- 
 };
 
 // Note: This resolver is only used when the user wishes to create new workout on existing ones.
