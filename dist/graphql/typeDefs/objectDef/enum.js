@@ -32,6 +32,13 @@ exports.Enum = gql `
     NORMAL_OPERATION
   }
 
+  enum WorkoutState {
+    UNATTEMPTED
+    IN_PROGRESS
+    COMPLETED
+    DRAFT
+  }
+
   enum Equipment {
     DUMBBELL
     BARBELL
@@ -40,7 +47,6 @@ exports.Enum = gql `
     LEVER
     SUSPENSION
     T_BAR
-    MACHINE
     TRAP_BAR
     SLED
     SMITH
