@@ -72,7 +72,6 @@ enum Equipment {
   LEVER
   SUSPENSION
   T_BAR
-  MACHINE
   TRAP_BAR
   SLED
   SMITH
@@ -103,6 +102,13 @@ enum ExcerciseSetGroupState {
   REPLACEMENT_TEMPORARILY
   REPLACEMENT_PERMANANTLY
   NORMAL_OPERATION
+}
+
+enum WorkoutState {
+  UNATTEMPTED
+  IN_PROGRESS
+  COMPLETED
+  DRAFT
 }
 
 // FOR SETS ONLY (Affects their next workout sets, does not affect the current workout's sets)
@@ -188,13 +194,14 @@ model Workout {
   date_completed       DateTime?
   performance_rating   Float?
   user_id              Int
+  workout_state        WorkoutState        @default(UNATTEMPTED)
   excercise_set_groups ExcerciseSetGroup[]
 }
 
 model ExcerciseSetGroup {
   excercise_set_group_id    Int                    @id @default(autoincrement())
   workout                   Workout                @relation(fields: [workout_id], references: [workout_id], onDelete: Cascade)
-  excercise                 Excercise              @relation(fields: [excercise_name], references: [excercise_name])
+  excercise                 Excercise              @relation(fields: [excercise_name], references: [excercise_name], onDelete: Cascade)
   excercise_sets            ExcerciseSet[]
   excercise_name            String
   workout_id                Int

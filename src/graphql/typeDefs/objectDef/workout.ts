@@ -11,6 +11,7 @@ export const Workout = gql`
     date_completed: String
     performance_rating: Float
     excercise_set_groups: [ExcerciseSetGroup]
+    workout_state: WorkoutState
   }
   type ExcerciseSetGroup {
     excercise_name: String!
