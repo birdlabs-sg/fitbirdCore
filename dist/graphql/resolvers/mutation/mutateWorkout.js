@@ -24,6 +24,7 @@ exports.deleteWorkout = exports.updateWorkout = exports.completeWorkout = export
 const workout_manager_1 = require("../../../service/workout_manager/workout_manager");
 const firebase_service_1 = require("../../../service/firebase_service");
 const workout_generator_1 = require("../../../service/workout_manager/workout_generator");
+const client_1 = require("@prisma/client");
 const util = require("util");
 const generateWorkouts = (_, args, context) => __awaiter(void 0, void 0, void 0, function* () {
     (0, firebase_service_1.onlyAuthenticated)(context);
@@ -74,7 +75,12 @@ exports.createWorkout = createWorkout;
 // Assumption: active_workouts always have order_index with no gaps when sorted. For eg: 0,1,2,3 and not 0,2,3,5
 const updateWorkoutOrder = (_, args, context) => __awaiter(void 0, void 0, void 0, function* () {
     let { oldIndex, newIndex } = args;
-    yield (0, workout_manager_1.reorderActiveWorkouts)(context, oldIndex, newIndex);
+    try {
+        yield (0, workout_manager_1.reorderActiveWorkouts)(context, oldIndex, newIndex);
+    }
+    catch (e) {
+        console.log(e);
+    }
     return {
         code: "200",
         success: true,
@@ -97,6 +103,7 @@ const completeWorkout = (_, args, context) => __awaiter(void 0, void 0, void 0, 
         },
         data: {
             date_completed: new Date(),
+            workout_state: client_1.WorkoutState.COMPLETED,
             excercise_set_groups: {
                 deleteMany: {},
                 create: (0, workout_manager_1.formatExcerciseSetGroups)(current_workout_excercise_group_sets),

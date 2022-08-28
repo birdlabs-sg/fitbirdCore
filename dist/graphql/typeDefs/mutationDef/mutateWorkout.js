@@ -69,6 +69,7 @@ exports.mutateWorkout = gql `
       date_scheduled: String
       performance_rating: Float
       life_span: Int
+      workout_state: WorkoutState
       excercise_set_groups: [excerciseSetGroupInput]
     ): mutateWorkoutResponse
 

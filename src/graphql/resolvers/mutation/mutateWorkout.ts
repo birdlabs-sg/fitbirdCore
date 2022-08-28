@@ -12,7 +12,7 @@ import {
 } from "../../../service/workout_manager/workout_manager";
 import { onlyAuthenticated } from "../../../service/firebase_service";
 import { workoutGenerator } from "../../../service/workout_manager/workout_generator";
-import { Workout } from "@prisma/client";
+import { Workout, WorkoutState } from "@prisma/client";
 const util = require("util");
 
 export const generateWorkouts = async (_: any, args: any, context: any) => {
@@ -75,7 +75,11 @@ export const createWorkout = async (_: any, args: any, context: any) => {
 // Assumption: active_workouts always have order_index with no gaps when sorted. For eg: 0,1,2,3 and not 0,2,3,5
 export const updateWorkoutOrder = async (_: any, args: any, context: any) => {
   let { oldIndex, newIndex } = args;
-  await reorderActiveWorkouts(context, oldIndex, newIndex);
+  try {
+    await reorderActiveWorkouts(context, oldIndex, newIndex);
+  } catch (e) {
+    console.log(e);
+  }
 
   return {
     code: "200",
@@ -106,6 +110,7 @@ export const completeWorkout = async (_: any, args: any, context: any) => {
     },
     data: {
       date_completed: new Date(),
+      workout_state: WorkoutState.COMPLETED,
       excercise_set_groups: {
         deleteMany: {},
         create: formatExcerciseSetGroups(current_workout_excercise_group_sets),

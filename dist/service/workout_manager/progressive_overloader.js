@@ -148,12 +148,12 @@ const progressivelyOverload = (excercise_set_groups, context) => __awaiter(void 
         }
         else if (excerciseData.excercise_mechanics[0] == "ISOLATED" &&
             excerciseData.body_weight == false) {
-            upperBound = isolatedLowerBound;
-            lowerBound = isolatedUpperBound;
+            upperBound = isolatedUpperBound;
+            lowerBound = isolatedLowerBound;
         }
         else {
-            upperBound = bodyWeightLowerBound;
-            lowerBound = bodyWeightUpperBound;
+            upperBound = bodyWeightUpperBound;
+            lowerBound = bodyWeightLowerBound;
         }
         // Based on the failure reason, route the type of overloading logic
         switch ((_a = excercise_set_group.failure_reason) !== null && _a !== void 0 ? _a : "") {
