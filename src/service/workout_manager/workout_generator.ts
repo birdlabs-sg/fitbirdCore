@@ -209,7 +209,7 @@ const formatAndGenerateExcerciseSets = async (
 
   if (previousExcerciseSetGroup != null) {
     excercise_sets = previousExcerciseSetGroup.excercise_sets;
-    excercise_sets.array.forEach((element) => {
+    excercise_sets.forEach((element) => {
       element.remove("excercise_set_group_id");
       element.remove("excercise_set_id");
     });
