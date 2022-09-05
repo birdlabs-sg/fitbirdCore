@@ -130,18 +130,23 @@ const workoutGenerator = (numberOfWorkouts, context) => __awaiter(void 0, void 0
         }
         let createdWorkout;
         // create workout and generate the associated excercisemetadata
-        createdWorkout = yield prisma.workout.create({
-            data: {
-                workout_name: workout_name_list.splice((Math.random() * workout_name_list.length) | 0, 1)[0],
-                order_index: yield (0, workout_manager_1.getActiveWorkoutCount)(context),
-                user_id: user.user_id,
-                life_span: 12,
-                excercise_set_groups: { create: list_of_excercises },
-            },
-            include: {
-                excercise_set_groups: true,
-            },
-        });
+        try {
+            createdWorkout = yield prisma.workout.create({
+                data: {
+                    workout_name: workout_name_list.splice((Math.random() * workout_name_list.length) | 0, 1)[0],
+                    order_index: yield (0, workout_manager_1.getActiveWorkoutCount)(context),
+                    user_id: user.user_id,
+                    life_span: 12,
+                    excercise_set_groups: { create: list_of_excercises },
+                },
+                include: {
+                    excercise_set_groups: true,
+                },
+            });
+        }
+        catch (e) {
+            console.log(e);
+        }
         // push the result ot the list
         generated_workout_list.push(createdWorkout);
     }
@@ -167,6 +172,10 @@ const formatAndGenerateExcerciseSets = (excercise, type, context) => __awaiter(v
     });
     if (previousExcerciseSetGroup != null) {
         excercise_sets = previousExcerciseSetGroup.excercise_sets;
+        excercise_sets.array.forEach((element) => {
+            element.remove("excercise_set_group_id");
+            element.remove("excercise_set_id");
+        });
     }
     else {
         // No previous data, so we use the default values

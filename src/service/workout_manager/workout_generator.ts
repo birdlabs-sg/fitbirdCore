@@ -67,6 +67,7 @@ export const workoutGenerator = async (
     user.equipment_accessible,
     _.isEqual
   );
+
   // Randomly select a rotation plan for the requestor
   const randomRotation: MuscleRegionType[] =
     rotations_type[Math.floor(Math.random() * rotations_type.length)];
@@ -157,22 +158,25 @@ export const workoutGenerator = async (
     }
     let createdWorkout;
     // create workout and generate the associated excercisemetadata
-
-    createdWorkout = await prisma.workout.create({
-      data: {
-        workout_name: workout_name_list.splice(
-          (Math.random() * workout_name_list.length) | 0,
-          1
-        )[0],
-        order_index: await getActiveWorkoutCount(context),
-        user_id: user.user_id,
-        life_span: 12,
-        excercise_set_groups: { create: list_of_excercises },
-      },
-      include: {
-        excercise_set_groups: true,
-      },
-    });
+    try {
+      createdWorkout = await prisma.workout.create({
+        data: {
+          workout_name: workout_name_list.splice(
+            (Math.random() * workout_name_list.length) | 0,
+            1
+          )[0],
+          order_index: await getActiveWorkoutCount(context),
+          user_id: user.user_id,
+          life_span: 12,
+          excercise_set_groups: { create: list_of_excercises },
+        },
+        include: {
+          excercise_set_groups: true,
+        },
+      });
+    } catch (e) {
+      console.log(e);
+    }
 
     // push the result ot the list
     generated_workout_list.push(createdWorkout);
@@ -205,6 +209,10 @@ const formatAndGenerateExcerciseSets = async (
 
   if (previousExcerciseSetGroup != null) {
     excercise_sets = previousExcerciseSetGroup.excercise_sets;
+    excercise_sets.array.forEach((element) => {
+      element.remove("excercise_set_group_id");
+      element.remove("excercise_set_id");
+    });
   } else {
     // No previous data, so we use the default values
     let targetWeight;
