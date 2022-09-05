@@ -25,27 +25,94 @@ const _ = require("lodash");
 //   }
 // }
 
-async function cleanMachineEnum() {
-  const users = await prisma.user.findMany({
+// async function cleanMachineEnum() {
+//   const users = await prisma.user.findMany({
+//     where: {
+//       equipment_accessible: {
+//         has: "MACHINE",
+//       },
+//     },
+//   });
+//   for (var user of users) {
+//     const new_equipments = user.equipment_accessible?.filter(
+//       (e) => e != "MACHINE"
+//     );
+//     const updatedUser = await prisma.user.update({
+//       where: {
+//         user_id: user.user_id,
+//       },
+//       data: {
+//         equipment_accessible: new_equipments,
+//       },
+//     });
+//   }
+// }
+
+async function exportUserWorkout(email, outFilePath) {
+  const user = await prisma.user.findUnique({
     where: {
-      equipment_accessible: {
-        has: "MACHINE",
+      email: email,
+    },
+    include: {
+      workouts: true,
+    },
+  });
+  var jsonifiedWorkouts = JSON.stringify(user.workouts);
+  require("fs").writeFileSync(outFilePath, jsonifiedWorkouts, "utf8");
+  // for (var user of users) {
+  //   const new_equipments = user.equipment_accessible?.filter(
+  //     (e) => e != "MACHINE"
+  //   );
+  //   const updatedUser = await prisma.user.update({
+  //     where: {
+  //       user_id: user.user_id,
+  //     },
+  //     data: {
+  //       equipment_accessible: new_equipments,
+  //     },
+  //   });
+  // }
+}
+
+async function importUserWorkout(email, inputFilePath) {
+  const deletedWorkouts = await prisma.workout.deleteMany({
+    where: {
+      user: {
+        email: email,
       },
     },
   });
-  for (var user of users) {
-    const new_equipments = user.equipment_accessible?.filter(
-      (e) => e != "MACHINE"
-    );
-    const updatedUser = await prisma.user.update({
-      where: {
-        user_id: user.user_id,
-      },
-      data: {
-        equipment_accessible: new_equipments,
-      },
-    });
-  }
+  console.log(deletedWorkouts);
 }
 
-cleanMachineEnum();
+// excercise_name             String               @id
+// excercise_preparation      String?
+// excercise_instructions     String?
+// excercise_tips             String?
+// excercise_utility          ExcerciseUtility[]
+// excercise_mechanics        ExcerciseMechanics[]
+// excercise_force            ExcerciseForce[]
+// target_regions             MuscleRegion[]       @relation(name: "target")
+// stabilizer_muscles         MuscleRegion[]       @relation(name: "stabilizer")
+// synergist_muscles          MuscleRegion[]       @relation(name: "synergist")
+// dynamic_stabilizer_muscles MuscleRegion[]       @relation(name: "dynamic")
+// equipment_required         Equipment[]
+// body_weight                Boolean
+// assisted                   Boolean
+// excercise_set_groups       ExcerciseSetGroup[]
+// excerciseMetadata          ExcerciseMetadata[]
+
+async function exportExercises(outputFilePath) {
+  const exercises = await prisma.excercise.findMany({
+    include: {
+      target_regions: true,
+      synergist_muscles: true,
+      dynamic_stabilizer_muscles: true,
+    },
+  });
+  console.log(exercises);
+  var jsonifiedExcercises = JSON.stringify(exercises);
+  require("fs").writeFileSync(outputFilePath, jsonifiedExcercises, "utf8");
+}
+
+exportExercises("./production_exercises.json");
