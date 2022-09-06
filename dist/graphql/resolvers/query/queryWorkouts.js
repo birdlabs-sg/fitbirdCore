@@ -32,7 +32,7 @@ const workoutsQueryResolver = (parent, args, context, info) => __awaiter(void 0,
                     date_completed: { not: null },
                 },
                 orderBy: {
-                    date_completed: "asc",
+                    date_completed: "desc",
                 },
             });
         case "NONE":
