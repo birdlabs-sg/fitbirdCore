@@ -26,7 +26,7 @@ export const workoutsQueryResolver = async (
           date_completed: { not: null },
         },
         orderBy: {
-          date_completed: "asc",
+          date_completed: "dsc",
         },
       });
     case "NONE":
