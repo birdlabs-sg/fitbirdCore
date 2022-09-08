@@ -125,7 +125,7 @@ export const progressivelyOverload = async (
   const isolatedLowerBound = context.user.isolated_movement_rep_lower_bound;
   const isolatedUpperBound = context.user.isolated_movement_rep_upper_bound;
   const bodyWeightLowerBound = context.user.body_weight_rep_lower_bound;
-  const bodyWeightUpperBound = context.user.body_weight_rep_upper_bound;
+  const bodyWeightUpperBound = Infinity;
 
   for (let excercise_set_group of excercise_set_groups) {
     // variable that holds the sets for the next workout

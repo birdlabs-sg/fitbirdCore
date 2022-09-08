@@ -102,17 +102,43 @@ async function importUserWorkout(email, inputFilePath) {
 // excercise_set_groups       ExcerciseSetGroup[]
 // excerciseMetadata          ExcerciseMetadata[]
 
-async function exportExercises(outputFilePath) {
-  const exercises = await prisma.excercise.findMany({
-    include: {
-      target_regions: true,
-      synergist_muscles: true,
-      dynamic_stabilizer_muscles: true,
-    },
-  });
-  console.log(exercises);
-  var jsonifiedExcercises = JSON.stringify(exercises);
-  require("fs").writeFileSync(outputFilePath, jsonifiedExcercises, "utf8");
+async function importExercises(inputFilePath) {
+  data = require(inputFilePath);
+  for (var excercise of data) {
+    var {
+      target_regions,
+      stabilizer_muscles,
+      synergist_muscles,
+      dynamic_stabilizer_muscles,
+      ...data
+    } = excercise;
+    target_regions = target_regions.map((region) => ({
+      muscle_region_id: region.muscle_region_id,
+    }));
+    stabilizer_muscles = stabilizer_muscles.map((region) => ({
+      muscle_region_id: region.muscle_region_id,
+    }));
+    synergist_muscles = synergist_muscles.map((region) => ({
+      muscle_region_id: region.muscle_region_id,
+    }));
+    dynamic_stabilizer_muscles = dynamic_stabilizer_muscles.map((region) => ({
+      muscle_region_id: region.muscle_region_id,
+    }));
+    try {
+      excercise = await prisma.excercise.create({
+        data: {
+          ...data,
+          target_regions: { connect: target_regions },
+          stabilizer_muscles: { connect: stabilizer_muscles },
+          dynamic_stabilizer_muscles: { connect: dynamic_stabilizer_muscles },
+          synergist_muscles: { connect: synergist_muscles },
+        },
+      });
+      console.log(excercise);
+    } catch (e) {
+      console.log(e);
+    }
+  }
 }
 
-exportExercises("./production_exercises.json");
+importExercises("./weighted_excercises.json");

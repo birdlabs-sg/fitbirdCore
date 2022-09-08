@@ -71,9 +71,11 @@ export const workoutGenerator = async (
   // Randomly select a rotation plan for the requestor
   const randomRotation: MuscleRegionType[] =
     rotations_type[Math.floor(Math.random() * rotations_type.length)];
+
+  // excercise_pointer used with randomRotation determines which exercise type should be next
   var excercise_pointer = 0;
 
-  // Core logic that generates the excercises
+  // Core logic
   for (let day = 0; day < numberOfWorkouts; day++) {
     // Outer-loop is to create the workouts
     let list_of_excercises = [];

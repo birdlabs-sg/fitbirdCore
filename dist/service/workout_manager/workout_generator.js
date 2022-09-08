@@ -62,8 +62,9 @@ const workoutGenerator = (numberOfWorkouts, context) => __awaiter(void 0, void 0
     const user_constaints = _.differenceWith(Object.keys(client_1.Equipment), user.equipment_accessible, _.isEqual);
     // Randomly select a rotation plan for the requestor
     const randomRotation = rotations_type[Math.floor(Math.random() * rotations_type.length)];
+    // excercise_pointer used with randomRotation determines which exercise type should be next
     var excercise_pointer = 0;
-    // Core logic that generates the excercises
+    // Core logic
     for (let day = 0; day < numberOfWorkouts; day++) {
         // Outer-loop is to create the workouts
         let list_of_excercises = [];
@@ -172,7 +173,7 @@ const formatAndGenerateExcerciseSets = (excercise, type, context) => __awaiter(v
     });
     if (previousExcerciseSetGroup != null) {
         excercise_sets = previousExcerciseSetGroup.excercise_sets;
-        excercise_sets.array.forEach((element) => {
+        excercise_sets.forEach((element) => {
             element.remove("excercise_set_group_id");
             element.remove("excercise_set_id");
         });
