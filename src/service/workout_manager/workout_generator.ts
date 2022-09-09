@@ -8,7 +8,11 @@ import {
 } from "@prisma/client";
 import { getActiveWorkoutCount } from "./workout_manager";
 const _ = require("lodash");
-
+import { callibrator } from "./utilities/callibrator";
+import {
+  suggestedRepCalculator,
+  suggestedWeightCalculator,
+} from "./utilities/exerciseCalculators";
 const rotations_type: MuscleRegionType[][] = [
   [
     MuscleRegionType.THIGHS,
@@ -189,67 +193,21 @@ const formatAndGenerateExcerciseSets = async (
   const user = context.user;
 
   let excercise_sets;
+
   // Checks if there is previous data, will use that instead
-  var previousExcerciseSetGroup = await prisma.excerciseSetGroup.findFirst({
+  var excerciseRecord = await prisma.excerciseMetadata.findFirst({
     where: {
       excercise_name: excercise.excercise_name,
-      workout: {
-        user_id: user.user_id,
-        date_completed: { not: null },
-      },
+      [user.user_id]: user.user_id,
     },
     include: {
-      excercise_sets: true,
+      best_weight: true,
+      best_rep: true,
     },
   });
-
-  if (previousExcerciseSetGroup != null) {
-    excercise_sets = previousExcerciseSetGroup.excercise_sets;
-  } else {
-    // No previous data, so we use the default values
-    let targetWeight;
-    let targetReps;
-    if (
-      excercise.body_weight == false &&
-      excercise.excercise_mechanics == ExcerciseMechanics.COMPOUND
-    ) {
-      // Compound non-body weight excercises
-      targetWeight = 50;
-      targetReps = user.compound_movement_rep_lower_bound;
-    } else if (
-      excercise.body_weight == false &&
-      excercise.excercise_mechanics == ExcerciseMechanics.ISOLATED
-    ) {
-      // Isolated non-body weight excercises
-      targetWeight = 20;
-      targetReps = user.isolated_movement_rep_lower_bound;
-    } else if (
-      excercise.body_weight == true &&
-      excercise.excercise_mechanics == ExcerciseMechanics.ISOLATED
-    ) {
-      // body-weight, isolated excercise
-      targetWeight = 0;
-      targetReps = user.body_weight_rep_lower_bound;
-    } else if (
-      excercise.body_weight == true &&
-      excercise.excercise_mechanics == ExcerciseMechanics.COMPOUND
-    ) {
-      // body-weight, compound excercise
-      targetWeight = 0;
-      targetReps = user.body_weight_rep_lower_bound;
-    }
-    excercise_sets = new Array(5).fill({
-      target_weight: targetWeight,
-      weight_unit: "KG",
-      target_reps: targetReps,
-      actual_weight: null,
-      actual_reps: null,
-    });
-  }
-
-  return {
-    excercise_name: excercise.excercise_name,
-    excercise_set_group_state: "NORMAL_OPERATION",
-    excercise_sets: { create: excercise_sets },
-  };
+  // premises that have to be noted on the frontend
+  // 1. both body weight and weighted exercises done before cannot have a best rep to be 0;
+  // 2. otherwise a user filling in their 1RM on the frontend side will have their best_rep set to 1;
+  excercise_sets = callibrator(excercise, excerciseRecord, context);
+  return excercise_sets;
 };
