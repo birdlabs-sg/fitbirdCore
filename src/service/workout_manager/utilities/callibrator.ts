@@ -1,32 +1,22 @@
-import { suggestedRepCalculator,suggestedWeightCalculator } from "./exerciseCalculators";
-import { ExcerciseMetadata } from "@prisma/client";
 import {
-  ExcerciseMechanics,
-} from "@prisma/client";
+  suggestedRepCalculator,
+  suggestedWeightCalculator,
+} from "./exerciseCalculators";
+import { ExcerciseMetadata } from "@prisma/client";
+import { ExcerciseMechanics } from "@prisma/client";
 //invoke call only for weighted exercises
 
-export const callibrator = async (
+export const callibrator = (
   excercise,
-  excerciseRecord:ExcerciseMetadata,
+  excerciseRecord: ExcerciseMetadata,
   context: any
 ) => {
   let excercise_sets;
   let targetWeight;
   let targetReps;
   const user = context.user;
-  if (excerciseRecord.best_rep != 0) {
-    if(excercise.body_weight){
-          //since 5 is the default number of sets
-          targetReps = suggestedRepCalculator(excerciseRecord.best_rep,5);
-          targetWeight= 0;
-    }
-    else{
-        targetReps = user.isolated_movement_rep_upper_bound;
-        targetWeight = suggestedWeightCalculator(excerciseRecord.best_weight,targetReps)
-    }
-  
-  } else {
-    // No previous data, so we add defaults
+  // if not done before
+  if (excerciseRecord === null) {
     if (
       excercise.body_weight == false &&
       excercise.excercise_mechanics == ExcerciseMechanics.COMPOUND
@@ -57,6 +47,23 @@ export const callibrator = async (
       targetReps = user.body_weight_rep_lower_bound;
     }
   }
+  //if done before
+  else {
+    if (excerciseRecord.best_rep != 0) {
+      if (excercise.body_weight) {
+        //since 5 is the default number of sets
+        targetReps = suggestedRepCalculator(excerciseRecord.best_rep, 5);
+        targetWeight = 0;
+      } else {
+        targetReps = user.isolated_movement_rep_upper_bound;
+        targetWeight = suggestedWeightCalculator(
+          excerciseRecord.best_weight,
+          targetReps
+        );
+      }
+    }
+  }
+
   excercise_sets = new Array(5).fill({
     target_weight: targetWeight,
     weight_unit: "KG",
@@ -64,5 +71,6 @@ export const callibrator = async (
     actual_weight: null,
     actual_reps: null,
   });
-  return excercise_sets
+
+  return excercise_sets;
 };

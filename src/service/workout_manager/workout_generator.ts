@@ -198,16 +198,20 @@ const formatAndGenerateExcerciseSets = async (
   var excerciseRecord = await prisma.excerciseMetadata.findFirst({
     where: {
       excercise_name: excercise.excercise_name,
-      [user.user_id]: user.user_id,
-    },
-    include: {
-      best_weight: true,
-      best_rep: true,
+      AND: {
+        user_id: user.user_id,
+      },
     },
   });
+
   // premises that have to be noted on the frontend
   // 1. both body weight and weighted exercises done before cannot have a best rep to be 0;
   // 2. otherwise a user filling in their 1RM on the frontend side will have their best_rep set to 1;
   excercise_sets = callibrator(excercise, excerciseRecord, context);
-  return excercise_sets;
+  console.log(excercise_sets);
+  return {
+    excercise_name: excercise.excercise_name,
+    excercise_set_group_state: "NORMAL_OPERATION",
+    excercise_sets: { create: excercise_sets },
+  };
 };
