@@ -4,9 +4,6 @@ const categorizeExcerciseSet = (excercise_set: ExcerciseSet) => {
   // TODO: give a more accurate benchmark
   // We consider the set to fail when the actual reps is lower than the benchmark.
   // Bench marks are calculated as follows:
-  // 1. At same weight, Bench mark = target reps
-  // 2. At a lower weight, Bench mark = target reps * 1.15
-  // 3. At a higher weight, Bench mark = target reps * 0.85
   if (
     excercise_set.actual_reps == null ||
     excercise_set.actual_weight == null
@@ -17,38 +14,35 @@ const categorizeExcerciseSet = (excercise_set: ExcerciseSet) => {
   var benchMark;
   var benchMarkWeight;
   switch (true) {
+    // target reps
     case excercise_set.target_weight == excercise_set.actual_weight:
       // 1. At same weight
       benchMark = excercise_set.target_reps;
+      benchMarkWeight = excercise_set.target_weight;
       break;
     case excercise_set.target_weight > excercise_set.actual_weight:
-      // 1. At same weight
-      benchMark = excercise_set.target_reps * 1.15;
+      // 2. If done at a higher rep count and weight is still within range, then its considered a pass
+      benchMark = excercise_set.target_reps + 1;
+      benchMarkWeight = excercise_set.target_weight-2.5;
       break;
     case excercise_set.target_weight < excercise_set.actual_weight:
-      // 1. At same weight
-      benchMark = excercise_set.target_reps * 0.85;
+      // 3. If done at a lower rep count (by at most 1), then its considered a pass
+      benchMark = excercise_set.target_reps - 1;
+      benchMarkWeight = excercise_set.target_weight;
       break;
   }
   // setting the bench mark for weight
-  if (excercise_set.target_reps == excercise_set.actual_reps) {
-    benchMarkWeight = excercise_set.target_weight;
-  } else if (excercise_set.actual_reps! < excercise_set.target_reps) {
-    // increase the bench mark weight
-    benchMarkWeight = excercise_set.target_weight * 1.025;
-  } else {
-    // decrease the bench mark weight
-    benchMarkWeight = excercise_set.target_weight * 0.975;
-  }
-
+  // fail means both weight and reps failed to be met
   if (
-    excercise_set.actual_reps < benchMark ||
-    excercise_set.actual_weight! < benchMarkWeight
+    excercise_set.actual_reps < benchMark &&
+    excercise_set.actual_weight < benchMarkWeight
   ) {
     return "FAILED";
-  } else if (
-    excercise_set.actual_reps == benchMark &&
-    excercise_set.actual_weight! == benchMarkWeight
+  } 
+  //maintain would mean either the weight or the rep was hit
+  else if (
+    excercise_set.actual_reps! == benchMark &&
+    excercise_set.actual_weight == benchMarkWeight
   ) {
     return "MAINTAINED";
   } else {
@@ -74,7 +68,7 @@ const generateNextExerciseSets = (
     } = excercise_set;
 
     const category = categorizeExcerciseSet(excercise_set);
-
+    // conditions to discriminate the next workout
     if (category == "FAILED" || category == "SKIPPED") {
       if (dropDifficultyForFailedSets) {
         // Using target values as the base: Decrease by 1 rep. If already at lower bound, decrease the weight by 2.5% and drop back reps to upper bound
@@ -182,7 +176,7 @@ export const progressivelyOverload = async (
           upperBound,
           lowerBound
         );
-        // TODO: create a helper to get exerciseMetadata. If dont have automatically generate one before returbning the generated exerciseMetadata.
+        // TODO: create a helper to get exerciseMetadata. If dont have automatically generate one before returning the generated exerciseMetadata.
         try {
           const metadata = await retrieveExerciseMetadata(
             context,
