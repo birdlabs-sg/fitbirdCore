@@ -23,7 +23,7 @@ const categorizeExcerciseSet = (excercise_set: ExcerciseSet) => {
     case excercise_set.target_weight > excercise_set.actual_weight:
       // 2. If done at a higher rep count and weight is still within range 2.5
       benchMark = excercise_set.target_reps + 1;
-      benchMarkWeight = excercise_set.target_weight - 2.5;
+      benchMarkWeight = excercise_set.target_weight - 2;
       break;
     case excercise_set.target_weight < excercise_set.actual_weight:
       // 3. If done at a lower rep count (by at most 1)
