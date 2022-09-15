@@ -85,6 +85,10 @@ export const generateOrUpdateExcerciseMetadata = async (
   excercise_metadatas: excerciseMetaDataInput[]
 ) => {
   const prisma = context.dataSources.prisma;
+  excercise_metadatas["last_excecuted"] =
+    excercise_metadatas["last_excecuted"] != null
+      ? new Date(excercise_metadatas["last_excecuted"])
+      : null;
   for (var excercise_metadata of excercise_metadatas) {
     const excerciseMetadata = await prisma.excerciseMetadata.findUnique({
       where: {
