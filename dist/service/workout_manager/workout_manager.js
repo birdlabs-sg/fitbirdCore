@@ -94,6 +94,10 @@ exports.getActiveWorkouts = getActiveWorkouts;
 // Generates excerciseMetadata if it's not available for any of the excercises in a workout
 const generateOrUpdateExcerciseMetadata = (context, excercise_metadatas) => __awaiter(void 0, void 0, void 0, function* () {
     const prisma = context.dataSources.prisma;
+    excercise_metadatas["last_excecuted"] =
+        excercise_metadatas["last_excecuted"] != null
+            ? new Date(excercise_metadatas["last_excecuted"])
+            : null;
     for (var excercise_metadata of excercise_metadatas) {
         delete excercise_metadata["last_excecuted"];
         const excerciseMetadata = yield prisma.excerciseMetadata.findUnique({
