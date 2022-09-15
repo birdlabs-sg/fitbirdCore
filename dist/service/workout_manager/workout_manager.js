@@ -95,6 +95,7 @@ exports.getActiveWorkouts = getActiveWorkouts;
 const generateOrUpdateExcerciseMetadata = (context, excercise_metadatas) => __awaiter(void 0, void 0, void 0, function* () {
     const prisma = context.dataSources.prisma;
     for (var excercise_metadata of excercise_metadatas) {
+        delete excercise_metadata["last_excecuted"];
         const excerciseMetadata = yield prisma.excerciseMetadata.findUnique({
             where: {
                 user_id_excercise_name: {
