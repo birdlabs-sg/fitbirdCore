@@ -8,6 +8,7 @@ exports.ExcerciseMetadata = gql `
     excercise_metadata_state: ExcerciseMetadataState!
     haveRequiredEquipment: Boolean
     preferred: Boolean
+    last_excecuted: String
     excercise_name: String!
     best_weight: Float!
     weight_unit: WeightUnit!

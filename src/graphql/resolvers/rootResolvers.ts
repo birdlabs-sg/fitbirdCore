@@ -15,6 +15,7 @@ import {
   createWorkout,
   deleteWorkout,
   generateWorkouts,
+  regenerateWorkouts,
   updateWorkout,
   updateWorkoutOrder,
 } from "./mutation/mutateWorkout";
@@ -54,6 +55,7 @@ export const resolvers = {
     deleteMuscleRegion: deleteMuscleRegion,
     updateExcerciseMetadata: updateExcerciseMetadata,
     generateWorkouts: generateWorkouts,
+    regenerateWorkouts: regenerateWorkouts,
   },
 
   //Root Query: Top level querying logic here
@@ -94,7 +96,7 @@ export const resolvers = {
       });
     },
 
-    async excerciseMetadata(parent: any, args: any, context: any, info: any) {
+    async excercise_metadata(parent: any, args: any, context: any, info: any) {
       const prisma = context.dataSources.prisma;
       return await prisma.excerciseMetadata.findUnique({
         where: {

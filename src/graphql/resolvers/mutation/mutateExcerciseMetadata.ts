@@ -25,6 +25,6 @@ export const updateExcerciseMetadata = async (
     code: "200",
     success: true,
     message: "Successfully updated the specified excercise metadata!",
-    excerciseMetadata: updatedExcerciseMetadata,
+    excercise_metadata: updatedExcerciseMetadata,
   };
 };

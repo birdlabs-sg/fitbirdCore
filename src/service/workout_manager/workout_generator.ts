@@ -212,46 +212,48 @@ const formatAndGenerateExcerciseSets = async (
   if (previousExcerciseSetGroup != null) {
     excercise_sets = previousExcerciseSetGroup.excercise_sets;
     excercise_sets.forEach((element) => {
-      element.remove("excercise_set_group_id");
-      element.remove("excercise_set_id");
+      delete element["excercise_set_group_id"];
+      delete element["excercise_set_id"];
+      element["actual_reps"] = null;
+      element["actual_weight"] = null;
     });
   } else {
     // No previous data, so we use the default values
-    let targetWeight;
-    let targetReps;
-    if (
-      excercise.body_weight == false &&
-      excercise.excercise_mechanics == ExcerciseMechanics.COMPOUND
-    ) {
-      // Compound non-body weight excercises
-      targetWeight = 50;
-      targetReps = user.compound_movement_rep_lower_bound;
-    } else if (
-      excercise.body_weight == false &&
-      excercise.excercise_mechanics == ExcerciseMechanics.ISOLATED
-    ) {
-      // Isolated non-body weight excercises
-      targetWeight = 20;
-      targetReps = user.isolated_movement_rep_lower_bound;
-    } else if (
-      excercise.body_weight == true &&
-      excercise.excercise_mechanics == ExcerciseMechanics.ISOLATED
-    ) {
-      // body-weight, isolated excercise
-      targetWeight = 0;
-      targetReps = user.body_weight_rep_lower_bound;
-    } else if (
-      excercise.body_weight == true &&
-      excercise.excercise_mechanics == ExcerciseMechanics.COMPOUND
-    ) {
-      // body-weight, compound excercise
-      targetWeight = 0;
-      targetReps = user.body_weight_rep_lower_bound;
-    }
+    // let targetWeight = 0;
+    // let targetReps = 0;
+    // if (
+    //   excercise.body_weight == false &&
+    //   excercise.excercise_mechanics == ExcerciseMechanics.COMPOUND
+    // ) {
+    //   // Compound non-body weight excercises
+    //   targetWeight = 50;
+    //   targetReps = user.compound_movement_rep_lower_bound;
+    // } else if (
+    //   excercise.body_weight == false &&
+    //   excercise.excercise_mechanics == ExcerciseMechanics.ISOLATED
+    // ) {
+    //   // Isolated non-body weight excercises
+    //   targetWeight = 20;
+    //   targetReps = user.isolated_movement_rep_lower_bound;
+    // } else if (
+    //   excercise.body_weight == true &&
+    //   excercise.excercise_mechanics == ExcerciseMechanics.ISOLATED
+    // ) {
+    //   // body-weight, isolated excercise
+    //   targetWeight = 0;
+    //   targetReps = user.body_weight_rep_lower_bound;
+    // } else if (
+    //   excercise.body_weight == true &&
+    //   excercise.excercise_mechanics == ExcerciseMechanics.COMPOUND
+    // ) {
+    //   // body-weight, compound excercise
+    //   targetWeight = 0;
+    //   targetReps = user.body_weight_rep_lower_bound;
+    // }
     excercise_sets = new Array(5).fill({
-      target_weight: targetWeight,
+      target_weight: 0,
       weight_unit: "KG",
-      target_reps: targetReps,
+      target_reps: 0,
       actual_weight: null,
       actual_reps: null,
     });

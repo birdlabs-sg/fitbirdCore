@@ -12,15 +12,39 @@ import {
 } from "../../../service/workout_manager/workout_manager";
 import { onlyAuthenticated } from "../../../service/firebase_service";
 import { workoutGenerator } from "../../../service/workout_manager/workout_generator";
-import { Workout, WorkoutState } from "@prisma/client";
+import { prisma, Workout, WorkoutState } from "@prisma/client";
 const util = require("util");
 
 export const generateWorkouts = async (_: any, args: any, context: any) => {
   onlyAuthenticated(context);
   const { no_of_workouts } = args;
-  const prisma = context.dataSources.prisma;
-  // Just a mockup for now. TODO: Create a service that links up with lichuan's recommendation algorithm
   let generatedWorkouts;
+  try {
+    generatedWorkouts = workoutGenerator(no_of_workouts, context);
+  } catch (e) {
+    console.log(e);
+  }
+  return generatedWorkouts;
+};
+
+export const regenerateWorkouts = async (_: any, args: any, context: any) => {
+  onlyAuthenticated(context);
+  const prisma = context.dataSources.prisma;
+  const no_of_workouts = context.user.workout_frequency ?? 3;
+  let generatedWorkouts;
+
+  const activeWorkouts = await getActiveWorkouts(context);
+  const activeWorkoutIDS = activeWorkouts.map((workout) => workout.workout_id);
+  const deleted = await prisma.workout.deleteMany({
+    where: {
+      workout_id: {
+        in: activeWorkoutIDS,
+      },
+    },
+  });
+
+  console.log(deleted);
+
   try {
     generatedWorkouts = workoutGenerator(no_of_workouts, context);
   } catch (e) {

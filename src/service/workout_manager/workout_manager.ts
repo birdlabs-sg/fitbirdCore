@@ -96,7 +96,7 @@ export const generateOrUpdateExcerciseMetadata = async (
     });
     if (excerciseMetadata == null) {
       // create one with the excerciseMetadata provided
-      const metadata = await prisma.excerciseMetadata.create({
+      await prisma.excerciseMetadata.create({
         data: {
           user_id: context.user.user_id,
           ...excercise_metadata,
@@ -104,7 +104,8 @@ export const generateOrUpdateExcerciseMetadata = async (
       });
     } else {
       // update the excerciseMetadata with provided ones
-      const metadata = await prisma.excerciseMetadata.update({
+
+      await prisma.excerciseMetadata.update({
         where: {
           user_id_excercise_name: {
             user_id: context.user.user_id,
@@ -136,6 +137,9 @@ export const updateExcerciseMetadataWithCompletedWorkout = async (
           excercise_name: excercise_group_set.excercise_name,
         },
       },
+      include: {
+        excercise: true,
+      },
     });
     if (oldMetadata == null) {
       oldMetadata = await prisma.excerciseMetadata.create({
@@ -145,6 +149,8 @@ export const updateExcerciseMetadataWithCompletedWorkout = async (
         },
       });
     }
+
+    // TODO: a way to select best set that takes into account both weight and rep
     let best_set = {
       actual_weight: oldMetadata.best_weight,
       actual_reps: oldMetadata.best_rep,
@@ -152,14 +158,25 @@ export const updateExcerciseMetadataWithCompletedWorkout = async (
     };
 
     for (let excercise_set of excercise_group_set.excercise_sets) {
-      if (best_set.actual_weight < excercise_set.actual_weight) {
-        best_set = {
-          actual_weight: excercise_set.actual_weight,
-          actual_reps: excercise_set.actual_reps,
-          weight_unit: excercise_set.weight_unit,
-        };
+      if (oldMetadata.excercise.body_weight == true) {
+        if (best_set.actual_reps < excercise_set.actual_reps) {
+          best_set = {
+            actual_weight: excercise_set.actual_weight,
+            actual_reps: excercise_set.actual_reps,
+            weight_unit: excercise_set.weight_unit,
+          };
+        }
+      } else {
+        if (best_set.actual_weight < excercise_set.actual_weight) {
+          best_set = {
+            actual_weight: excercise_set.actual_weight,
+            actual_reps: excercise_set.actual_reps,
+            weight_unit: excercise_set.weight_unit,
+          };
+        }
       }
     }
+
     await prisma.excerciseMetadata.update({
       where: {
         user_id_excercise_name: {
@@ -171,7 +188,7 @@ export const updateExcerciseMetadataWithCompletedWorkout = async (
         best_rep: best_set.actual_reps,
         best_weight: best_set.actual_weight,
         weight_unit: best_set.weight_unit,
-        last_excecuted: new Date().toISOString(),
+        last_excecuted: new Date(),
       },
     });
   }
