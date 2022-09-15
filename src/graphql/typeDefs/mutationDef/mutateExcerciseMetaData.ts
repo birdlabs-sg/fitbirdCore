@@ -6,7 +6,7 @@ export const mutateExcerciseMetadata = gql`
     code: String!
     success: Boolean!
     message: String!
-    excerciseMetadata: ExcerciseMetadata
+    excercise_metadata: ExcerciseMetadata
   }
 
   type Mutation {

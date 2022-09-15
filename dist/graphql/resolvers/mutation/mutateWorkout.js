@@ -20,7 +20,7 @@ var __rest = (this && this.__rest) || function (s, e) {
     return t;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteWorkout = exports.updateWorkout = exports.completeWorkout = exports.updateWorkoutOrder = exports.createWorkout = exports.generateWorkouts = void 0;
+exports.deleteWorkout = exports.updateWorkout = exports.completeWorkout = exports.updateWorkoutOrder = exports.createWorkout = exports.regenerateWorkouts = exports.generateWorkouts = void 0;
 const workout_manager_1 = require("../../../service/workout_manager/workout_manager");
 const firebase_service_1 = require("../../../service/firebase_service");
 const workout_generator_1 = require("../../../service/workout_manager/workout_generator");
@@ -29,8 +29,6 @@ const util = require("util");
 const generateWorkouts = (_, args, context) => __awaiter(void 0, void 0, void 0, function* () {
     (0, firebase_service_1.onlyAuthenticated)(context);
     const { no_of_workouts } = args;
-    const prisma = context.dataSources.prisma;
-    // Just a mockup for now. TODO: Create a service that links up with lichuan's recommendation algorithm
     let generatedWorkouts;
     try {
         generatedWorkouts = (0, workout_generator_1.workoutGenerator)(no_of_workouts, context);
@@ -41,6 +39,31 @@ const generateWorkouts = (_, args, context) => __awaiter(void 0, void 0, void 0,
     return generatedWorkouts;
 });
 exports.generateWorkouts = generateWorkouts;
+const regenerateWorkouts = (_, args, context) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    (0, firebase_service_1.onlyAuthenticated)(context);
+    const prisma = context.dataSources.prisma;
+    const no_of_workouts = (_a = context.user.workout_frequency) !== null && _a !== void 0 ? _a : 3;
+    let generatedWorkouts;
+    const activeWorkouts = yield (0, workout_manager_1.getActiveWorkouts)(context);
+    const activeWorkoutIDS = activeWorkouts.map((workout) => workout.workout_id);
+    const deleted = yield prisma.workout.deleteMany({
+        where: {
+            workout_id: {
+                in: activeWorkoutIDS,
+            },
+        },
+    });
+    console.log(deleted);
+    try {
+        generatedWorkouts = (0, workout_generator_1.workoutGenerator)(no_of_workouts, context);
+    }
+    catch (e) {
+        console.log(e);
+    }
+    return generatedWorkouts;
+});
+exports.regenerateWorkouts = regenerateWorkouts;
 // Note: This resolver is only used when the user wishes to create new workout on existing ones.
 // Assumption: active_workouts always have order_index with no gaps when sorted. For eg: 0,1,2,3 and not 0,2,3,5
 const createWorkout = (_, args, context) => __awaiter(void 0, void 0, void 0, function* () {

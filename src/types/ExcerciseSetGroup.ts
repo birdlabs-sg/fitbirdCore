@@ -1,7 +1,7 @@
 interface excerciseSetGroupInput {
   excercise_name: String;
   excercise_set_group_state: ExcerciseSetGroupState;
-  excerciseMetadata: excerciseMetaDataInput;
+  excercise_metadata: excerciseMetaDataInput;
   excercise_sets: ExcerciseSet[];
   failure_reason: FailureReason;
 }

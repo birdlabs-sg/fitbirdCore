@@ -48,6 +48,7 @@ exports.resolvers = {
         deleteMuscleRegion: mutateMuscleRegion_1.deleteMuscleRegion,
         updateExcerciseMetadata: mutateExcerciseMetadata_1.updateExcerciseMetadata,
         generateWorkouts: mutateWorkout_1.generateWorkouts,
+        regenerateWorkouts: mutateWorkout_1.regenerateWorkouts,
     },
     //Root Query: Top level querying logic here
     Query: {
@@ -84,7 +85,7 @@ exports.resolvers = {
                 });
             });
         },
-        excerciseMetadata(parent, args, context, info) {
+        excercise_metadata(parent, args, context, info) {
             return __awaiter(this, void 0, void 0, function* () {
                 const prisma = context.dataSources.prisma;
                 return yield prisma.excerciseMetadata.findUnique({

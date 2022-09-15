@@ -6,6 +6,7 @@ exports.mutateGenerateWorkouts = gql `
   "Mutation to generate a set of workouts"
   type Mutation {
     generateWorkouts(no_of_workouts: Int!): [Workout]
+    regenerateWorkouts: [Workout]
   }
 `;
 //# sourceMappingURL=mutateGenerateWorkouts.js.map
