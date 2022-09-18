@@ -1,12 +1,17 @@
 import {
   Equipment,
+  Excercise,
   ExcerciseMechanics,
   MuscleRegionType,
   PrismaClient,
   User,
   Workout,
 } from "@prisma/client";
-import { getActiveWorkoutCount } from "./workout_manager";
+import {
+  generateExerciseMetadata,
+  generateOrUpdateExcerciseMetadata,
+  getActiveWorkoutCount,
+} from "./workout_manager";
 const _ = require("lodash");
 
 const rotations_type: MuscleRegionType[][] = [
@@ -187,7 +192,7 @@ export const workoutGenerator = async (
 };
 
 const formatAndGenerateExcerciseSets = async (
-  excercise,
+  excercise: Excercise,
   type: String,
   context: any
 ) => {
@@ -208,7 +213,7 @@ const formatAndGenerateExcerciseSets = async (
       excercise_sets: true,
     },
   });
-
+  generateExerciseMetadata(context, excercise.excercise_name);
   if (previousExcerciseSetGroup != null) {
     excercise_sets = previousExcerciseSetGroup.excercise_sets;
     excercise_sets.forEach((element) => {
@@ -218,38 +223,7 @@ const formatAndGenerateExcerciseSets = async (
       element["actual_weight"] = null;
     });
   } else {
-    // No previous data, so we use the default values
-    // let targetWeight = 0;
-    // let targetReps = 0;
-    // if (
-    //   excercise.body_weight == false &&
-    //   excercise.excercise_mechanics == ExcerciseMechanics.COMPOUND
-    // ) {
-    //   // Compound non-body weight excercises
-    //   targetWeight = 50;
-    //   targetReps = user.compound_movement_rep_lower_bound;
-    // } else if (
-    //   excercise.body_weight == false &&
-    //   excercise.excercise_mechanics == ExcerciseMechanics.ISOLATED
-    // ) {
-    //   // Isolated non-body weight excercises
-    //   targetWeight = 20;
-    //   targetReps = user.isolated_movement_rep_lower_bound;
-    // } else if (
-    //   excercise.body_weight == true &&
-    //   excercise.excercise_mechanics == ExcerciseMechanics.ISOLATED
-    // ) {
-    //   // body-weight, isolated excercise
-    //   targetWeight = 0;
-    //   targetReps = user.body_weight_rep_lower_bound;
-    // } else if (
-    //   excercise.body_weight == true &&
-    //   excercise.excercise_mechanics == ExcerciseMechanics.COMPOUND
-    // ) {
-    //   // body-weight, compound excercise
-    //   targetWeight = 0;
-    //   targetReps = user.body_weight_rep_lower_bound;
-    // }
+    // No previous data
     excercise_sets = new Array(5).fill({
       target_weight: 0,
       weight_unit: "KG",

@@ -43,8 +43,6 @@ export const regenerateWorkouts = async (_: any, args: any, context: any) => {
     },
   });
 
-  console.log(deleted);
-
   try {
     generatedWorkouts = workoutGenerator(no_of_workouts, context);
   } catch (e) {

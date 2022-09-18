@@ -79,6 +79,30 @@ export const getActiveWorkouts = async (context: any) => {
   });
 };
 
+export const generateExerciseMetadata = async (
+  context: any,
+  exercise_name: String
+) => {
+  const prisma = context.dataSources.prisma;
+  var excerciseMetadata = await prisma.excerciseMetadata.findUnique({
+    where: {
+      user_id_excercise_name: {
+        user_id: context.user.user_id,
+        excercise_name: exercise_name,
+      },
+    },
+  });
+  if (excerciseMetadata == null) {
+    // create one with the excerciseMetadata provided
+    excerciseMetadata = await prisma.excerciseMetadata.create({
+      data: {
+        user_id: context.user.user_id,
+        excercise_name: exercise_name,
+      },
+    });
+  }
+};
+
 // Generates excerciseMetadata if it's not available for any of the excercises in a workout
 export const generateOrUpdateExcerciseMetadata = async (
   context: any,

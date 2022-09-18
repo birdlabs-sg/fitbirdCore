@@ -20,7 +20,7 @@ var __rest = (this && this.__rest) || function (s, e) {
     return t;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.generateNextWorkout = exports.reorderActiveWorkouts = exports.checkExistsAndOwnership = exports.getActiveWorkoutCount = exports.updateExcerciseMetadataWithCompletedWorkout = exports.generateOrUpdateExcerciseMetadata = exports.getActiveWorkouts = exports.excerciseSetGroupsTransformer = exports.formatExcerciseSetGroups = exports.extractMetadatas = void 0;
+exports.generateNextWorkout = exports.reorderActiveWorkouts = exports.checkExistsAndOwnership = exports.getActiveWorkoutCount = exports.updateExcerciseMetadataWithCompletedWorkout = exports.generateOrUpdateExcerciseMetadata = exports.generateExerciseMetadata = exports.getActiveWorkouts = exports.excerciseSetGroupsTransformer = exports.formatExcerciseSetGroups = exports.extractMetadatas = void 0;
 const apollo_server_1 = require("apollo-server");
 const progressive_overloader_1 = require("./progressive_overloader");
 const _ = require("lodash");
@@ -91,6 +91,27 @@ const getActiveWorkouts = (context) => __awaiter(void 0, void 0, void 0, functio
     });
 });
 exports.getActiveWorkouts = getActiveWorkouts;
+const generateExerciseMetadata = (context, exercise_name) => __awaiter(void 0, void 0, void 0, function* () {
+    const prisma = context.dataSources.prisma;
+    var excerciseMetadata = yield prisma.excerciseMetadata.findUnique({
+        where: {
+            user_id_excercise_name: {
+                user_id: context.user.user_id,
+                excercise_name: exercise_name,
+            },
+        },
+    });
+    if (excerciseMetadata == null) {
+        // create one with the excerciseMetadata provided
+        excerciseMetadata = yield prisma.excerciseMetadata.create({
+            data: {
+                user_id: context.user.user_id,
+                excercise_name: exercise_name,
+            },
+        });
+    }
+});
+exports.generateExerciseMetadata = generateExerciseMetadata;
 // Generates excerciseMetadata if it's not available for any of the excercises in a workout
 const generateOrUpdateExcerciseMetadata = (context, excercise_metadatas) => __awaiter(void 0, void 0, void 0, function* () {
     const prisma = context.dataSources.prisma;
