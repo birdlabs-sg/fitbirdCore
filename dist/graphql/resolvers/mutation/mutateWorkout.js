@@ -54,7 +54,6 @@ const regenerateWorkouts = (_, args, context) => __awaiter(void 0, void 0, void 
             },
         },
     });
-    console.log(deleted);
     try {
         generatedWorkouts = (0, workout_generator_1.workoutGenerator)(no_of_workouts, context);
     }
