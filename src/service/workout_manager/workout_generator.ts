@@ -1,6 +1,7 @@
 import {
   Equipment,
   Excercise,
+  ExcerciseForce,
   ExcerciseMechanics,
   MuscleRegionType,
   PrismaClient,
@@ -12,6 +13,8 @@ import {
   generateOrUpdateExcerciseMetadata,
   getActiveWorkoutCount,
 } from "./workout_manager";
+
+import * as workoutSplit from "./rotations_types_general";
 const _ = require("lodash");
 
 const rotations_type: MuscleRegionType[][] = [
@@ -191,6 +194,152 @@ export const workoutGenerator = async (
   return generated_workout_list;
 };
 
+// New generator based on professionals
+export const workoutGenerator_V2 = async (
+  numberOfWorkouts: Number,
+  context: any
+) => {
+  const prisma: PrismaClient = context.dataSources.prisma;
+  const user: User = context.user;
+
+  // guard clause
+  if (numberOfWorkouts > 7) {
+    throw Error("Can only generate 7 workouts maximum.");
+  }
+  if (numberOfWorkouts < 2) {
+    throw Error("A minimum of 2 workouts per week.");
+  }
+
+  const generated_workout_list: Workout[] = [];
+
+  // Contains a list of equipment that the user has NO access to.
+  const user_constaints = _.differenceWith(
+    Object.keys(Equipment),
+    user.equipment_accessible,
+    _.isEqual
+  );
+  // The name selector cannot be random
+
+  // excercise_pointer used with randomRotation determines which exercise type should be next
+  var excercise_pointer = 0;
+  let rotationSequenceMuscle: MuscleRegionType[][];
+  switch (numberOfWorkouts) {
+    case 2:
+      rotationSequenceMuscle = workoutSplit.twoDaySplitMuscle;
+    case 3:
+      rotationSequenceMuscle = workoutSplit.threeDaySplitMuscle;
+    case 4:
+      rotationSequenceMuscle = workoutSplit.fourDaySplitMuscle;
+    case 5:
+      rotationSequenceMuscle = workoutSplit.fiveDaySplit;
+    case 6:
+      rotationSequenceMuscle = workoutSplit.sixDaySplit;
+  }
+  // Core logic
+  await excerciseSelector(
+    numberOfWorkouts,
+    context,
+    rotationSequenceMuscle,
+    user_constaints,
+    generated_workout_list
+  );
+  return generated_workout_list;
+};
+
+// re configured the selector to make it more usable among different exercise plans
+const excerciseSelector = async (
+  numberOfWorkouts: Number,
+  context: any,
+  rotationSequence: MuscleRegionType[][] /*| ExcerciseForce[][]*/,
+  user_constaints: any,
+  generated_workout_list: Workout[]
+) => {
+  const workout_name_list: string[] = [
+    "Sexy Sparrow",
+    "Odd Osprey",
+    "Dangerous Dove",
+    "Perky Pigeon",
+    "Elated Eagle",
+    "Kind King-fisher",
+    "Seagull",
+    "Ominous Owl",
+    "Peaceful Parakeet",
+    "Crazy Cuckoo",
+    "Wacky Woodpecker",
+    "Charming Canary",
+  ];
+  const prisma: PrismaClient = context.dataSources.prisma;
+  const user: User = context.user;
+
+  let Rotation = [];
+  let max = 0;
+  for (let day = 0; day < numberOfWorkouts; day++) {
+    let list_of_excercises = [];
+    Rotation = rotationSequence[day];
+    if (numberOfWorkouts > 5) {
+      max = Rotation.length - 1; // 1 less exercise per day if days is more than 5
+    } else {
+      max = Rotation.length;
+    }
+    for (let excercise_index = 0; excercise_index < max; excercise_index++) {
+      const excercises_in_category = await prisma.excercise.findMany({
+        where: {
+          target_regions: {
+            some: {
+              muscle_region_type: Rotation[excercise_index],
+            },
+          },
+          NOT: {
+            equipment_required: {
+              hasSome: user_constaints,
+            },
+          },
+
+          body_weight: !(user.equipment_accessible.length > 0), // use body weight excercise if don't have accessible equipments
+          assisted: false,
+        },
+      });
+      if (excercises_in_category.length > 0) {
+        var randomSelectedExcercise =
+          excercises_in_category[
+            Math.floor(Math.random() * excercises_in_category.length)
+          ];
+        list_of_excercises.push(
+          await formatAndGenerateExcerciseSets(
+            randomSelectedExcercise,
+            Rotation[excercise_index],
+            context
+          )
+        );
+      }
+    }
+    let createdWorkout: Workout;
+    try {
+      createdWorkout = await prisma.workout.create({
+        data: {
+          workout_name: workout_name_list.splice(
+            (Math.random() * workout_name_list.length) | 0,
+            1
+          )[0],
+          order_index: await getActiveWorkoutCount(context),
+          user_id: user.user_id,
+          life_span: 12,
+          excercise_set_groups: { create: list_of_excercises },
+        },
+        include: {
+          excercise_set_groups: true,
+        },
+      });
+    } catch (e) {
+      console.log(e);
+    }
+    generated_workout_list.push(createdWorkout);
+  }
+
+  // create workout and generate the associated excercisemetadata
+};
+
+//
 const formatAndGenerateExcerciseSets = async (
   excercise: Excercise,
   type: String,

@@ -11,7 +11,10 @@ import {
   generateOrUpdateExcerciseMetadata,
 } from "../../../service/workout_manager/workout_manager";
 import { onlyAuthenticated } from "../../../service/firebase_service";
-import { workoutGenerator } from "../../../service/workout_manager/workout_generator";
+import {
+  workoutGenerator,
+  workoutGenerator_V2,
+} from "../../../service/workout_manager/workout_generator";
 import { prisma, Workout, WorkoutState } from "@prisma/client";
 const util = require("util");
 
@@ -20,7 +23,7 @@ export const generateWorkouts = async (_: any, args: any, context: any) => {
   const { no_of_workouts } = args;
   let generatedWorkouts;
   try {
-    generatedWorkouts = workoutGenerator(no_of_workouts, context);
+    generatedWorkouts = workoutGenerator_V2(no_of_workouts, context);
   } catch (e) {
     console.log(e);
   }
@@ -44,7 +47,7 @@ export const regenerateWorkouts = async (_: any, args: any, context: any) => {
   });
 
   try {
-    generatedWorkouts = workoutGenerator(no_of_workouts, context);
+    generatedWorkouts = workoutGenerator_V2(no_of_workouts, context);
   } catch (e) {
     console.log(e);
   }
