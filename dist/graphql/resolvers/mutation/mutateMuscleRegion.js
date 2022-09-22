@@ -21,7 +21,7 @@ var __rest = (this && this.__rest) || function (s, e) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteMuscleRegion = exports.updateMuscleRegion = exports.createMuscleRegion = void 0;
-const firebase_service_1 = require("../../../service/firebase_service");
+const firebase_service_1 = require("../../../service/firebase/firebase_service");
 const createMuscleRegion = (_, args, context) => __awaiter(void 0, void 0, void 0, function* () {
     (0, firebase_service_1.onlyAuthenticated)(context);
     (0, firebase_service_1.onlyAdmin)(context);
@@ -44,7 +44,7 @@ const updateMuscleRegion = (_, args, context) => __awaiter(void 0, void 0, void 
     const prisma = context.dataSources.prisma;
     const updatedMuscleRegion = yield prisma.muscleRegion.update({
         where: {
-            muscle_region_id: muscle_region_id,
+            muscle_region_id: parseInt(muscle_region_id),
         },
         data: otherArgs,
     });
@@ -56,13 +56,13 @@ const updateMuscleRegion = (_, args, context) => __awaiter(void 0, void 0, void 
     };
 });
 exports.updateMuscleRegion = updateMuscleRegion;
-const deleteMuscleRegion = (_, args, context) => __awaiter(void 0, void 0, void 0, function* () {
+const deleteMuscleRegion = (_, { muscle_region_id }, context) => __awaiter(void 0, void 0, void 0, function* () {
     (0, firebase_service_1.onlyAuthenticated)(context);
     (0, firebase_service_1.onlyAdmin)(context);
     const prisma = context.dataSources.prisma;
     const deletedMuscleRegion = yield prisma.muscleRegion.delete({
         where: {
-            muscle_region_id: args.muscle_region_id,
+            muscle_region_id: parseInt(muscle_region_id),
         },
     });
     return {

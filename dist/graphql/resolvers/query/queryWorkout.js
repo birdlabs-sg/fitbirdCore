@@ -10,8 +10,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.workoutQueryResolver = void 0;
-const firebase_service_1 = require("../../../service/firebase_service");
-const workoutQueryResolver = (parent, args, context, info) => __awaiter(void 0, void 0, void 0, function* () {
+const firebase_service_1 = require("../../../service/firebase/firebase_service");
+const workoutQueryResolver = (_, args, context) => __awaiter(void 0, void 0, void 0, function* () {
     (0, firebase_service_1.onlyAuthenticated)(context);
     const prisma = context.dataSources.prisma;
     const { workout_id } = args;

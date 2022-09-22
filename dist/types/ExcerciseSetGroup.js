@@ -1,9 +1,8 @@
-var FailureReason;
-(function (FailureReason) {
-    FailureReason["INSUFFICIENT_TIME"] = "INSUFFICIENT_TIME";
-    FailureReason["INSUFFICIENT_REST_TIME"] = "INSUFFICIENT_REST_TIME";
-    FailureReason["TOO_DIFFICULT"] = "TOO_DIFFICULT";
-    FailureReason["LOW_MOOD"] = "LOW_MOOD";
-    FailureReason["INSUFFICIENT_SLEEP"] = "INSUFFICIENT_SLEEP";
-})(FailureReason || (FailureReason = {}));
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const client_1 = require("@prisma/client");
+// This helps to add more fields into the generated types
+const excerciseSetGroupWithExerciseSets = client_1.Prisma.validator()({
+    include: { excercise_sets: true },
+});
 //# sourceMappingURL=ExcerciseSetGroup.js.map

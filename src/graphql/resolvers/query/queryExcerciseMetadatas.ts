@@ -1,8 +1,10 @@
+import { QueryGetExcerciseMetadatasArgs } from "../../../types/graphql";
+import { AppContext } from "../../../types/contextType";
+
 export const getExcerciseMetadatasQueryResolver = async (
   parent: any,
-  args: any,
-  context: any,
-  info: any
+  args: QueryGetExcerciseMetadatasArgs,
+  context: AppContext
 ) => {
   const prisma = context.dataSources.prisma;
   const { excercise_names_list } = args;

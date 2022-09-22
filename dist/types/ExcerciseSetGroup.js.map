@@ -1,1 +1,1 @@
-{"version":3,"file":"ExcerciseSetGroup.js","sourceRoot":"","sources":["../../src/types/ExcerciseSetGroup.ts"],"names":[],"mappings":"AAkDA,IAAK,aAMJ;AAND,WAAK,aAAa;IAChB,wDAAuC,CAAA;IACvC,kEAAiD,CAAA;IACjD,gDAA+B,CAAA;IAC/B,sCAAqB,CAAA;IACrB,0DAAyC,CAAA;AAC3C,CAAC,EANI,aAAa,KAAb,aAAa,QAMjB"}
+{"version":3,"file":"ExcerciseSetGroup.js","sourceRoot":"","sources":["../../src/types/ExcerciseSetGroup.ts"],"names":[],"mappings":";;AAAA,2CAAuE;AAEvE,yDAAyD;AACzD,MAAM,iCAAiC,GACrC,eAAM,CAAC,SAAS,EAAgC,CAAC;IAC/C,OAAO,EAAE,EAAE,cAAc,EAAE,IAAI,EAAE;CAClC,CAAC,CAAC"}

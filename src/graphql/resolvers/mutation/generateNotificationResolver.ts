@@ -1,10 +1,12 @@
-import { onlyAuthenticated } from "../../../service/firebase_service";
-import { generateNotification } from "../../../service/notification_service";
+import { AppContext } from "../../../types/contextType";
+import { MutationGenerateNotificationArgs } from "../../../types/graphql";
+import { onlyAuthenticated } from "../../../service/firebase/firebase_service";
+import { generateNotification } from "../../../service/notification/notification_service";
 
 export const generateNotificationResolver = async (
   _: any,
-  args: any,
-  context: any
+  args: MutationGenerateNotificationArgs,
+  context: AppContext
 ) => {
   onlyAuthenticated(context);
   const { token, title, body } = args;

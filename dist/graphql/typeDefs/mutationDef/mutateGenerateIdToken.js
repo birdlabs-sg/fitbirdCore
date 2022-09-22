@@ -22,7 +22,7 @@ exports.mutatateGenerateIdToken = gql `
 
   "Mutation to generation an access token given a firebase uid. This is for testing purposes only."
   type Mutation {
-    generateFirebaseIdToken(uid: String): GenerateIdTokenResponse
+    generateFirebaseIdToken(uid: String!): GenerateIdTokenResponse
   }
 `;
 //# sourceMappingURL=mutateGenerateIdToken.js.map

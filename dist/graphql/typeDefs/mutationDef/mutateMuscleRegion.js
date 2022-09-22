@@ -14,8 +14,9 @@ exports.mutateMuscleRegion = gql `
   type Mutation {
     "[PROTECTED] Creates a muscle region object."
     createMuscleRegion(
-      muscle_region_name: String
-      muscle_region_description: String
+      muscle_region_name: String!
+      muscle_region_description: String!
+      muscle_region_type: MuscleRegionType!
     ): mutateMuscleRegionResponse
 
     "[PROTECTED] Updates a muscle region object."

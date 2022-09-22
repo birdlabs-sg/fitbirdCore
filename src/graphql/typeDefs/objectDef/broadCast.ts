@@ -5,7 +5,6 @@ export const BroadCast = gql`
   type BroadCast {
     broad_cast_id: ID!
     broadcast_message: String
-    users: [User]
     scheduled_start: String
     scheduled_end: String
   }

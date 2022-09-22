@@ -1,15 +1,18 @@
 {
+    "typescript.validate.enable": true,
     "search.exclude": {
         "*.json": true,
         "**/dist": true,
         "**/excercise_data_set": true,
-        "**/migrations": true
+        "**/migrations": true,
+        "**/node_modules**": true,
     },
     "files.exclude": {
         "**/dist": true,
-        "**/node_modules": true,
         "**/excercise_data_set": true,
         "**/cleaned_data_set": true,
         "**/muscle_data_set": true,
-    }
+        "**/node_modules**": true,
+    },
+    "typescript.tsserver.experimental.enableProjectDiagnostics": true
 }

@@ -10,15 +10,15 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.broadCastsQueryResolver = void 0;
-const firebase_service_1 = require("../../../service/firebase_service");
-const broadCastsQueryResolver = (parent, args, context, info) => __awaiter(void 0, void 0, void 0, function* () {
+const firebase_service_1 = require("../../../service/firebase/firebase_service");
+const broadCastsQueryResolver = (_, __, context) => __awaiter(void 0, void 0, void 0, function* () {
     (0, firebase_service_1.onlyAuthenticated)(context);
     const prisma = context.dataSources.prisma;
     return yield prisma.broadCast.findMany({
         where: {
             users: {
                 some: {
-                    user_id: context.user_id,
+                    user_id: parseInt(context.user_id),
                 },
             },
         },

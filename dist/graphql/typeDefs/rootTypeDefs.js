@@ -26,6 +26,7 @@ const excercisePerformance_1 = require("./objectDef/excercisePerformance");
 const mutateGenerateWorkouts_1 = require("./mutationDef/mutateGenerateWorkouts");
 const mutateNotification_1 = require("./mutationDef/mutateNotification");
 const queryTypeDef = gql `
+  scalar Date
   "This is the root query to resources. Require ADMIN permission to access all, otherwise resources are scoped to the user issuing the request."
   type Query {
     user: User

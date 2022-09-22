@@ -1,9 +1,11 @@
-import { onlyAuthenticated } from "../../../service/firebase_service";
+import { AppContext } from "../../../types/contextType";
+import { MutationUpdateExcerciseMetadataArgs } from "../../../types/graphql";
+import { onlyAuthenticated } from "../../../service/firebase/firebase_service";
 
 export const updateExcerciseMetadata = async (
   _: any,
-  args: any,
-  context: any
+  args: MutationUpdateExcerciseMetadataArgs,
+  context: AppContext
 ) => {
   onlyAuthenticated(context);
   const prisma = context.dataSources.prisma;

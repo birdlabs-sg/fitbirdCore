@@ -1,10 +1,10 @@
-import { onlyAuthenticated } from "../../../service/firebase_service";
+import { AppContext } from "../../../types/contextType";
+import { onlyAuthenticated } from "../../../service/firebase/firebase_service";
 
 export const broadCastsQueryResolver = async (
-  parent: any,
-  args: any,
-  context: any,
-  info: any
+  _: any,
+  __: any,
+  context: AppContext
 ) => {
   onlyAuthenticated(context);
   const prisma = context.dataSources.prisma;
@@ -12,7 +12,7 @@ export const broadCastsQueryResolver = async (
     where: {
       users: {
         some: {
-          user_id: context.user_id,
+          user_id: parseInt(context.user_id),
         },
       },
     },

@@ -16,14 +16,14 @@ exports.mutateWorkout = gql `
     code: String!
     success: Boolean!
     message: String!
-    workouts: [Workout]
+    workouts: [Workout!]
   }
 
   input excerciseSetGroupInput {
     excercise_name: String!
     excercise_set_group_state: ExcerciseSetGroupState!
     excercise_metadata: excerciseMetaDataInput!
-    excercise_sets: [excerciseSetInput]!
+    excercise_sets: [excerciseSetInput!]!
     failure_reason: FailureReason
   }
 
@@ -33,8 +33,8 @@ exports.mutateWorkout = gql `
     rest_time_upper_bound: Int
     preferred: Boolean
     haveRequiredEquipment: Boolean
-    excercise_metadata_state: String
-    last_excecuted: String
+    excercise_metadata_state: ExcerciseMetadataState
+    last_excecuted: Date
     best_weight: Float
     best_rep: Int
     weight_unit: WeightUnit
@@ -53,24 +53,24 @@ exports.mutateWorkout = gql `
     createWorkout(
       life_span: Int!
       workout_name: String!
-      excercise_set_groups: [excerciseSetGroupInput]!
+      excercise_set_groups: [excerciseSetGroupInput!]!
     ): mutateWorkoutResponse
 
     "[PROTECTED] Updates a workout object (Must belong to the requestor). Note: This will replace any existing excercise sets."
     completeWorkout(
       workout_id: ID!
-      excercise_set_groups: [excerciseSetGroupInput]!
+      excercise_set_groups: [excerciseSetGroupInput!]!
     ): mutateWorkoutsResponse
 
     "[PROTECTED] Updates a workout object (Must belong to the requestor). Note: This will replace any existing excercise sets."
     updateWorkout(
       workout_id: ID!
       workout_name: String
-      date_scheduled: String
+      date_scheduled: Date
       performance_rating: Float
       life_span: Int
       workout_state: WorkoutState
-      excercise_set_groups: [excerciseSetGroupInput]
+      excercise_set_groups: [excerciseSetGroupInput!]
     ): mutateWorkoutResponse
 
     updateWorkoutOrder(oldIndex: Int, newIndex: Int): mutateWorkoutsResponse

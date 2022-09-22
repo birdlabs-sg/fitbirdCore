@@ -15,7 +15,7 @@ exports.mutateMeasurement = gql `
     "[PROTECTED] Creates a measurement object for the requestor."
     createMeasurement(
       muscle_region_id: ID!
-      measured_at: String!
+      measured_at: Date!
       measurement_value: Float!
       length_units: LengthUnit!
     ): mutateMeasurementResponse
@@ -23,7 +23,7 @@ exports.mutateMeasurement = gql `
     "[PROTECTED] Update a measurement object for the requestor (Must belong to the requestor)."
     updateMeasurement(
       measurement_id: ID!
-      measured_at: String
+      measured_at: Date
       muscle_region_id: Int
       measurement_value: Float
       length_units: LengthUnit

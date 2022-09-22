@@ -1,9 +1,17 @@
+import { AppContext } from "../../../types/contextType";
+import { MutationUpdateMuscleRegionArgs } from "../../../types/graphql";
+import { MutationDeleteMuscleRegionArgs } from "../../../types/graphql";
+import { MutationCreateMuscleRegionArgs } from "../../../types/graphql";
 import {
   onlyAdmin,
   onlyAuthenticated,
-} from "../../../service/firebase_service";
+} from "../../../service/firebase/firebase_service";
 
-export const createMuscleRegion = async (_: any, args: any, context: any) => {
+export const createMuscleRegion = async (
+  _: any,
+  args: MutationCreateMuscleRegionArgs,
+  context: AppContext
+) => {
   onlyAuthenticated(context);
   onlyAdmin(context);
   const prisma = context.dataSources.prisma;
@@ -19,14 +27,18 @@ export const createMuscleRegion = async (_: any, args: any, context: any) => {
   };
 };
 
-export const updateMuscleRegion = async (_: any, args: any, context: any) => {
+export const updateMuscleRegion = async (
+  _: any,
+  args: MutationUpdateMuscleRegionArgs,
+  context: AppContext
+) => {
   onlyAuthenticated(context);
   onlyAdmin(context);
   const { muscle_region_id, ...otherArgs } = args;
   const prisma = context.dataSources.prisma;
   const updatedMuscleRegion = await prisma.muscleRegion.update({
     where: {
-      muscle_region_id: muscle_region_id,
+      muscle_region_id: parseInt(muscle_region_id),
     },
     data: otherArgs,
   });
@@ -38,13 +50,17 @@ export const updateMuscleRegion = async (_: any, args: any, context: any) => {
   };
 };
 
-export const deleteMuscleRegion = async (_: any, args: any, context: any) => {
+export const deleteMuscleRegion = async (
+  _: any,
+  { muscle_region_id }: MutationDeleteMuscleRegionArgs,
+  context: AppContext
+) => {
   onlyAuthenticated(context);
   onlyAdmin(context);
   const prisma = context.dataSources.prisma;
   const deletedMuscleRegion = await prisma.muscleRegion.delete({
     where: {
-      muscle_region_id: args.muscle_region_id,
+      muscle_region_id: parseInt(muscle_region_id),
     },
   });
   return {

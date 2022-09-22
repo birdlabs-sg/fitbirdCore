@@ -1,10 +1,11 @@
-import { onlyAuthenticated } from "../../../service/firebase_service";
+import { QueryGetWorkoutArgs } from "../../../types/graphql";
+import { AppContext } from "../../../types/contextType";
+import { onlyAuthenticated } from "../../../service/firebase/firebase_service";
 
 export const workoutQueryResolver = async (
-  parent: any,
-  args: any,
-  context: any,
-  info: any
+  _: any,
+  args: QueryGetWorkoutArgs,
+  context: AppContext
 ) => {
   onlyAuthenticated(context);
   const prisma = context.dataSources.prisma;

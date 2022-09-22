@@ -28,14 +28,27 @@ import { updateExcerciseMetadata } from "./mutation/mutateExcerciseMetadata";
 import { workoutFrequencyQueryResolver } from "./query/queryWorkoutFrequencies";
 import { getExcerciseQueryResolver } from "./query/queryExcercise";
 import { excercisePerformanceQueryResolver } from "./query/queryExcercisePerformance";
-import { ArgumentNode } from "graphql";
 import { getExcerciseMetadatasQueryResolver } from "./query/queryExcerciseMetadatas";
 import { workoutQueryResolver } from "./query/queryWorkout";
 import { generateNotificationResolver } from "./mutation/generateNotificationResolver";
+import { Resolvers } from "../../types/graphql";
+import { usersQueryResolver } from "./query/queryUsers";
+import { GraphQLScalarType, Kind } from "graphql";
 
 const _ = require("lodash");
+const dateScalar = new GraphQLScalarType({
+  name: "Date",
+  description: "Date custom scalar type",
+  serialize(value: Date) {
+    return value.toISOString(); // Convert outgoing Date to integer for JSON
+  },
+  parseValue(value: string) {
+    return Date.parse(value); // Convert incoming integer to Date
+  },
+});
 
-export const resolvers = {
+export const resolvers: Resolvers = {
+  Date: dateScalar,
   //Mutations for create, update and delete operations
   Mutation: {
     signup: mutateSignup,
@@ -66,19 +79,15 @@ export const resolvers = {
     getExcercise: getExcerciseQueryResolver,
     excercises: excercisesQueryResolver,
     notifications: notificationsQueryResolver,
-    users: userQueryResolvers,
+    users: usersQueryResolver,
     workout_frequencies: workoutFrequencyQueryResolver,
     getExcercisePerformance: excercisePerformanceQueryResolver,
     getExcerciseMetadatas: getExcerciseMetadatasQueryResolver,
   },
+
   // workout query
   Workout: {
-    async excercise_set_groups(
-      parent: any,
-      args: any,
-      context: any,
-      info: any
-    ) {
+    async excercise_set_groups(parent, _, context) {
       const prisma = context.dataSources.prisma;
       return await prisma.excerciseSetGroup.findMany({
         where: { workout_id: parent.workout_id },
@@ -87,7 +96,7 @@ export const resolvers = {
   },
 
   ExcerciseSetGroup: {
-    async excercise(parent: any, args: any, context: any, info: any) {
+    async excercise(parent, _, context) {
       const prisma = context.dataSources.prisma;
       return await prisma.excercise.findUnique({
         where: {
@@ -96,7 +105,7 @@ export const resolvers = {
       });
     },
 
-    async excercise_metadata(parent: any, args: any, context: any, info: any) {
+    async excercise_metadata(parent, _, context) {
       const prisma = context.dataSources.prisma;
       return await prisma.excerciseMetadata.findUnique({
         where: {
@@ -108,7 +117,7 @@ export const resolvers = {
       });
     },
 
-    async excercise_sets(parent: any, args: any, context: any, info: any) {
+    async excercise_sets(parent, _, context) {
       const prisma = context.dataSources.prisma;
       return await prisma.excerciseSet.findMany({
         where: {
@@ -119,7 +128,7 @@ export const resolvers = {
   },
 
   Excercise: {
-    async target_regions(parent: any, args: any, context: any, info: any) {
+    async target_regions(parent, _, context) {
       const prisma = context.dataSources.prisma;
       return await prisma.muscleRegion.findMany({
         where: {
@@ -129,7 +138,7 @@ export const resolvers = {
         },
       });
     },
-    async stabilizer_muscles(parent: any, args: any, context: any, info: any) {
+    async stabilizer_muscles(parent, _, context) {
       const prisma = context.dataSources.prisma;
       return await prisma.muscleRegion.findMany({
         where: {
@@ -139,7 +148,7 @@ export const resolvers = {
         },
       });
     },
-    async synergist_muscles(parent: any, args: any, context: any, info: any) {
+    async synergist_muscles(parent, _, context) {
       const prisma = context.dataSources.prisma;
       return await prisma.muscleRegion.findMany({
         where: {
@@ -149,12 +158,7 @@ export const resolvers = {
         },
       });
     },
-    async dynamic_stabilizer_muscles(
-      parent: any,
-      args: any,
-      context: any,
-      info: any
-    ) {
+    async dynamic_stabilizer_muscles(parent, _, context) {
       const prisma = context.dataSources.prisma;
       return await prisma.muscleRegion.findMany({
         where: {
@@ -164,7 +168,7 @@ export const resolvers = {
         },
       });
     },
-    async excercise_metadata(parent: any, args: any, context: any, info: any) {
+    async excercise_metadata(parent, _, context) {
       const prisma = context.dataSources.prisma;
       return await prisma.excerciseMetadata.findUnique({
         where: {

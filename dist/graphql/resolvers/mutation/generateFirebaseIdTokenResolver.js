@@ -10,7 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.generateFirebaseIdTokenResolver = void 0;
-const firebase_service_1 = require("../../../service/firebase_service");
+const firebase_service_1 = require("../../../service/firebase/firebase_service");
 const generateFirebaseIdTokenResolver = (_, { uid }) => __awaiter(void 0, void 0, void 0, function* () {
     const token = yield (0, firebase_service_1.getFirebaseIdToken)(uid);
     return {

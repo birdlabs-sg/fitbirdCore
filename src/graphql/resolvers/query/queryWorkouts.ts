@@ -1,11 +1,12 @@
-import { onlyAuthenticated } from "../../../service/firebase_service";
+import { Maybe, QueryWorkoutsArgs, Workout } from "../../../types/graphql";
+import { AppContext } from "../../../types/contextType";
+import { onlyAuthenticated } from "../../../service/firebase/firebase_service";
 
-export const workoutsQueryResolver = async (
-  parent: any,
-  args: any,
-  context: any,
-  info: any
-) => {
+export async function workoutsQueryResolver(
+  _: any,
+  args: QueryWorkoutsArgs,
+  context: AppContext
+) {
   onlyAuthenticated(context);
   const prisma = context.dataSources.prisma;
   switch (args.filter) {
@@ -35,5 +36,7 @@ export const workoutsQueryResolver = async (
           user_id: context.user.user_id,
         },
       });
+    default:
+      return [];
   }
-};
+}

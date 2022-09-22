@@ -1,16 +1,16 @@
 import { Equipment } from "@prisma/client";
-const _ = require("lodash");
+import { AppContext } from "../../../types/contextType";
+const lodash = require("lodash");
 export const excercisesQueryResolver = async (
-  parent: any,
-  args: any,
-  context: any,
-  info: any
+  _: any,
+  __: any,
+  context: AppContext
 ) => {
   const prisma = context.dataSources.prisma;
-  const user_constaints = _.differenceWith(
+  const user_constaints = lodash.differenceWith(
     Object.keys(Equipment),
     context.user.equipment_accessible,
-    _.isEqual
+    lodash.isEqual
   );
   const filteredExcercises = await prisma.excercise.findMany({
     where: {
@@ -21,6 +21,5 @@ export const excercisesQueryResolver = async (
       },
     },
   });
-
   return filteredExcercises;
 };

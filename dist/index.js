@@ -11,7 +11,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const rootResolvers_1 = require("./graphql/resolvers/rootResolvers");
 const rootTypeDefs_1 = require("./graphql/typeDefs/rootTypeDefs");
-const firebase_service_1 = require("./service/firebase_service");
+const firebase_service_1 = require("./service/firebase/firebase_service");
 const apollo_server_1 = require("apollo-server");
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();

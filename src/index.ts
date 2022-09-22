@@ -1,7 +1,11 @@
 import { resolvers } from "./graphql/resolvers/rootResolvers";
 import { typeDefs } from "./graphql/typeDefs/rootTypeDefs";
-import { authenticate, getAuthToken } from "./service/firebase_service";
+import {
+  authenticate,
+  getAuthToken,
+} from "./service/firebase/firebase_service";
 import { ApolloServer } from "apollo-server";
+import { Context } from "vm";
 
 const { PrismaClient } = require("@prisma/client");
 
@@ -19,7 +23,7 @@ const server = new ApolloServer({
       prisma: prisma,
     };
   },
-  context: async ({ req }: any) => {
+  context: async ({ req }: Context) => {
     // Get the user token from the headers and put it into the coin.
     const token = getAuthToken(req);
     const authenticationInfo = await authenticate(token);
