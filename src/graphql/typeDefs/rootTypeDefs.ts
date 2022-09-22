@@ -23,8 +23,10 @@ import { WorkoutFrequency } from "./objectDef/workoutFrequency";
 import { ExcercisePerformance } from "./objectDef/excercisePerformance";
 import { mutateGenerateWorkouts } from "./mutationDef/mutateGenerateWorkouts";
 import { mutateNotification } from "./mutationDef/mutateNotification";
+import { GraphQLScalarType, Kind } from "graphql";
 
 const queryTypeDef = gql`
+  scalar Date
   "This is the root query to resources. Require ADMIN permission to access all, otherwise resources are scoped to the user issuing the request."
   type Query {
     user: User

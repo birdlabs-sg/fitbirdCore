@@ -14,8 +14,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.workoutFrequencyQueryResolver = void 0;
 const moment_1 = __importDefault(require("moment"));
-const firebase_service_1 = require("../../../service/firebase_service");
-const workoutFrequencyQueryResolver = (parent, args, context, info) => __awaiter(void 0, void 0, void 0, function* () {
+const firebase_service_1 = require("../../../service/firebase/firebase_service");
+const workoutFrequencyQueryResolver = (_, __, context) => __awaiter(void 0, void 0, void 0, function* () {
     (0, firebase_service_1.onlyAuthenticated)(context);
     const prisma = context.dataSources.prisma;
     function getWeekRange(week = 1) {

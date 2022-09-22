@@ -10,9 +10,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.mutateSignup = void 0;
-const firebase_service_1 = require("../../../service/firebase_service");
-const mutateSignup = (_, { email, phoneNumber, password, displayName }) => __awaiter(void 0, void 0, void 0, function* () {
-    const user = yield (0, firebase_service_1.signupFirebase)(email, phoneNumber, password, displayName);
+const firebase_service_1 = require("../../../service/firebase/firebase_service");
+const mutateSignup = (_, { email, password, displayName }) => __awaiter(void 0, void 0, void 0, function* () {
+    const user = yield (0, firebase_service_1.signupFirebase)(email, password, displayName);
     return {
         code: "200",
         success: true,

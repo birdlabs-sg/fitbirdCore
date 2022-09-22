@@ -21,7 +21,7 @@ var __rest = (this && this.__rest) || function (s, e) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.updateExcerciseMetadata = void 0;
-const firebase_service_1 = require("../../../service/firebase_service");
+const firebase_service_1 = require("../../../service/firebase/firebase_service");
 const updateExcerciseMetadata = (_, args, context) => __awaiter(void 0, void 0, void 0, function* () {
     (0, firebase_service_1.onlyAuthenticated)(context);
     const prisma = context.dataSources.prisma;

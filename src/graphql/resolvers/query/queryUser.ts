@@ -1,11 +1,7 @@
-import { onlyAuthenticated } from "../../../service/firebase_service";
+import { AppContext } from "../../../types/contextType";
+import { onlyAuthenticated } from "../../../service/firebase/firebase_service";
 
-export const userQueryResolvers = async (
-  parent: any,
-  args: any,
-  context: any,
-  info: any
-) => {
+export const userQueryResolvers = async (_: any, __: any, context: any) => {
   onlyAuthenticated(context);
   return context.user;
 };

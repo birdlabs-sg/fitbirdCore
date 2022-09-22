@@ -1,7 +1,15 @@
 import { ForbiddenError } from "apollo-server";
-import { onlyAuthenticated } from "../../../service/firebase_service";
+import { AppContext } from "../../../types/contextType";
+import { MutationUpdateMeasurementArgs } from "../../../types/graphql";
+import { MutationDeleteMeasurementArgs } from "../../../types/graphql";
+import { MutationCreateMeasurementArgs } from "../../../types/graphql";
+import { onlyAuthenticated } from "../../../service/firebase/firebase_service";
 
-export const createMeasurement = async (_: any, args: any, context: any) => {
+export const createMeasurement = async (
+  _: any,
+  args: MutationCreateMeasurementArgs,
+  context: AppContext
+) => {
   onlyAuthenticated(context);
   const prisma = context.dataSources.prisma;
   const { muscle_region_id, ...otherArgs } = args;
@@ -9,7 +17,7 @@ export const createMeasurement = async (_: any, args: any, context: any) => {
     data: {
       ...otherArgs,
       muscle_region: {
-        connect: { muscle_region_id: muscle_region_id },
+        connect: { muscle_region_id: parseInt(muscle_region_id) },
       },
       user: {
         connect: { user_id: context.user.user_id },
@@ -27,7 +35,11 @@ export const createMeasurement = async (_: any, args: any, context: any) => {
   };
 };
 
-export const updateMeasurement = async (_: any, args: any, context: any) => {
+export const updateMeasurement = async (
+  _: any,
+  args: MutationUpdateMeasurementArgs,
+  context: AppContext
+) => {
   onlyAuthenticated(context);
   const { measurement_id, ...otherArgs } = args;
   const prisma = context.dataSources.prisma;
@@ -35,16 +47,19 @@ export const updateMeasurement = async (_: any, args: any, context: any) => {
   // conduct check that the measurement object belongs to the user.
   const targetMeasurement = await prisma.measurement.findUnique({
     where: {
-      measurement_id: measurement_id,
+      measurement_id: parseInt(measurement_id),
     },
   });
-  if (targetMeasurement.user_id !== context.user.user_id) {
+  if (
+    targetMeasurement != null &&
+    targetMeasurement.user_id !== context.user.user_id
+  ) {
     throw new ForbiddenError("You are not authororized to mutate this object.");
   }
 
   const updatedMeasurement = await prisma.measurement.update({
     where: {
-      measurement_id: measurement_id,
+      measurement_id: parseInt(measurement_id),
     },
     data: otherArgs,
     include: {
@@ -59,23 +74,32 @@ export const updateMeasurement = async (_: any, args: any, context: any) => {
   };
 };
 
-export const deleteMeasurement = async (_: any, args: any, context: any) => {
+export const deleteMeasurement = async (
+  _: any,
+  args: MutationDeleteMeasurementArgs,
+  context: AppContext
+) => {
   onlyAuthenticated(context);
   const prisma = context.dataSources.prisma;
+  const { measurement_id } = args;
 
   // conduct check that the measurement object belongs to the user.
   const targetMeasurement = await prisma.measurement.findUnique({
     where: {
-      measurement_id: args.measurement_id,
+      measurement_id: parseInt(measurement_id),
     },
   });
-  if (targetMeasurement.user_id !== context.user.user_id) {
+
+  if (
+    targetMeasurement != null &&
+    targetMeasurement.user_id !== context.user.user_id
+  ) {
     throw new ForbiddenError("You are not authororized to remove this object.");
   }
 
   const deletedMeasurement = await prisma.measurement.delete({
     where: {
-      measurement_id: args.measurement_id,
+      measurement_id: parseInt(measurement_id),
     },
   });
   return {

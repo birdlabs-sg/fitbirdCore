@@ -10,8 +10,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.generateNotificationResolver = void 0;
-const firebase_service_1 = require("../../../service/firebase_service");
-const notification_service_1 = require("../../../service/notification_service");
+const firebase_service_1 = require("../../../service/firebase/firebase_service");
+const notification_service_1 = require("../../../service/notification/notification_service");
 const generateNotificationResolver = (_, args, context) => __awaiter(void 0, void 0, void 0, function* () {
     (0, firebase_service_1.onlyAuthenticated)(context);
     const { token, title, body } = args;

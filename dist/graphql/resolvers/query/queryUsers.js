@@ -10,9 +10,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.usersQueryResolver = void 0;
-const firebase_service_1 = require("../../../service/firebase_service");
-const firebase_service_2 = require("../../../service/firebase_service");
-const usersQueryResolver = (parent, args, context, info) => __awaiter(void 0, void 0, void 0, function* () {
+const firebase_service_1 = require("../../../service/firebase/firebase_service");
+const firebase_service_2 = require("../../../service/firebase/firebase_service");
+const usersQueryResolver = (_, __, context) => __awaiter(void 0, void 0, void 0, function* () {
     (0, firebase_service_1.onlyAuthenticated)(context);
     (0, firebase_service_2.onlyAdmin)(context);
     const prisma = context.dataSources.prisma;

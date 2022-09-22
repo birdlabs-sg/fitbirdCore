@@ -27,8 +27,21 @@ const queryExcercisePerformance_1 = require("./query/queryExcercisePerformance")
 const queryExcerciseMetadatas_1 = require("./query/queryExcerciseMetadatas");
 const queryWorkout_1 = require("./query/queryWorkout");
 const generateNotificationResolver_1 = require("./mutation/generateNotificationResolver");
+const queryUsers_1 = require("./query/queryUsers");
+const graphql_1 = require("graphql");
 const _ = require("lodash");
+const dateScalar = new graphql_1.GraphQLScalarType({
+    name: "Date",
+    description: "Date custom scalar type",
+    serialize(value) {
+        return value.toISOString(); // Convert outgoing Date to integer for JSON
+    },
+    parseValue(value) {
+        return Date.parse(value); // Convert incoming integer to Date
+    },
+});
 exports.resolvers = {
+    Date: dateScalar,
     //Mutations for create, update and delete operations
     Mutation: {
         signup: mutateSignup_1.mutateSignup,
@@ -58,14 +71,14 @@ exports.resolvers = {
         getExcercise: queryExcercise_1.getExcerciseQueryResolver,
         excercises: queryExcercises_1.excercisesQueryResolver,
         notifications: queryNotifications_1.notificationsQueryResolver,
-        users: queryUser_1.userQueryResolvers,
+        users: queryUsers_1.usersQueryResolver,
         workout_frequencies: queryWorkoutFrequencies_1.workoutFrequencyQueryResolver,
         getExcercisePerformance: queryExcercisePerformance_1.excercisePerformanceQueryResolver,
         getExcerciseMetadatas: queryExcerciseMetadatas_1.getExcerciseMetadatasQueryResolver,
     },
     // workout query
     Workout: {
-        excercise_set_groups(parent, args, context, info) {
+        excercise_set_groups(parent, _, context) {
             return __awaiter(this, void 0, void 0, function* () {
                 const prisma = context.dataSources.prisma;
                 return yield prisma.excerciseSetGroup.findMany({
@@ -75,7 +88,7 @@ exports.resolvers = {
         },
     },
     ExcerciseSetGroup: {
-        excercise(parent, args, context, info) {
+        excercise(parent, _, context) {
             return __awaiter(this, void 0, void 0, function* () {
                 const prisma = context.dataSources.prisma;
                 return yield prisma.excercise.findUnique({
@@ -85,7 +98,7 @@ exports.resolvers = {
                 });
             });
         },
-        excercise_metadata(parent, args, context, info) {
+        excercise_metadata(parent, _, context) {
             return __awaiter(this, void 0, void 0, function* () {
                 const prisma = context.dataSources.prisma;
                 return yield prisma.excerciseMetadata.findUnique({
@@ -98,7 +111,7 @@ exports.resolvers = {
                 });
             });
         },
-        excercise_sets(parent, args, context, info) {
+        excercise_sets(parent, _, context) {
             return __awaiter(this, void 0, void 0, function* () {
                 const prisma = context.dataSources.prisma;
                 return yield prisma.excerciseSet.findMany({
@@ -110,7 +123,7 @@ exports.resolvers = {
         },
     },
     Excercise: {
-        target_regions(parent, args, context, info) {
+        target_regions(parent, _, context) {
             return __awaiter(this, void 0, void 0, function* () {
                 const prisma = context.dataSources.prisma;
                 return yield prisma.muscleRegion.findMany({
@@ -122,7 +135,7 @@ exports.resolvers = {
                 });
             });
         },
-        stabilizer_muscles(parent, args, context, info) {
+        stabilizer_muscles(parent, _, context) {
             return __awaiter(this, void 0, void 0, function* () {
                 const prisma = context.dataSources.prisma;
                 return yield prisma.muscleRegion.findMany({
@@ -134,7 +147,7 @@ exports.resolvers = {
                 });
             });
         },
-        synergist_muscles(parent, args, context, info) {
+        synergist_muscles(parent, _, context) {
             return __awaiter(this, void 0, void 0, function* () {
                 const prisma = context.dataSources.prisma;
                 return yield prisma.muscleRegion.findMany({
@@ -146,7 +159,7 @@ exports.resolvers = {
                 });
             });
         },
-        dynamic_stabilizer_muscles(parent, args, context, info) {
+        dynamic_stabilizer_muscles(parent, _, context) {
             return __awaiter(this, void 0, void 0, function* () {
                 const prisma = context.dataSources.prisma;
                 return yield prisma.muscleRegion.findMany({
@@ -158,7 +171,7 @@ exports.resolvers = {
                 });
             });
         },
-        excercise_metadata(parent, args, context, info) {
+        excercise_metadata(parent, _, context) {
             return __awaiter(this, void 0, void 0, function* () {
                 const prisma = context.dataSources.prisma;
                 return yield prisma.excerciseMetadata.findUnique({

@@ -1,11 +1,11 @@
-import { onlyAuthenticated } from "../../../service/firebase_service";
-import { onlyAdmin } from "../../../service/firebase_service";
+import { AppContext } from "../../../types/contextType";
+import { onlyAuthenticated } from "../../../service/firebase/firebase_service";
+import { onlyAdmin } from "../../../service/firebase/firebase_service";
 
 export const usersQueryResolver = async (
-  parent: any,
-  args: any,
-  context: any,
-  info: any
+  _: any,
+  __: any,
+  context: AppContext
 ) => {
   onlyAuthenticated(context);
   onlyAdmin(context);

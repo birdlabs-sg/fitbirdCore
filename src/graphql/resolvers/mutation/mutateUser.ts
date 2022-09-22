@@ -1,7 +1,12 @@
-import { workoutGenerator } from "../../../service/workout_manager/workout_generator";
-import { onlyAuthenticated } from "../../../service/firebase_service";
+import { onlyAuthenticated } from "../../../service/firebase/firebase_service";
+import { MutationUpdateUserArgs } from "../../../types/graphql";
+import { AppContext } from "../../../types/contextType";
 
-export const updateUser = async (_: any, args: any, context: any) => {
+export const updateUser = async (
+  _: any,
+  args: MutationUpdateUserArgs,
+  context: AppContext
+) => {
   onlyAuthenticated(context);
 
   const prisma = context.dataSources.prisma;

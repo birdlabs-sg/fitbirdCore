@@ -21,105 +21,86 @@ var __rest = (this && this.__rest) || function (s, e) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteWorkout = exports.updateWorkout = exports.completeWorkout = exports.updateWorkoutOrder = exports.createWorkout = exports.regenerateWorkouts = exports.generateWorkouts = void 0;
-const workout_manager_1 = require("../../../service/workout_manager/workout_manager");
-const firebase_service_1 = require("../../../service/firebase_service");
-const workout_generator_1 = require("../../../service/workout_manager/workout_generator");
+const firebase_service_1 = require("../../../service/firebase/firebase_service");
+const workout_generator_1 = require("../../../service/workout_manager/workout_generator/workout_generator");
 const client_1 = require("@prisma/client");
-const util = require("util");
-const generateWorkouts = (_, args, context) => __awaiter(void 0, void 0, void 0, function* () {
+const utils_1 = require("../../../service/workout_manager/utils");
+const workout_order_manager_1 = require("../../../service/workout_manager/workout_order_manager");
+const exercise_metadata_manager_1 = require("../../../service/workout_manager/exercise_metadata_manager/exercise_metadata_manager");
+const generateWorkouts = (parent, args, context) => __awaiter(void 0, void 0, void 0, function* () {
     (0, firebase_service_1.onlyAuthenticated)(context);
     const { no_of_workouts } = args;
-    let generatedWorkouts;
-    try {
-        generatedWorkouts = (0, workout_generator_1.workoutGenerator)(no_of_workouts, context);
-    }
-    catch (e) {
-        console.log(e);
-    }
+    let generatedWorkouts = yield (0, workout_generator_1.workoutGenerator)(no_of_workouts, context);
     return generatedWorkouts;
 });
 exports.generateWorkouts = generateWorkouts;
-const regenerateWorkouts = (_, args, context) => __awaiter(void 0, void 0, void 0, function* () {
+const regenerateWorkouts = (parent, args, context) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     (0, firebase_service_1.onlyAuthenticated)(context);
     const prisma = context.dataSources.prisma;
     const no_of_workouts = (_a = context.user.workout_frequency) !== null && _a !== void 0 ? _a : 3;
-    let generatedWorkouts;
-    const activeWorkouts = yield (0, workout_manager_1.getActiveWorkouts)(context);
+    const activeWorkouts = yield (0, utils_1.getActiveWorkouts)(context);
     const activeWorkoutIDS = activeWorkouts.map((workout) => workout.workout_id);
-    const deleted = yield prisma.workout.deleteMany({
+    yield prisma.workout.deleteMany({
         where: {
             workout_id: {
                 in: activeWorkoutIDS,
             },
         },
     });
-    try {
-        generatedWorkouts = (0, workout_generator_1.workoutGenerator)(no_of_workouts, context);
-    }
-    catch (e) {
-        console.log(e);
-    }
+    var generatedWorkouts = yield (0, workout_generator_1.workoutGenerator)(no_of_workouts, context);
     return generatedWorkouts;
 });
 exports.regenerateWorkouts = regenerateWorkouts;
 // Note: This resolver is only used when the user wishes to create new workout on existing ones.
 // Assumption: active_workouts always have order_index with no gaps when sorted. For eg: 0,1,2,3 and not 0,2,3,5
-const createWorkout = (_, args, context) => __awaiter(void 0, void 0, void 0, function* () {
-    (0, firebase_service_1.onlyAuthenticated)(context);
-    const prisma = context.dataSources.prisma;
-    const { excercise_set_groups } = args, otherArgs = __rest(args, ["excercise_set_groups"]);
-    const [excerciseSetGroups, excerciseMetadatas] = (0, workout_manager_1.extractMetadatas)(excercise_set_groups);
-    // Ensure that there is a max of 7 workouts
-    if ((yield (0, workout_manager_1.getActiveWorkoutCount)(context)) > 6) {
-        throw Error("You can only have 7 active workouts.");
-    }
-    const formattedExcerciseSetGroups = (0, workout_manager_1.formatExcerciseSetGroups)(excerciseSetGroups);
-    const workout = yield prisma.workout.create({
-        data: Object.assign(Object.assign({ user_id: context.user.user_id, order_index: yield (0, workout_manager_1.getActiveWorkoutCount)(context) }, otherArgs), { excercise_set_groups: {
-                create: formattedExcerciseSetGroups,
-            } }),
-        include: {
-            excercise_set_groups: {
-                include: { excercise_sets: true },
-            },
-        },
+function createWorkout(parent, args, context) {
+    return __awaiter(this, void 0, void 0, function* () {
+        (0, firebase_service_1.onlyAuthenticated)(context);
+        const prisma = context.dataSources.prisma;
+        const { excercise_set_groups } = args, otherArgs = __rest(args, ["excercise_set_groups"]);
+        const [excerciseSetGroups, excerciseMetadatas] = (0, utils_1.extractMetadatas)(excercise_set_groups);
+        // Ensure that there is a max of 7 workouts
+        if ((yield (0, utils_1.getActiveWorkoutCount)(context)) > 6) {
+            throw Error("You can only have 7 active workouts.");
+        }
+        const formattedExcerciseSetGroups = (0, utils_1.formatExcerciseSetGroups)(excerciseSetGroups);
+        const workout = yield prisma.workout.create({
+            data: Object.assign(Object.assign({ user_id: context.user.user_id, order_index: yield (0, utils_1.getActiveWorkoutCount)(context) }, otherArgs), { excercise_set_groups: {
+                    create: formattedExcerciseSetGroups,
+                } }),
+        });
+        yield (0, exercise_metadata_manager_1.generateOrUpdateExcerciseMetadata)(context, excerciseMetadatas);
+        return {
+            code: "200",
+            success: true,
+            message: "Successfully created a workout.",
+            workout: workout,
+        };
     });
-    yield (0, workout_manager_1.generateOrUpdateExcerciseMetadata)(context, excerciseMetadatas);
-    return {
-        code: "200",
-        success: true,
-        message: "Successfully created a workout.",
-        workout: workout,
-    };
-});
+}
 exports.createWorkout = createWorkout;
 // Assumption: active_workouts always have order_index with no gaps when sorted. For eg: 0,1,2,3 and not 0,2,3,5
-const updateWorkoutOrder = (_, args, context) => __awaiter(void 0, void 0, void 0, function* () {
+const updateWorkoutOrder = (parent, args, context) => __awaiter(void 0, void 0, void 0, function* () {
     let { oldIndex, newIndex } = args;
-    try {
-        yield (0, workout_manager_1.reorderActiveWorkouts)(context, oldIndex, newIndex);
-    }
-    catch (e) {
-        console.log(e);
-    }
+    yield (0, workout_order_manager_1.reorderActiveWorkouts)(context, oldIndex, newIndex);
     return {
         code: "200",
         success: true,
         message: "Successfully updated your workout!",
-        workouts: yield (0, workout_manager_1.getActiveWorkouts)(context),
+        workouts: yield (0, utils_1.getActiveWorkouts)(context),
     };
 });
 exports.updateWorkoutOrder = updateWorkoutOrder;
 // Note: Client have to send in all the excercise_sets or it will be treated that the excercise_set is to be deleted
-const completeWorkout = (_, args, context) => __awaiter(void 0, void 0, void 0, function* () {
+const completeWorkout = (parent, { workout_id, excercise_set_groups }, context) => __awaiter(void 0, void 0, void 0, function* () {
     (0, firebase_service_1.onlyAuthenticated)(context);
-    const { workout_id, excercise_set_groups } = args;
     const prisma = context.dataSources.prisma;
-    yield (0, workout_manager_1.checkExistsAndOwnership)(context, workout_id, false);
-    const [excerciseSetGroups, excerciseMetadatas] = (0, workout_manager_1.extractMetadatas)(excercise_set_groups);
-    const [current_workout_excercise_group_sets, next_workout_excercise_group_sets,] = (0, workout_manager_1.excerciseSetGroupsTransformer)(excerciseSetGroups);
-    const completedWorkout = yield prisma.workout.update({
+    yield (0, utils_1.checkExistsAndOwnership)(context, workout_id);
+    const [excerciseSetGroups, excerciseMetadatas] = (0, utils_1.extractMetadatas)(excercise_set_groups);
+    const [current_workout_excercise_group_sets, next_workout_excercise_group_sets,] = (0, utils_1.exerciseSetGroupStateSeperator)(excerciseSetGroups);
+    let completedWorkout;
+    completedWorkout = yield prisma.workout.update({
         where: {
             workout_id: parseInt(workout_id),
         },
@@ -128,7 +109,7 @@ const completeWorkout = (_, args, context) => __awaiter(void 0, void 0, void 0, 
             workout_state: client_1.WorkoutState.COMPLETED,
             excercise_set_groups: {
                 deleteMany: {},
-                create: (0, workout_manager_1.formatExcerciseSetGroups)(current_workout_excercise_group_sets),
+                create: (0, utils_1.formatExcerciseSetGroups)(current_workout_excercise_group_sets),
             },
         },
         include: {
@@ -136,16 +117,16 @@ const completeWorkout = (_, args, context) => __awaiter(void 0, void 0, void 0, 
         },
     });
     // in-case there is no associated excercise metadata
-    yield (0, workout_manager_1.generateOrUpdateExcerciseMetadata)(context, excerciseMetadatas);
-    yield (0, workout_manager_1.updateExcerciseMetadataWithCompletedWorkout)(context, completedWorkout);
-    yield (0, workout_manager_1.reorderActiveWorkouts)(context, null, null);
-    yield (0, workout_manager_1.generateNextWorkout)(context, completedWorkout, next_workout_excercise_group_sets);
+    yield (0, exercise_metadata_manager_1.generateOrUpdateExcerciseMetadata)(context, excerciseMetadatas);
+    yield (0, exercise_metadata_manager_1.updateExcerciseMetadataWithCompletedWorkout)(context, completedWorkout);
+    // this is to reorder the rest before the workout is generated and inserted to the back
+    yield (0, workout_order_manager_1.reorderActiveWorkouts)(context, undefined, undefined);
+    yield (0, workout_generator_1.generateNextWorkout)(context, completedWorkout, next_workout_excercise_group_sets);
     return {
         code: "200",
         success: true,
         message: "Successfully updated your workout!",
-        workout_id: workout_id,
-        workouts: yield (0, workout_manager_1.getActiveWorkouts)(context),
+        workouts: yield (0, utils_1.getActiveWorkouts)(context),
     };
 });
 exports.completeWorkout = completeWorkout;
@@ -155,30 +136,31 @@ const updateWorkout = (_, args, context) => __awaiter(void 0, void 0, void 0, fu
     (0, firebase_service_1.onlyAuthenticated)(context);
     const { workout_id, excercise_set_groups } = args, otherArgs = __rest(args, ["workout_id", "excercise_set_groups"]);
     const prisma = context.dataSources.prisma;
-    yield (0, workout_manager_1.checkExistsAndOwnership)(context, workout_id, false);
+    yield (0, utils_1.checkExistsAndOwnership)(context, workout_id);
+    let formatedUpdatedData;
+    if (excercise_set_groups != null) {
+        var [excerciseSetGroups, excercise_metadatas] = (0, utils_1.extractMetadatas)(excercise_set_groups);
+        formatedUpdatedData = Object.assign(Object.assign({}, otherArgs), {
+            excercise_set_groups: {
+                deleteMany: {},
+                create: (0, utils_1.formatExcerciseSetGroups)(excerciseSetGroups),
+            },
+        });
+        yield (0, exercise_metadata_manager_1.generateOrUpdateExcerciseMetadata)(context, excercise_metadatas);
+    }
+    else {
+        formatedUpdatedData = Object.assign({}, otherArgs);
+    }
     // extract out metadatas
-    const excercise_metadatas = [];
-    const excerciseSetGroups = excercise_set_groups === null || excercise_set_groups === void 0 ? void 0 : excercise_set_groups.map((excercise_set_group) => {
-        const { excercise_metadata } = excercise_set_group, excerciseSetGroup = __rest(excercise_set_group, ["excercise_metadata"]);
-        excercise_metadatas.push(excercise_metadata);
-        return excerciseSetGroup;
-    });
-    let updatedData = Object.assign(Object.assign({}, otherArgs), (excerciseSetGroups && {
-        excercise_set_groups: {
-            deleteMany: {},
-            create: (0, workout_manager_1.formatExcerciseSetGroups)(excerciseSetGroups),
-        },
-    }));
     const updatedWorkout = yield prisma.workout.update({
         where: {
             workout_id: parseInt(workout_id),
         },
-        data: updatedData,
+        data: formatedUpdatedData,
         include: {
             excercise_set_groups: { include: { excercise_sets: true } },
         },
     });
-    yield (0, workout_manager_1.generateOrUpdateExcerciseMetadata)(context, excercise_metadatas);
     return {
         code: "200",
         success: true,
@@ -191,7 +173,7 @@ const deleteWorkout = (_, args, context) => __awaiter(void 0, void 0, void 0, fu
     (0, firebase_service_1.onlyAuthenticated)(context);
     const prisma = context.dataSources.prisma;
     // Get the workout of interest
-    yield (0, workout_manager_1.checkExistsAndOwnership)(context, args.workout_id, false);
+    yield (0, utils_1.checkExistsAndOwnership)(context, args.workout_id);
     // delete the workout
     yield prisma.workout.delete({
         where: {
@@ -199,12 +181,13 @@ const deleteWorkout = (_, args, context) => __awaiter(void 0, void 0, void 0, fu
         },
     });
     // reorder remaining workouts
-    yield (0, workout_manager_1.reorderActiveWorkouts)(context, null, null);
+    yield (0, workout_order_manager_1.reorderActiveWorkouts)(context, undefined, undefined);
+    const activeworkouts = yield (0, utils_1.getActiveWorkouts)(context);
     return {
         code: "200",
         success: true,
         message: "Successfully deleted your workout!",
-        workouts: yield (0, workout_manager_1.getActiveWorkouts)(context),
+        workouts: activeworkouts,
     };
 });
 exports.deleteWorkout = deleteWorkout;

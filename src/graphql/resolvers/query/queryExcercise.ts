@@ -1,8 +1,10 @@
+import { QueryGetExcerciseArgs } from "../../../types/graphql";
+import { AppContext } from "../../../types/contextType";
+
 export const getExcerciseQueryResolver = async (
-  parent: any,
-  args: any,
-  context: any,
-  info: any
+  _: any,
+  args: QueryGetExcerciseArgs,
+  context: AppContext
 ) => {
   const prisma = context.dataSources.prisma;
 

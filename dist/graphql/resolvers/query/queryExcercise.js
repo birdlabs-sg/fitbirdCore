@@ -10,7 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getExcerciseQueryResolver = void 0;
-const getExcerciseQueryResolver = (parent, args, context, info) => __awaiter(void 0, void 0, void 0, function* () {
+const getExcerciseQueryResolver = (_, args, context) => __awaiter(void 0, void 0, void 0, function* () {
     const prisma = context.dataSources.prisma;
     return yield prisma.excercise.findUnique({
         where: {

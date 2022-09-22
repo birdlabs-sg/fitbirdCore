@@ -10,7 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getExcerciseMetadatasQueryResolver = void 0;
-const getExcerciseMetadatasQueryResolver = (parent, args, context, info) => __awaiter(void 0, void 0, void 0, function* () {
+const getExcerciseMetadatasQueryResolver = (parent, args, context) => __awaiter(void 0, void 0, void 0, function* () {
     const prisma = context.dataSources.prisma;
     const { excercise_names_list } = args;
     return yield prisma.excerciseMetadata.findMany({

@@ -24,6 +24,7 @@ exports.Enum = gql `
     FT
   }
 
+  "Used in overloading algorithm to determine what to do with that set."
   enum ExcerciseSetGroupState {
     DELETED_TEMPORARILY
     DELETED_PERMANANTLY

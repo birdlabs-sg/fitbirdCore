@@ -25,6 +25,6 @@ export const User = gql`
     isolated_movement_rep_upper_bound: Int
     body_weight_rep_lower_bound: Int
     body_weight_rep_upper_bound: Int
-    equipment_accessible: [Equipment]
+    equipment_accessible: [Equipment!]
   }
 `;

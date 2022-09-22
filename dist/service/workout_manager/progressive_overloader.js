@@ -22,6 +22,8 @@ var __rest = (this && this.__rest) || function (s, e) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.progressivelyOverload = void 0;
 const client_1 = require("@prisma/client");
+const console_1 = require("console");
+const firebase_service_1 = require("../firebase/firebase_service");
 const retrieveExerciseMetadata_1 = require("./retrieveExerciseMetadata");
 const categorizeExcerciseSet = (excercise_set) => {
     // TODO: give a more accurate benchmark
@@ -35,20 +37,20 @@ const categorizeExcerciseSet = (excercise_set) => {
         // guard clause
         return "SKIPPED";
     }
-    var benchMark;
+    var benchMarkRep;
     var benchMarkWeight;
     switch (true) {
-        case excercise_set.target_weight == excercise_set.actual_weight:
-            // 1. At same weight
-            benchMark = excercise_set.target_reps;
-            break;
         case excercise_set.target_weight > excercise_set.actual_weight:
-            // 1. At same weight
-            benchMark = excercise_set.target_reps * 1.15;
+            // 1. Lower weight
+            benchMarkRep = excercise_set.target_reps * 1.15;
             break;
         case excercise_set.target_weight < excercise_set.actual_weight:
-            // 1. At same weight
-            benchMark = excercise_set.target_reps * 0.85;
+            // 2. Higher weight
+            benchMarkRep = excercise_set.target_reps * 0.85;
+            break;
+        default:
+            // 3. At same weight
+            benchMarkRep = excercise_set.target_reps;
             break;
     }
     // setting the bench mark for weight
@@ -63,11 +65,11 @@ const categorizeExcerciseSet = (excercise_set) => {
         // decrease the bench mark weight
         benchMarkWeight = excercise_set.target_weight * 0.975;
     }
-    if (excercise_set.actual_reps < benchMark ||
+    if (excercise_set.actual_reps < benchMarkRep ||
         excercise_set.actual_weight < benchMarkWeight) {
         return "FAILED";
     }
-    else if (excercise_set.actual_reps == benchMark &&
+    else if (excercise_set.actual_reps == benchMarkRep &&
         excercise_set.actual_weight == benchMarkWeight) {
         return "MAINTAINED";
     }
@@ -75,23 +77,27 @@ const categorizeExcerciseSet = (excercise_set) => {
         return "EXCEED";
     }
 };
-const generateNextExerciseSets = (excercise_sets, upperBound, lowerBound, dropDifficultyForFailedSets = false) => {
+function generateNextExerciseSets(excercise_sets, upperBound, lowerBound, dropDifficultyForFailedSets = false) {
+    if (excercise_sets != null) {
+        return [];
+    }
+    var excerciseSets = excercise_sets;
     const updatedSets = [];
-    for (let excercise_set of excercise_sets) {
+    for (let excerciseSet of excerciseSets) {
         // extract actual values and create a base scaffold for the next exerciseset
-        const { actual_reps, actual_weight, excercise_set_id, workout_id } = excercise_set, excercise_set_scaffold = __rest(excercise_set, ["actual_reps", "actual_weight", "excercise_set_id", "workout_id"]);
-        const category = categorizeExcerciseSet(excercise_set);
+        const { actual_reps, actual_weight } = excerciseSet, excercise_set_scaffold = __rest(excerciseSet, ["actual_reps", "actual_weight"]);
+        const category = categorizeExcerciseSet(excerciseSet);
         if (category == "FAILED" || category == "SKIPPED") {
             if (dropDifficultyForFailedSets) {
                 // Using target values as the base: Decrease by 1 rep. If already at lower bound, decrease the weight by 2.5% and drop back reps to upper bound
-                let newTargetReps = excercise_set.target_reps - 1;
-                let newTargetWeight = excercise_set.target_weight;
+                let newTargetReps = excerciseSet.target_reps - 1;
+                let newTargetWeight = excerciseSet.target_weight;
                 if (newTargetReps < lowerBound) {
                     // hit the lower bound, recalibrate
                     newTargetReps = upperBound;
                     newTargetWeight =
-                        excercise_set.target_weight -
-                            parseFloat((Math.round(actual_weight * 0.025 * 4) / 4).toFixed(2));
+                        excerciseSet.target_weight -
+                            parseFloat((Math.round(newTargetWeight * 0.025 * 4) / 4).toFixed(2));
                 }
                 excercise_set_scaffold.target_reps = newTargetReps;
                 excercise_set_scaffold.target_weight = newTargetWeight;
@@ -104,6 +110,7 @@ const generateNextExerciseSets = (excercise_sets, upperBound, lowerBound, dropDi
         }
         else if (category == "MAINTAINED" || category == "EXCEED") {
             // Using actual values as the base: Increase by 1 rep. If already at upper bound, increase the weight by 2.5% and drop back reps to lower bound
+            (0, console_1.assert)(actual_reps != null);
             let newTargetReps = actual_reps + 1;
             let newTargetWeight = actual_weight;
             if (newTargetReps > upperBound) {
@@ -119,16 +126,22 @@ const generateNextExerciseSets = (excercise_sets, upperBound, lowerBound, dropDi
         }
     }
     return updatedSets;
-};
+}
 const progressivelyOverload = (excercise_set_groups, context) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
+    (0, firebase_service_1.onlyAuthenticated)(context);
     const prisma = context.dataSources.prisma;
     // retrieve the rep ranges for different types of exercises
-    const compoundLowerBound = context.user.compound_movement_rep_lower_bound;
-    const compoundUpperBound = context.user.compound_movement_rep_upper_bound;
-    const isolatedLowerBound = context.user.isolated_movement_rep_lower_bound;
-    const isolatedUpperBound = context.user.isolated_movement_rep_upper_bound;
-    const bodyWeightLowerBound = context.user.body_weight_rep_lower_bound;
+    const compoundLowerBound = context.user
+        .compound_movement_rep_lower_bound;
+    const compoundUpperBound = context.user
+        .compound_movement_rep_upper_bound;
+    const isolatedLowerBound = context.user
+        .isolated_movement_rep_lower_bound;
+    const isolatedUpperBound = context.user
+        .isolated_movement_rep_upper_bound;
+    const bodyWeightLowerBound = context.user
+        .body_weight_rep_lower_bound;
     const bodyWeightUpperBound = Infinity;
     for (let excercise_set_group of excercise_set_groups) {
         // variable that holds the sets for the next workout
@@ -141,6 +154,9 @@ const progressivelyOverload = (excercise_set_groups, context) => __awaiter(void 
                 excercise_name: excercise_set_group.excercise_name,
             },
         });
+        if (excerciseData == null) {
+            return [];
+        }
         if (excerciseData.excercise_mechanics[0] == "COMPOUND" &&
             excerciseData.body_weight == false) {
             upperBound = compoundUpperBound;

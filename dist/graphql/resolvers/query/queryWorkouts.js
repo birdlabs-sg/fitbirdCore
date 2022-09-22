@@ -10,38 +10,42 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.workoutsQueryResolver = void 0;
-const firebase_service_1 = require("../../../service/firebase_service");
-const workoutsQueryResolver = (parent, args, context, info) => __awaiter(void 0, void 0, void 0, function* () {
-    (0, firebase_service_1.onlyAuthenticated)(context);
-    const prisma = context.dataSources.prisma;
-    switch (args.filter) {
-        case "ACTIVE":
-            return yield prisma.workout.findMany({
-                where: {
-                    user_id: context.user.user_id,
-                    date_completed: null,
-                },
-                orderBy: {
-                    order_index: "asc",
-                },
-            });
-        case "COMPLETED":
-            return yield prisma.workout.findMany({
-                where: {
-                    user_id: context.user.user_id,
-                    date_completed: { not: null },
-                },
-                orderBy: {
-                    date_completed: "desc",
-                },
-            });
-        case "NONE":
-            return yield prisma.workout.findMany({
-                where: {
-                    user_id: context.user.user_id,
-                },
-            });
-    }
-});
+const firebase_service_1 = require("../../../service/firebase/firebase_service");
+function workoutsQueryResolver(_, args, context) {
+    return __awaiter(this, void 0, void 0, function* () {
+        (0, firebase_service_1.onlyAuthenticated)(context);
+        const prisma = context.dataSources.prisma;
+        switch (args.filter) {
+            case "ACTIVE":
+                return yield prisma.workout.findMany({
+                    where: {
+                        user_id: context.user.user_id,
+                        date_completed: null,
+                    },
+                    orderBy: {
+                        order_index: "asc",
+                    },
+                });
+            case "COMPLETED":
+                return yield prisma.workout.findMany({
+                    where: {
+                        user_id: context.user.user_id,
+                        date_completed: { not: null },
+                    },
+                    orderBy: {
+                        date_completed: "desc",
+                    },
+                });
+            case "NONE":
+                return yield prisma.workout.findMany({
+                    where: {
+                        user_id: context.user.user_id,
+                    },
+                });
+            default:
+                return [];
+        }
+    });
+}
 exports.workoutsQueryResolver = workoutsQueryResolver;
 //# sourceMappingURL=queryWorkouts.js.map
