@@ -14,6 +14,7 @@ const graphql_1 = require("../../../types/graphql");
 const constants_1 = require("./constants");
 const utils_1 = require("../utils");
 const progressive_overloader_1 = require("../progressive_overloader/progressive_overloader");
+const client_1 = require("@prisma/client");
 const _ = require("lodash");
 /**
  * Generates a list of workouts (AKA a single rotation) based on requestors's equipment constraints.
@@ -27,7 +28,7 @@ const workoutGenerator = (numberOfWorkouts, context) => __awaiter(void 0, void 0
     }
     const generated_workout_list = [];
     // Contains a list of equipment that the user has NO access to.
-    const user_constaints = _.differenceWith(Object.keys(graphql_1.Equipment), user.equipment_accessible, _.isEqual);
+    const user_constaints = _.differenceWith(Object.keys(client_1.Equipment), user.equipment_accessible, _.isEqual);
     // Randomly select a rotation plan for the requestor
     const random_rotation = _.sample(constants_1.rotations_type);
     // excercise_pointer used with randomRotation determines which exercise type should be next

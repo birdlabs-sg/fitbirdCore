@@ -1,6 +1,5 @@
 import { AppContext } from "../../../types/contextType";
 import {
-  Equipment,
   MuscleRegionType,
   Excercise,
   ExcerciseSetGroupState,
@@ -16,6 +15,7 @@ import {
   getActiveWorkoutCount,
 } from "../utils";
 import { progressivelyOverload } from "../progressive_overloader/progressive_overloader";
+import { Equipment } from "@prisma/client";
 const _ = require("lodash");
 
 /**
