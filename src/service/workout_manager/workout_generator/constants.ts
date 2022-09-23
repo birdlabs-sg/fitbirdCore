@@ -1,5 +1,5 @@
 import { MuscleRegionType } from "../../../types/graphql";
-
+import { ExcerciseForce } from "@prisma/client";
 /**
  * List that dictates what a generated workout would be
  */
@@ -44,3 +44,74 @@ export const rotations_type = Object.freeze([
     MuscleRegionType.UpperArm,
   ],
 ]);
+
+//pending fix DO NOT TOUCH OR USE
+export const pullDay: ExcerciseForce[] = [
+  ExcerciseForce.PULL,
+  ExcerciseForce.PULL,
+  ExcerciseForce.PULL,
+  ExcerciseForce.PULL,
+  ExcerciseForce.PULL,
+];
+
+export const pushDay: ExcerciseForce[] = [
+  ExcerciseForce.PUSH,
+  ExcerciseForce.PUSH,
+  ExcerciseForce.PUSH,
+  ExcerciseForce.PUSH,
+  ExcerciseForce.PUSH,
+];
+/////////
+export const upperDay: MuscleRegionType[] = [
+  MuscleRegionType.Chest,
+  MuscleRegionType.UpperArm,
+  MuscleRegionType.Shoulder,
+  MuscleRegionType.Chest,
+  MuscleRegionType.UpperArm,
+  MuscleRegionType.Shoulder,
+];
+
+export const lowerDay: MuscleRegionType[] = [
+  MuscleRegionType.Waist,
+  MuscleRegionType.Hips,
+  MuscleRegionType.Back,
+  MuscleRegionType.Back,
+  MuscleRegionType.Thighs,
+  MuscleRegionType.Calves,
+];
+
+export const chestAndArmDay: MuscleRegionType[] = [
+  MuscleRegionType.Chest,
+  MuscleRegionType.Chest,
+  MuscleRegionType.Chest,
+  MuscleRegionType.UpperArm,
+  MuscleRegionType.UpperArm,
+  MuscleRegionType.UpperArm,
+];
+
+export const backAndArmDay: MuscleRegionType[] = [
+  MuscleRegionType.Back,
+  MuscleRegionType.Back,
+  MuscleRegionType.Back,
+  MuscleRegionType.UpperArm,
+  MuscleRegionType.UpperArm,
+  MuscleRegionType.UpperArm,
+];
+
+export const legDay: MuscleRegionType[] = [
+  MuscleRegionType.Hips,
+  MuscleRegionType.Hips,
+  MuscleRegionType.Thighs,
+  MuscleRegionType.Thighs,
+  MuscleRegionType.Calves,
+  MuscleRegionType.Calves,
+];
+
+export const armDay: MuscleRegionType[] = [
+  MuscleRegionType.UpperArm,
+  MuscleRegionType.UpperArm,
+  MuscleRegionType.UpperArm,
+  MuscleRegionType.Shoulder,
+  MuscleRegionType.Shoulder,
+  MuscleRegionType.Shoulder,
+];
