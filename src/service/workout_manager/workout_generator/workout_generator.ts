@@ -17,7 +17,7 @@ import {
 import { progressivelyOverload } from "../progressive_overloader/progressive_overloader";
 import { Equipment } from "@prisma/client";
 const _ = require("lodash");
-
+import * as workoutSplit from "./rotations_types_general";
 /**
  * Generates a list of workouts (AKA a single rotation) based on requestors's equipment constraints.
  */
@@ -147,7 +147,130 @@ export const workoutGenerator = async (
   }
   return generated_workout_list;
 };
+export const workoutGeneratorV2 = async (
+  numberOfWorkouts: Number,
+  context: any
+) => {
+  const prisma = context.dataSources.prisma;
+  const user = context.user;
 
+  // guard clause
+  if (numberOfWorkouts > 6) {
+    throw Error("Can only generate 6 workouts maximum per week.");
+  }
+  if (numberOfWorkouts < 2) {
+    throw Error("A minimum of 2 workouts per week.");
+  }
+
+  const generated_workout_list: WorkoutWithExerciseSets[] = [];
+
+  // Contains a list of equipment that the user has NO access to.
+  const user_constaints = _.differenceWith(
+    Object.keys(Equipment),
+    user.equipment_accessible,
+    _.isEqual
+  );
+  // The name selector cannot be random
+
+  // excercise_pointer used with randomRotation determines which exercise type should be next
+  var excercise_pointer = 0;
+  let rotationSequenceMuscle: MuscleRegionType[][] = [[]];
+  switch (numberOfWorkouts) {
+    case 2:
+      rotationSequenceMuscle = workoutSplit.twoDaySplitMuscle;
+    case 3:
+      rotationSequenceMuscle = workoutSplit.threeDaySplitMuscle;
+    case 4:
+      rotationSequenceMuscle = workoutSplit.fourDaySplitMuscle;
+    case 5:
+      rotationSequenceMuscle = workoutSplit.fiveDaySplit;
+    case 6:
+      rotationSequenceMuscle = workoutSplit.sixDaySplit;
+  }
+  // Core logic
+  await excerciseSelector(
+    numberOfWorkouts,
+    context,
+    rotationSequenceMuscle,
+    user_constaints,
+    generated_workout_list
+  );
+  return generated_workout_list;
+};
+
+// re configured the selector to make it more usable among different exercise plans
+const excerciseSelector = async (
+  numberOfWorkouts: Number,
+  context: any,
+  rotationSequence: MuscleRegionType[][] /*| ExcerciseForce[][]*/,
+  user_constaints: any,
+  generated_workout_list: WorkoutWithExerciseSets[]
+) => {
+  const prisma = context.dataSources.prisma;
+  const user = context.user;
+  let Rotation = [];
+  let max = 0;
+
+  for (let day = 0; day < numberOfWorkouts; day++) {
+    let list_of_excercises = [];
+    Rotation = rotationSequence[day];
+    if (numberOfWorkouts > 5) {
+      max = Rotation.length - 1; // 1 less exercise per day if days is more than 5
+    } else {
+      max = Rotation.length;
+    }
+    for (let excercise_index = 0; excercise_index < max; excercise_index++) {
+      const excercises_in_category = await prisma.excercise.findMany({
+        where: {
+          target_regions: {
+            some: {
+              muscle_region_type: Rotation[excercise_index],
+            },
+          },
+          NOT: {
+            equipment_required: {
+              hasSome: user_constaints,
+            },
+          },
+
+          body_weight: !(user.equipment_accessible.length > 0), // use body weight excercise if don't have accessible equipments
+          assisted: false,
+        },
+      });
+      if (excercises_in_category.length > 0) {
+        var randomSelectedExcercise: Excercise = _.sample(
+          excercises_in_category
+        );
+        list_of_excercises.push(
+          await formatAndGenerateExcerciseSets(
+            randomSelectedExcercise.excercise_name,
+            context
+          )
+        );
+      }
+    }
+
+    try {
+      const createdWorkout = await prisma.workout.create({
+        data: {
+          workout_name: _.sample(workout_name_list),
+          order_index: await getActiveWorkoutCount(context),
+          user_id: user.user_id,
+          life_span: 12,
+          excercise_set_groups: { create: list_of_excercises },
+        },
+        include: {
+          excercise_set_groups: true,
+        },
+      });
+      generated_workout_list.push(createdWorkout);
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
+  // create workout and generate the associated excercisemetadata
+};
 /**
  * Generates the next workout, using the previousWorkout parameter as the base.
  * Note: This function is only called when a workout has been completed.

@@ -2,6 +2,7 @@ import { onlyAuthenticated } from "../../../service/firebase/firebase_service";
 import {
   generateNextWorkout,
   workoutGenerator,
+  workoutGeneratorV2
 } from "../../../service/workout_manager/workout_generator/workout_generator";
 import { Workout, WorkoutState } from "@prisma/client";
 import { AppContext } from "../../../types/contextType";
@@ -37,7 +38,7 @@ export const generateWorkouts = async (
 ) => {
   onlyAuthenticated(context);
   const { no_of_workouts } = args;
-  let generatedWorkouts = await workoutGenerator(no_of_workouts, context);
+  let generatedWorkouts = await workoutGeneratorV2(no_of_workouts, context);
   return generatedWorkouts;
 };
 
@@ -61,7 +62,7 @@ export const regenerateWorkouts = async (
       },
     },
   });
-  var generatedWorkouts = await workoutGenerator(no_of_workouts, context);
+  var generatedWorkouts = await workoutGeneratorV2(no_of_workouts, context);
   return generatedWorkouts;
 };
 
