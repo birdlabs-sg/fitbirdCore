@@ -29,8 +29,8 @@ export const workoutGenerator = async (
   const user = context.user;
 
   // guard clause
-  if (numberOfWorkouts > 7) {
-    throw Error("Can only generate 7 workouts maximum.");
+  if (numberOfWorkouts > 6) {
+    throw Error("Can only generate 6 workouts maximum.");
   }
   const generated_workout_list: WorkoutWithExerciseSets[] = [];
 

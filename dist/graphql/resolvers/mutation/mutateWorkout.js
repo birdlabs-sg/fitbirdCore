@@ -27,10 +27,17 @@ const client_1 = require("@prisma/client");
 const utils_1 = require("../../../service/workout_manager/utils");
 const workout_order_manager_1 = require("../../../service/workout_manager/workout_order_manager");
 const exercise_metadata_manager_1 = require("../../../service/workout_manager/exercise_metadata_manager/exercise_metadata_manager");
-const generateWorkouts = (parent, args, context) => __awaiter(void 0, void 0, void 0, function* () {
+const console_1 = require("console");
+const generateWorkouts = (parent, { no_of_workouts }, context) => __awaiter(void 0, void 0, void 0, function* () {
     (0, firebase_service_1.onlyAuthenticated)(context);
-    const { no_of_workouts } = args;
-    let generatedWorkouts = yield (0, workout_generator_1.workoutGenerator)(no_of_workouts, context);
+    (0, console_1.assert)(no_of_workouts > 0 && no_of_workouts <= 6);
+    var generatedWorkouts;
+    if (no_of_workouts >= 2) {
+        generatedWorkouts = yield (0, workout_generator_1.workoutGeneratorV2)(no_of_workouts, context);
+    }
+    else {
+        generatedWorkouts = yield (0, workout_generator_1.workoutGenerator)(no_of_workouts, context);
+    }
     return generatedWorkouts;
 });
 exports.generateWorkouts = generateWorkouts;
@@ -39,6 +46,7 @@ const regenerateWorkouts = (parent, args, context) => __awaiter(void 0, void 0, 
     (0, firebase_service_1.onlyAuthenticated)(context);
     const prisma = context.dataSources.prisma;
     const no_of_workouts = (_a = context.user.workout_frequency) !== null && _a !== void 0 ? _a : 3;
+    (0, console_1.assert)(no_of_workouts > 0 && no_of_workouts <= 6);
     const activeWorkouts = yield (0, utils_1.getActiveWorkouts)(context);
     const activeWorkoutIDS = activeWorkouts.map((workout) => workout.workout_id);
     yield prisma.workout.deleteMany({
@@ -48,7 +56,13 @@ const regenerateWorkouts = (parent, args, context) => __awaiter(void 0, void 0, 
             },
         },
     });
-    var generatedWorkouts = yield (0, workout_generator_1.workoutGenerator)(no_of_workouts, context);
+    var generatedWorkouts;
+    if (no_of_workouts >= 2) {
+        generatedWorkouts = yield (0, workout_generator_1.workoutGeneratorV2)(no_of_workouts, context);
+    }
+    else {
+        generatedWorkouts = yield (0, workout_generator_1.workoutGenerator)(no_of_workouts, context);
+    }
     return generatedWorkouts;
 });
 exports.regenerateWorkouts = regenerateWorkouts;
