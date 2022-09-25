@@ -2,7 +2,7 @@ import { onlyAuthenticated } from "../../../service/firebase/firebase_service";
 import {
   generateNextWorkout,
   workoutGenerator,
-  workoutGeneratorV2
+  workoutGeneratorV2,
 } from "../../../service/workout_manager/workout_generator/workout_generator";
 import { Workout, WorkoutState } from "@prisma/client";
 import { AppContext } from "../../../types/contextType";
@@ -30,15 +30,21 @@ import {
   generateOrUpdateExcerciseMetadata,
   updateExcerciseMetadataWithCompletedWorkout,
 } from "../../../service/workout_manager/exercise_metadata_manager/exercise_metadata_manager";
+import { assert } from "console";
 
 export const generateWorkouts = async (
   parent: any,
-  args: MutationGenerateWorkoutsArgs,
+  { no_of_workouts }: MutationGenerateWorkoutsArgs,
   context: AppContext
 ) => {
   onlyAuthenticated(context);
-  const { no_of_workouts } = args;
-  let generatedWorkouts = await workoutGeneratorV2(no_of_workouts, context);
+  assert(no_of_workouts > 0 && no_of_workouts <= 6);
+  var generatedWorkouts: WorkoutWithExerciseSets[];
+  if (no_of_workouts >= 2) {
+    generatedWorkouts = await workoutGeneratorV2(no_of_workouts, context);
+  } else {
+    generatedWorkouts = await workoutGenerator(no_of_workouts, context);
+  }
   return generatedWorkouts;
 };
 
@@ -50,6 +56,7 @@ export const regenerateWorkouts = async (
   onlyAuthenticated(context);
   const prisma = context.dataSources.prisma;
   const no_of_workouts = context.user.workout_frequency ?? 3;
+  assert(no_of_workouts > 0 && no_of_workouts <= 6);
 
   const activeWorkouts = await getActiveWorkouts(context);
   const activeWorkoutIDS = activeWorkouts.map(
@@ -62,7 +69,12 @@ export const regenerateWorkouts = async (
       },
     },
   });
-  var generatedWorkouts = await workoutGeneratorV2(no_of_workouts, context);
+  var generatedWorkouts: WorkoutWithExerciseSets[];
+  if (no_of_workouts >= 2) {
+    generatedWorkouts = await workoutGeneratorV2(no_of_workouts, context);
+  } else {
+    generatedWorkouts = await workoutGenerator(no_of_workouts, context);
+  }
   return generatedWorkouts;
 };
 

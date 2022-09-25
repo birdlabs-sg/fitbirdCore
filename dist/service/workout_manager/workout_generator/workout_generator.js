@@ -1,4 +1,27 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -9,13 +32,14 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.generateNextWorkout = exports.workoutGenerator = void 0;
+exports.generateNextWorkout = exports.workoutGeneratorV2 = exports.workoutGenerator = void 0;
 const graphql_1 = require("../../../types/graphql");
 const constants_1 = require("./constants");
 const utils_1 = require("../utils");
 const progressive_overloader_1 = require("../progressive_overloader/progressive_overloader");
 const client_1 = require("@prisma/client");
 const _ = require("lodash");
+const workoutSplit = __importStar(require("./rotations_types_general"));
 /**
  * Generates a list of workouts (AKA a single rotation) based on requestors's equipment constraints.
  */
@@ -23,8 +47,8 @@ const workoutGenerator = (numberOfWorkouts, context) => __awaiter(void 0, void 0
     const prisma = context.dataSources.prisma;
     const user = context.user;
     // guard clause
-    if (numberOfWorkouts > 7) {
-        throw Error("Can only generate 7 workouts maximum.");
+    if (numberOfWorkouts > 6) {
+        throw Error("Can only generate 6 workouts maximum.");
     }
     const generated_workout_list = [];
     // Contains a list of equipment that the user has NO access to.
@@ -116,6 +140,98 @@ const workoutGenerator = (numberOfWorkouts, context) => __awaiter(void 0, void 0
     return generated_workout_list;
 });
 exports.workoutGenerator = workoutGenerator;
+const workoutGeneratorV2 = (numberOfWorkouts, context) => __awaiter(void 0, void 0, void 0, function* () {
+    const prisma = context.dataSources.prisma;
+    const user = context.user;
+    // guard clause
+    if (numberOfWorkouts > 6) {
+        throw Error("Can only generate 6 workouts maximum per week.");
+    }
+    if (numberOfWorkouts < 2) {
+        throw Error("A minimum of 2 workouts per week.");
+    }
+    const generated_workout_list = [];
+    // Contains a list of equipment that the user has NO access to.
+    const user_constaints = _.differenceWith(Object.keys(client_1.Equipment), user.equipment_accessible, _.isEqual);
+    // The name selector cannot be random
+    // excercise_pointer used with randomRotation determines which exercise type should be next
+    var excercise_pointer = 0;
+    let rotationSequenceMuscle = [[]];
+    switch (numberOfWorkouts) {
+        case 2:
+            rotationSequenceMuscle = workoutSplit.twoDaySplitMuscle;
+        case 3:
+            rotationSequenceMuscle = workoutSplit.threeDaySplitMuscle;
+        case 4:
+            rotationSequenceMuscle = workoutSplit.fourDaySplitMuscle;
+        case 5:
+            rotationSequenceMuscle = workoutSplit.fiveDaySplit;
+        case 6:
+            rotationSequenceMuscle = workoutSplit.sixDaySplit;
+    }
+    // Core logic
+    yield excerciseSelector(numberOfWorkouts, context, rotationSequenceMuscle, user_constaints, generated_workout_list);
+    return generated_workout_list;
+});
+exports.workoutGeneratorV2 = workoutGeneratorV2;
+// re configured the selector to make it more usable among different exercise plans
+const excerciseSelector = (numberOfWorkouts, context, rotationSequence /*| ExcerciseForce[][]*/, user_constaints, generated_workout_list) => __awaiter(void 0, void 0, void 0, function* () {
+    const prisma = context.dataSources.prisma;
+    const user = context.user;
+    let Rotation = [];
+    let max = 0;
+    for (let day = 0; day < numberOfWorkouts; day++) {
+        let list_of_excercises = [];
+        Rotation = rotationSequence[day];
+        if (numberOfWorkouts > 5) {
+            max = Rotation.length - 1; // 1 less exercise per day if days is more than 5
+        }
+        else {
+            max = Rotation.length;
+        }
+        for (let excercise_index = 0; excercise_index < max; excercise_index++) {
+            const excercises_in_category = yield prisma.excercise.findMany({
+                where: {
+                    target_regions: {
+                        some: {
+                            muscle_region_type: Rotation[excercise_index],
+                        },
+                    },
+                    NOT: {
+                        equipment_required: {
+                            hasSome: user_constaints,
+                        },
+                    },
+                    body_weight: !(user.equipment_accessible.length > 0),
+                    assisted: false,
+                },
+            });
+            if (excercises_in_category.length > 0) {
+                var randomSelectedExcercise = _.sample(excercises_in_category);
+                list_of_excercises.push(yield (0, utils_1.formatAndGenerateExcerciseSets)(randomSelectedExcercise.excercise_name, context));
+            }
+        }
+        try {
+            const createdWorkout = yield prisma.workout.create({
+                data: {
+                    workout_name: _.sample(constants_1.workout_name_list),
+                    order_index: yield (0, utils_1.getActiveWorkoutCount)(context),
+                    user_id: user.user_id,
+                    life_span: 12,
+                    excercise_set_groups: { create: list_of_excercises },
+                },
+                include: {
+                    excercise_set_groups: true,
+                },
+            });
+            generated_workout_list.push(createdWorkout);
+        }
+        catch (e) {
+            console.log(e);
+        }
+    }
+    // create workout and generate the associated excercisemetadata
+});
 /**
  * Generates the next workout, using the previousWorkout parameter as the base.
  * Note: This function is only called when a workout has been completed.

@@ -2,7 +2,6 @@ import { PrismaExerciseSetGroupCreateArgs } from "../../types/Prisma";
 import { AppContext } from "../../types/contextType";
 import {
   ExcerciseMetaDataInput,
-  ExcerciseSet,
   ExcerciseSetGroupInput,
   ExcerciseSetGroupState,
   ExcerciseSetInput,
@@ -24,7 +23,6 @@ export async function formatAndGenerateExcerciseSets(
   const prisma = context.dataSources.prisma;
   const user = context.user;
 
-  var previous_excercise_sets: ExcerciseSet[] = [];
   var excercise_sets_input: ExcerciseSetInput[] = [];
 
   // Checks if there is previous data, will use that instead
@@ -40,18 +38,24 @@ export async function formatAndGenerateExcerciseSets(
       excercise_sets: true,
     },
   });
-
+  // this function will generate excercise metadata if there is no previous metadata => when the user does it for the first time
   generateExerciseMetadata(context, excercise_name);
+  //
   if (previousExcerciseSetGroup != null) {
-    // previous_excercise_sets = previousExcerciseSetGroup.excercise_sets;
-    previous_excercise_sets.forEach((prev_set) => {
-      var excercise_set_input = _.omit(
+    previousExcerciseSetGroup.excercise_sets.forEach((prev_set) => {
+      var excercise_set_input: ExcerciseSetInput;
+
+      excercise_set_input = _.omit(
         prev_set,
         "excercise_set_group_id",
         "excercise_set_id"
       );
-      excercise_set_input["actual_reps"] = null;
-      excercise_set_input["actual_weight"] = null;
+      // Swapping of the "target" vs "actual" roles as now the target of new was actual of the previous
+      excercise_set_input.target_reps = prev_set.actual_reps ?? 0;
+      excercise_set_input.target_weight = prev_set.actual_weight ?? 0;
+      excercise_set_input.actual_reps = undefined;
+      excercise_set_input.actual_weight = undefined;
+      //////
       excercise_sets_input.push(excercise_set_input);
     });
   } else {
@@ -60,11 +64,10 @@ export async function formatAndGenerateExcerciseSets(
       target_weight: 0,
       weight_unit: "KG",
       target_reps: 0,
-      actual_weight: null,
-      actual_reps: null,
+      actual_weight: undefined,
+      actual_reps: undefined,
     });
   }
-
   return {
     excercise: { connect: { excercise_name: excercise_name } },
     excercise_set_group_state: ExcerciseSetGroupState.NormalOperation,
