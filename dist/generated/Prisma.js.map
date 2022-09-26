@@ -1,1 +1,0 @@
-{"version":3,"file":"Prisma.js","sourceRoot":"","sources":["../../src/generated/Prisma.ts"],"names":[],"mappings":";;AAAA,2CAKwB;AAoBxB,yDAAyD;AACzD,oEAAoE;AACpE,MAAM,uBAAuB,GAAG,eAAM,CAAC,SAAS,EAAsB,CAAC;IACrE,OAAO,EAAE,EAAE,oBAAoB,EAAE,EAAE,OAAO,EAAE,EAAE,cAAc,EAAE,IAAI,EAAE,EAAE,EAAE;CACzE,CAAC,CAAC"}
