@@ -8,8 +8,7 @@ COPY . ./fitbirdCore
 WORKDIR /fitbirdCore
 
 # Install dependencies
-RUN npm install\
-    && npm install typescript -g
+RUN npm install
 RUN npx prisma generate
 RUN tsc
 
