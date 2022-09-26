@@ -8,8 +8,10 @@ COPY . ./fitbirdCore
 WORKDIR /fitbirdCore
 
 # Install dependencies
-RUN npm install
+RUN npm install\
+    && npm install typescript -g
 RUN npx prisma generate
+RUN tsc
 
 #Expose port 8080
 EXPOSE 8080
