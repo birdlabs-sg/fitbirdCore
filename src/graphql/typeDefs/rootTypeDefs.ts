@@ -2,7 +2,7 @@ const { gql } = require("apollo-server");
 // Imports for object types
 import { Enum } from "./objectDef/enum";
 import { Excercise } from "./objectDef/excercise";
-import { ExcerciseSet } from "./objectDef/ExcerciseSet";
+import { ExcerciseSet } from "./objectDef/excerciseSet";
 import { Measurement } from "./objectDef/measurement";
 import { Notification } from "./objectDef/notification";
 import { MuscleRegion } from "./objectDef/muscleRegion";
@@ -23,7 +23,6 @@ import { WorkoutFrequency } from "./objectDef/workoutFrequency";
 import { ExcercisePerformance } from "./objectDef/excercisePerformance";
 import { mutateGenerateWorkouts } from "./mutationDef/mutateGenerateWorkouts";
 import { mutateNotification } from "./mutationDef/mutateNotification";
-import { GraphQLScalarType, Kind } from "graphql";
 
 const queryTypeDef = gql`
   scalar Date

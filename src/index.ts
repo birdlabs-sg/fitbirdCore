@@ -11,7 +11,7 @@ const { PrismaClient } = require("@prisma/client");
 
 const prisma = new PrismaClient();
 
-const { logger } = require("./service/logging_service");
+const { logger } = require("./service/logging/logging_service");
 
 const server = new ApolloServer({
   typeDefs: typeDefs,

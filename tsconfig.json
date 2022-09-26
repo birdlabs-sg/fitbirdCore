@@ -14,8 +14,4 @@
             ]
         }
     },
-    "include": [
-        "./src/**/*"
-    ],
-    "_moduleDirectories": ["src"]
 }
