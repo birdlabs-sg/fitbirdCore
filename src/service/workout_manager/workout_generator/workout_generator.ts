@@ -249,24 +249,19 @@ const excerciseSelector = async (
         );
       }
     }
-
-    try {
-      const createdWorkout = await prisma.workout.create({
-        data: {
-          workout_name: _.sample(workout_name_list),
-          order_index: await getActiveWorkoutCount(context),
-          user_id: user.user_id,
-          life_span: 12,
-          excercise_set_groups: { create: list_of_excercises },
-        },
-        include: {
-          excercise_set_groups: true,
-        },
-      });
-      generated_workout_list.push(createdWorkout);
-    } catch (e) {
-      console.log(e);
-    }
+    const createdWorkout = await prisma.workout.create({
+      data: {
+        workout_name: _.sample(workout_name_list),
+        order_index: await getActiveWorkoutCount(context),
+        user_id: user.user_id,
+        life_span: 12,
+        excercise_set_groups: { create: list_of_excercises },
+      },
+      include: {
+        excercise_set_groups: true,
+      },
+    });
+    generated_workout_list.push(createdWorkout);
   }
 
   // create workout and generate the associated excercisemetadata
