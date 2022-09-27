@@ -14,6 +14,7 @@ export const progressivelyOverload = async (
 ) => {
   onlyAuthenticated(context);
   const prisma = context.dataSources.prisma;
+
   // retrieve the rep ranges for different types of exercises
   const compoundLowerBound = context.user.compound_movement_rep_lower_bound;
   const compoundUpperBound = context.user.compound_movement_rep_upper_bound;
@@ -186,20 +187,14 @@ function generateOverloadedExerciseSets({
       }
     } else if (category == "MAINTAINED" || category == "EXCEED") {
       // Using actual values as the base: Increase by 1 rep. If already at upper bound, increase the weight by 2.5% and drop back reps to lower bound
-      let newTargetReps: number = (actual_reps ?? 0) + 1;
-      let newTargetWeight: number = actual_weight ?? 0;
+      let newTargetReps = actual_reps! + 1;
+      let newTargetWeight = actual_weight;
       if (newTargetReps > upperBound) {
         // hit the upper bound, recalibrate
         newTargetReps = lowerBound;
-        if (newTargetReps < 5) {
-          // Because of Math.round, anything below 5 will get rounded down to the number itself.
-          newTargetWeight = newTargetWeight + 1.25;
-        } else {
-          newTargetWeight =
-            parseFloat(
-              (Math.round(newTargetWeight * 0.025 * 4) / 4).toFixed(2)
-            ) + actual_weight!;
-        }
+        newTargetWeight =
+          parseFloat((Math.round(actual_weight! * 0.025 * 4) / 4).toFixed(2)) +
+          actual_weight!;
       }
       excercise_set_scaffold.target_reps = newTargetReps;
       excercise_set_scaffold.target_weight = newTargetWeight!;
