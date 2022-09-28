@@ -22,6 +22,12 @@ export const Enum = gql`
     FT
   }
 
+  enum WorkoutType {
+    AI_MANAGED
+    SELF_MANAGED
+    COACH_MANAGED
+  }
+
   "Used in overloading algorithm to determine what to do with that set."
   enum ExcerciseSetGroupState {
     DELETED_TEMPORARILY

@@ -25,7 +25,6 @@ export type BroadCast = {
   broadcast_message?: Maybe<Scalars['String']>;
   scheduled_end?: Maybe<Scalars['String']>;
   scheduled_start?: Maybe<Scalars['String']>;
-  users?: Maybe<Array<Maybe<User>>>;
 };
 
 export enum Equipment {
@@ -52,19 +51,19 @@ export type Excercise = {
   __typename?: 'Excercise';
   assisted?: Maybe<Scalars['Boolean']>;
   body_weight?: Maybe<Scalars['Boolean']>;
-  dynamic_stabilizer_muscles?: Maybe<Array<Maybe<MuscleRegion>>>;
-  equipment_required?: Maybe<Array<Maybe<Equipment>>>;
-  excercise_force?: Maybe<Array<Maybe<Scalars['String']>>>;
+  dynamic_stabilizer_muscles?: Maybe<Array<MuscleRegion>>;
+  equipment_required?: Maybe<Array<Equipment>>;
+  excercise_force?: Maybe<Array<Scalars['String']>>;
   excercise_instructions?: Maybe<Scalars['String']>;
-  excercise_mechanics?: Maybe<Array<Maybe<Scalars['String']>>>;
+  excercise_mechanics?: Maybe<Array<Scalars['String']>>;
   excercise_metadata?: Maybe<ExcerciseMetadata>;
   excercise_name: Scalars['ID'];
   excercise_preparation?: Maybe<Scalars['String']>;
   excercise_tips?: Maybe<Scalars['String']>;
-  excercise_utility?: Maybe<Array<Maybe<Scalars['String']>>>;
-  stabilizer_muscles?: Maybe<Array<Maybe<MuscleRegion>>>;
-  synergist_muscles?: Maybe<Array<Maybe<MuscleRegion>>>;
-  target_regions?: Maybe<Array<Maybe<MuscleRegion>>>;
+  excercise_utility?: Maybe<Array<Scalars['String']>>;
+  stabilizer_muscles?: Maybe<Array<MuscleRegion>>;
+  synergist_muscles?: Maybe<Array<MuscleRegion>>;
+  target_regions?: Maybe<Array<MuscleRegion>>;
 };
 
 /** Represents a logical component of a workout session. */
@@ -91,7 +90,7 @@ export enum ExcerciseMetadataState {
 
 export type ExcercisePerformance = {
   __typename?: 'ExcercisePerformance';
-  grouped_excercise_sets?: Maybe<Array<Maybe<GroupedExcerciseSets>>>;
+  grouped_excercise_sets?: Maybe<Array<GroupedExcerciseSets>>;
 };
 
 /** Represents a logical component of a workout session. */
@@ -112,10 +111,11 @@ export type ExcerciseSetGroup = {
   excercise_name: Scalars['String'];
   excercise_set_group_id?: Maybe<Scalars['String']>;
   excercise_set_group_state?: Maybe<ExcerciseSetGroupState>;
-  excercise_sets: Array<Maybe<ExcerciseSet>>;
+  excercise_sets: Array<ExcerciseSet>;
   failure_reason?: Maybe<FailureReason>;
 };
 
+/** Used in overloading algorithm to determine what to do with that set. */
 export enum ExcerciseSetGroupState {
   DeletedPermanantly = 'DELETED_PERMANANTLY',
   DeletedTemporarily = 'DELETED_TEMPORARILY',
@@ -159,7 +159,7 @@ export enum Goal {
 export type GroupedExcerciseSets = {
   __typename?: 'GroupedExcerciseSets';
   date_completed?: Maybe<Scalars['Date']>;
-  excercise_sets?: Maybe<Array<Maybe<ExcerciseSet>>>;
+  excercise_sets?: Maybe<Array<ExcerciseSet>>;
 };
 
 /** Units for length. */
@@ -239,8 +239,8 @@ export type Mutation = {
   deleteWorkout?: Maybe<MutateWorkoutsResponse>;
   generateFirebaseIdToken?: Maybe<GenerateIdTokenResponse>;
   generateNotification?: Maybe<NotificationResponse>;
-  generateWorkouts?: Maybe<Array<Maybe<Workout>>>;
-  regenerateWorkouts?: Maybe<Array<Maybe<Workout>>>;
+  generateWorkouts?: Maybe<Array<Workout>>;
+  regenerateWorkouts?: Maybe<Array<Workout>>;
   signup?: Maybe<SignupResponse>;
   /** [PROTECTED] Updates a excerciseMetadata object. */
   updateExcerciseMetadata?: Maybe<MutateExcerciseMetaDataResponse>;
@@ -394,6 +394,7 @@ export type MutationUpdateUserArgs = {
   weight_unit?: InputMaybe<WeightUnit>;
   workout_duration?: InputMaybe<Scalars['Int']>;
   workout_frequency?: InputMaybe<Scalars['Int']>;
+  workout_type_enrollment?: InputMaybe<WorkoutType>;
 };
 
 
@@ -484,6 +485,7 @@ export type QueryGetWorkoutArgs = {
 /** This is the root query to resources. Require ADMIN permission to access all, otherwise resources are scoped to the user issuing the request. */
 export type QueryWorkoutsArgs = {
   filter: WorkoutFilter;
+  type?: InputMaybe<WorkoutType>;
 };
 
 /** Response if a signup event is successful */
@@ -530,6 +532,7 @@ export type User = {
   weight_unit?: Maybe<WeightUnit>;
   workout_duration?: Maybe<Scalars['Int']>;
   workout_frequency?: Maybe<Scalars['Int']>;
+  workout_type_enrollment?: Maybe<WorkoutType>;
 };
 
 /** Units for weight */
@@ -543,7 +546,7 @@ export type Workout = {
   __typename?: 'Workout';
   date_completed?: Maybe<Scalars['Date']>;
   date_scheduled?: Maybe<Scalars['Date']>;
-  excercise_set_groups?: Maybe<Array<Maybe<ExcerciseSetGroup>>>;
+  excercise_set_groups?: Maybe<Array<ExcerciseSetGroup>>;
   life_span?: Maybe<Scalars['Int']>;
   order_index?: Maybe<Scalars['Int']>;
   performance_rating?: Maybe<Scalars['Float']>;
@@ -551,6 +554,7 @@ export type Workout = {
   workout_id: Scalars['ID'];
   workout_name?: Maybe<Scalars['String']>;
   workout_state?: Maybe<WorkoutState>;
+  workout_type?: Maybe<WorkoutType>;
 };
 
 /** Units for weight */
@@ -572,6 +576,12 @@ export enum WorkoutState {
   Draft = 'DRAFT',
   InProgress = 'IN_PROGRESS',
   Unattempted = 'UNATTEMPTED'
+}
+
+export enum WorkoutType {
+  AiManaged = 'AI_MANAGED',
+  CoachManaged = 'COACH_MANAGED',
+  SelfManaged = 'SELF_MANAGED'
 }
 
 export type ExcerciseMetaDataInput = {
@@ -645,7 +655,7 @@ export type MutateWorkoutsResponse = MutationResponse & {
   code: Scalars['String'];
   message: Scalars['String'];
   success: Scalars['Boolean'];
-  workouts?: Maybe<Array<Maybe<Workout>>>;
+  workouts?: Maybe<Array<Workout>>;
 };
 
 export type WithIndex<TObject> = TObject & Record<string, any>;
@@ -725,7 +735,7 @@ export type ResolversTypes = ResolversObject<{
   Excercise: ResolverTypeWrapper<ExcerciseModel>;
   ExcerciseMetadata: ResolverTypeWrapper<ExcerciseMetadataModel>;
   ExcerciseMetadataState: ExcerciseMetadataState;
-  ExcercisePerformance: ResolverTypeWrapper<Omit<ExcercisePerformance, 'grouped_excercise_sets'> & { grouped_excercise_sets?: Maybe<Array<Maybe<ResolversTypes['GroupedExcerciseSets']>>> }>;
+  ExcercisePerformance: ResolverTypeWrapper<Omit<ExcercisePerformance, 'grouped_excercise_sets'> & { grouped_excercise_sets?: Maybe<Array<ResolversTypes['GroupedExcerciseSets']>> }>;
   ExcerciseSet: ResolverTypeWrapper<ExcerciseSetModel>;
   ExcerciseSetGroup: ResolverTypeWrapper<ExcerciseSetGroupModel>;
   ExcerciseSetGroupState: ExcerciseSetGroupState;
@@ -734,7 +744,7 @@ export type ResolversTypes = ResolversObject<{
   Gender: Gender;
   GenerateIdTokenResponse: ResolverTypeWrapper<GenerateIdTokenResponse>;
   Goal: Goal;
-  GroupedExcerciseSets: ResolverTypeWrapper<Omit<GroupedExcerciseSets, 'excercise_sets'> & { excercise_sets?: Maybe<Array<Maybe<ResolversTypes['ExcerciseSet']>>> }>;
+  GroupedExcerciseSets: ResolverTypeWrapper<Omit<GroupedExcerciseSets, 'excercise_sets'> & { excercise_sets?: Maybe<Array<ResolversTypes['ExcerciseSet']>> }>;
   ID: ResolverTypeWrapper<Scalars['ID']>;
   Int: ResolverTypeWrapper<Scalars['Int']>;
   LengthUnit: LengthUnit;
@@ -757,6 +767,7 @@ export type ResolversTypes = ResolversObject<{
   WorkoutFilter: WorkoutFilter;
   WorkoutFrequency: ResolverTypeWrapper<WorkoutFrequency>;
   WorkoutState: WorkoutState;
+  WorkoutType: WorkoutType;
   excerciseMetaDataInput: ExcerciseMetaDataInput;
   excerciseSetGroupInput: ExcerciseSetGroupInput;
   excerciseSetInput: ExcerciseSetInput;
@@ -764,7 +775,7 @@ export type ResolversTypes = ResolversObject<{
   mutateMeasurementResponse: ResolverTypeWrapper<Omit<MutateMeasurementResponse, 'measurement'> & { measurement?: Maybe<ResolversTypes['Measurement']> }>;
   mutateMuscleRegionResponse: ResolverTypeWrapper<Omit<MutateMuscleRegionResponse, 'muscle_region'> & { muscle_region?: Maybe<ResolversTypes['MuscleRegion']> }>;
   mutateWorkoutResponse: ResolverTypeWrapper<Omit<MutateWorkoutResponse, 'workout'> & { workout?: Maybe<ResolversTypes['Workout']> }>;
-  mutateWorkoutsResponse: ResolverTypeWrapper<Omit<MutateWorkoutsResponse, 'workouts'> & { workouts?: Maybe<Array<Maybe<ResolversTypes['Workout']>>> }>;
+  mutateWorkoutsResponse: ResolverTypeWrapper<Omit<MutateWorkoutsResponse, 'workouts'> & { workouts?: Maybe<Array<ResolversTypes['Workout']>> }>;
 }>;
 
 /** Mapping between all available schema types and the resolvers parents */
@@ -774,12 +785,12 @@ export type ResolversParentTypes = ResolversObject<{
   Date: Scalars['Date'];
   Excercise: ExcerciseModel;
   ExcerciseMetadata: ExcerciseMetadataModel;
-  ExcercisePerformance: Omit<ExcercisePerformance, 'grouped_excercise_sets'> & { grouped_excercise_sets?: Maybe<Array<Maybe<ResolversParentTypes['GroupedExcerciseSets']>>> };
+  ExcercisePerformance: Omit<ExcercisePerformance, 'grouped_excercise_sets'> & { grouped_excercise_sets?: Maybe<Array<ResolversParentTypes['GroupedExcerciseSets']>> };
   ExcerciseSet: ExcerciseSetModel;
   ExcerciseSetGroup: ExcerciseSetGroupModel;
   Float: Scalars['Float'];
   GenerateIdTokenResponse: GenerateIdTokenResponse;
-  GroupedExcerciseSets: Omit<GroupedExcerciseSets, 'excercise_sets'> & { excercise_sets?: Maybe<Array<Maybe<ResolversParentTypes['ExcerciseSet']>>> };
+  GroupedExcerciseSets: Omit<GroupedExcerciseSets, 'excercise_sets'> & { excercise_sets?: Maybe<Array<ResolversParentTypes['ExcerciseSet']>> };
   ID: Scalars['ID'];
   Int: Scalars['Int'];
   Measurement: MeasurementModel;
@@ -803,7 +814,7 @@ export type ResolversParentTypes = ResolversObject<{
   mutateMeasurementResponse: Omit<MutateMeasurementResponse, 'measurement'> & { measurement?: Maybe<ResolversParentTypes['Measurement']> };
   mutateMuscleRegionResponse: Omit<MutateMuscleRegionResponse, 'muscle_region'> & { muscle_region?: Maybe<ResolversParentTypes['MuscleRegion']> };
   mutateWorkoutResponse: Omit<MutateWorkoutResponse, 'workout'> & { workout?: Maybe<ResolversParentTypes['Workout']> };
-  mutateWorkoutsResponse: Omit<MutateWorkoutsResponse, 'workouts'> & { workouts?: Maybe<Array<Maybe<ResolversParentTypes['Workout']>>> };
+  mutateWorkoutsResponse: Omit<MutateWorkoutsResponse, 'workouts'> & { workouts?: Maybe<Array<ResolversParentTypes['Workout']>> };
 }>;
 
 export type BroadCastResolvers<ContextType = AppContext, ParentType extends ResolversParentTypes['BroadCast'] = ResolversParentTypes['BroadCast']> = ResolversObject<{
@@ -811,7 +822,6 @@ export type BroadCastResolvers<ContextType = AppContext, ParentType extends Reso
   broadcast_message?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   scheduled_end?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   scheduled_start?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  users?: Resolver<Maybe<Array<Maybe<ResolversTypes['User']>>>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -822,19 +832,19 @@ export interface DateScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes
 export type ExcerciseResolvers<ContextType = AppContext, ParentType extends ResolversParentTypes['Excercise'] = ResolversParentTypes['Excercise']> = ResolversObject<{
   assisted?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   body_weight?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
-  dynamic_stabilizer_muscles?: Resolver<Maybe<Array<Maybe<ResolversTypes['MuscleRegion']>>>, ParentType, ContextType>;
-  equipment_required?: Resolver<Maybe<Array<Maybe<ResolversTypes['Equipment']>>>, ParentType, ContextType>;
-  excercise_force?: Resolver<Maybe<Array<Maybe<ResolversTypes['String']>>>, ParentType, ContextType>;
+  dynamic_stabilizer_muscles?: Resolver<Maybe<Array<ResolversTypes['MuscleRegion']>>, ParentType, ContextType>;
+  equipment_required?: Resolver<Maybe<Array<ResolversTypes['Equipment']>>, ParentType, ContextType>;
+  excercise_force?: Resolver<Maybe<Array<ResolversTypes['String']>>, ParentType, ContextType>;
   excercise_instructions?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  excercise_mechanics?: Resolver<Maybe<Array<Maybe<ResolversTypes['String']>>>, ParentType, ContextType>;
+  excercise_mechanics?: Resolver<Maybe<Array<ResolversTypes['String']>>, ParentType, ContextType>;
   excercise_metadata?: Resolver<Maybe<ResolversTypes['ExcerciseMetadata']>, ParentType, ContextType>;
   excercise_name?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   excercise_preparation?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   excercise_tips?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  excercise_utility?: Resolver<Maybe<Array<Maybe<ResolversTypes['String']>>>, ParentType, ContextType>;
-  stabilizer_muscles?: Resolver<Maybe<Array<Maybe<ResolversTypes['MuscleRegion']>>>, ParentType, ContextType>;
-  synergist_muscles?: Resolver<Maybe<Array<Maybe<ResolversTypes['MuscleRegion']>>>, ParentType, ContextType>;
-  target_regions?: Resolver<Maybe<Array<Maybe<ResolversTypes['MuscleRegion']>>>, ParentType, ContextType>;
+  excercise_utility?: Resolver<Maybe<Array<ResolversTypes['String']>>, ParentType, ContextType>;
+  stabilizer_muscles?: Resolver<Maybe<Array<ResolversTypes['MuscleRegion']>>, ParentType, ContextType>;
+  synergist_muscles?: Resolver<Maybe<Array<ResolversTypes['MuscleRegion']>>, ParentType, ContextType>;
+  target_regions?: Resolver<Maybe<Array<ResolversTypes['MuscleRegion']>>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -853,7 +863,7 @@ export type ExcerciseMetadataResolvers<ContextType = AppContext, ParentType exte
 }>;
 
 export type ExcercisePerformanceResolvers<ContextType = AppContext, ParentType extends ResolversParentTypes['ExcercisePerformance'] = ResolversParentTypes['ExcercisePerformance']> = ResolversObject<{
-  grouped_excercise_sets?: Resolver<Maybe<Array<Maybe<ResolversTypes['GroupedExcerciseSets']>>>, ParentType, ContextType>;
+  grouped_excercise_sets?: Resolver<Maybe<Array<ResolversTypes['GroupedExcerciseSets']>>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -873,7 +883,7 @@ export type ExcerciseSetGroupResolvers<ContextType = AppContext, ParentType exte
   excercise_name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   excercise_set_group_id?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   excercise_set_group_state?: Resolver<Maybe<ResolversTypes['ExcerciseSetGroupState']>, ParentType, ContextType>;
-  excercise_sets?: Resolver<Array<Maybe<ResolversTypes['ExcerciseSet']>>, ParentType, ContextType>;
+  excercise_sets?: Resolver<Array<ResolversTypes['ExcerciseSet']>, ParentType, ContextType>;
   failure_reason?: Resolver<Maybe<ResolversTypes['FailureReason']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
@@ -888,7 +898,7 @@ export type GenerateIdTokenResponseResolvers<ContextType = AppContext, ParentTyp
 
 export type GroupedExcerciseSetsResolvers<ContextType = AppContext, ParentType extends ResolversParentTypes['GroupedExcerciseSets'] = ResolversParentTypes['GroupedExcerciseSets']> = ResolversObject<{
   date_completed?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
-  excercise_sets?: Resolver<Maybe<Array<Maybe<ResolversTypes['ExcerciseSet']>>>, ParentType, ContextType>;
+  excercise_sets?: Resolver<Maybe<Array<ResolversTypes['ExcerciseSet']>>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -929,8 +939,8 @@ export type MutationResolvers<ContextType = AppContext, ParentType extends Resol
   deleteWorkout?: Resolver<Maybe<ResolversTypes['mutateWorkoutsResponse']>, ParentType, ContextType, RequireFields<MutationDeleteWorkoutArgs, 'workout_id'>>;
   generateFirebaseIdToken?: Resolver<Maybe<ResolversTypes['GenerateIdTokenResponse']>, ParentType, ContextType, RequireFields<MutationGenerateFirebaseIdTokenArgs, 'uid'>>;
   generateNotification?: Resolver<Maybe<ResolversTypes['NotificationResponse']>, ParentType, ContextType, RequireFields<MutationGenerateNotificationArgs, 'body' | 'title' | 'token'>>;
-  generateWorkouts?: Resolver<Maybe<Array<Maybe<ResolversTypes['Workout']>>>, ParentType, ContextType, RequireFields<MutationGenerateWorkoutsArgs, 'no_of_workouts'>>;
-  regenerateWorkouts?: Resolver<Maybe<Array<Maybe<ResolversTypes['Workout']>>>, ParentType, ContextType>;
+  generateWorkouts?: Resolver<Maybe<Array<ResolversTypes['Workout']>>, ParentType, ContextType, RequireFields<MutationGenerateWorkoutsArgs, 'no_of_workouts'>>;
+  regenerateWorkouts?: Resolver<Maybe<Array<ResolversTypes['Workout']>>, ParentType, ContextType>;
   signup?: Resolver<Maybe<ResolversTypes['SignupResponse']>, ParentType, ContextType, RequireFields<MutationSignupArgs, 'displayName' | 'email' | 'password'>>;
   updateExcerciseMetadata?: Resolver<Maybe<ResolversTypes['mutateExcerciseMetaDataResponse']>, ParentType, ContextType, RequireFields<MutationUpdateExcerciseMetadataArgs, 'excercise_name'>>;
   updateMeasurement?: Resolver<Maybe<ResolversTypes['mutateMeasurementResponse']>, ParentType, ContextType, RequireFields<MutationUpdateMeasurementArgs, 'measurement_id'>>;
@@ -1015,13 +1025,14 @@ export type UserResolvers<ContextType = AppContext, ParentType extends Resolvers
   weight_unit?: Resolver<Maybe<ResolversTypes['WeightUnit']>, ParentType, ContextType>;
   workout_duration?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   workout_frequency?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  workout_type_enrollment?: Resolver<Maybe<ResolversTypes['WorkoutType']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
 export type WorkoutResolvers<ContextType = AppContext, ParentType extends ResolversParentTypes['Workout'] = ResolversParentTypes['Workout']> = ResolversObject<{
   date_completed?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
   date_scheduled?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
-  excercise_set_groups?: Resolver<Maybe<Array<Maybe<ResolversTypes['ExcerciseSetGroup']>>>, ParentType, ContextType>;
+  excercise_set_groups?: Resolver<Maybe<Array<ResolversTypes['ExcerciseSetGroup']>>, ParentType, ContextType>;
   life_span?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   order_index?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   performance_rating?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
@@ -1029,6 +1040,7 @@ export type WorkoutResolvers<ContextType = AppContext, ParentType extends Resolv
   workout_id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   workout_name?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   workout_state?: Resolver<Maybe<ResolversTypes['WorkoutState']>, ParentType, ContextType>;
+  workout_type?: Resolver<Maybe<ResolversTypes['WorkoutType']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -1074,7 +1086,7 @@ export type MutateWorkoutsResponseResolvers<ContextType = AppContext, ParentType
   code?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
-  workouts?: Resolver<Maybe<Array<Maybe<ResolversTypes['Workout']>>>, ParentType, ContextType>;
+  workouts?: Resolver<Maybe<Array<ResolversTypes['Workout']>>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 

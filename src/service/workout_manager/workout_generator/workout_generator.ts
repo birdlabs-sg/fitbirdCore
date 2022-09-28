@@ -15,7 +15,7 @@ import {
   getActiveWorkoutCount,
 } from "../utils";
 import { progressivelyOverload } from "../progressive_overloader/progressive_overloader";
-import { Equipment } from "@prisma/client";
+import { Equipment, WorkoutType } from "@prisma/client";
 const _ = require("lodash");
 import * as workoutSplit from "./rotations_types_general";
 /**
@@ -201,9 +201,9 @@ export const workoutGeneratorV2 = async (
 // re configured the selector to make it more usable among different exercise plans
 const excerciseSelector = async (
   numberOfWorkouts: Number,
-  context: any,
+  context: AppContext,
   rotationSequence: MuscleRegionType[][] /*| ExcerciseForce[][]*/,
-  user_constaints: any,
+  user_constaints: Equipment[],
   generated_workout_list: WorkoutWithExerciseSets[]
 ) => {
   const prisma = context.dataSources.prisma;
@@ -258,14 +258,18 @@ const excerciseSelector = async (
         excercise_set_groups: { create: list_of_excercises },
       },
       include: {
-        excercise_set_groups: true,
+        excercise_set_groups: {
+          include: {
+            excercise_sets: true,
+          },
+        },
       },
     });
     generated_workout_list.push(createdWorkout);
   }
-
   // create workout and generate the associated excercisemetadata
 };
+
 /**
  * Generates the next workout, using the previousWorkout parameter as the base.
  * Note: This function is only called when a workout has been completed.
@@ -276,7 +280,8 @@ export async function generateNextWorkout(
   next_workout_excercise_set_groups: PrismaExerciseSetGroupCreateArgs[]
 ) {
   const prisma = context.dataSources.prisma;
-  const { life_span, workout_name, excercise_set_groups } = previousWorkout;
+  const { life_span, workout_name, workout_type, excercise_set_groups } =
+    previousWorkout;
 
   var previousExerciseSetGroups = excercise_set_groups;
 
@@ -322,8 +327,10 @@ export async function generateNextWorkout(
     data: {
       user_id: context.user.user_id,
       workout_name: workout_name!,
-      life_span: life_span! - 1,
+      life_span:
+        workout_type == WorkoutType.SELF_MANAGED ? life_span : life_span! - 1, // Don't deduct life_span from SELF_MANAGED workouts
       order_index: await getActiveWorkoutCount(context),
+      workout_type: workout_type,
       excercise_set_groups: {
         create: formatExcerciseSetGroups(finalExcerciseSetGroups),
       },
