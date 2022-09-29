@@ -1,3 +1,4 @@
+import { WorkoutType } from "@prisma/client";
 import { AppContext } from "../../../types/contextType";
 import { InputMaybe } from "../../../types/graphql";
 
@@ -6,11 +7,13 @@ import { InputMaybe } from "../../../types/graphql";
  * Note:
  * 1. If either @oldindex or no @newIndex is missing, it will just reorder them based on order_index ascending order
  * 2. Reason for this is to reorder the rest because the order was broken (completion, deletion, etc)
+ * 3. ONLY reorders the @workout_type active workouts
  */
 export async function reorderActiveWorkouts(
   context: AppContext,
   oldIndex: InputMaybe<number>,
-  newIndex: InputMaybe<number>
+  newIndex: InputMaybe<number>,
+  workout_type: WorkoutType
 ) {
   const prisma = context.dataSources.prisma;
   // get all active workouts by their order_index
@@ -18,11 +21,13 @@ export async function reorderActiveWorkouts(
     where: {
       date_completed: null,
       user_id: context.user.user_id,
+      workout_type: workout_type,
     },
     orderBy: {
       order_index: "asc",
     },
   });
+
   if (oldIndex != undefined && newIndex != undefined) {
     if (oldIndex < newIndex) {
       newIndex -= 1;

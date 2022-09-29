@@ -133,10 +133,14 @@ export const workoutGenerator = async (
     const createdWorkout = await prisma.workout.create({
       data: {
         workout_name: _.sample(workout_name_list),
-        order_index: await getActiveWorkoutCount(context),
+        order_index: await getActiveWorkoutCount(
+          context,
+          WorkoutType.AI_MANAGED
+        ),
         user_id: user.user_id,
         life_span: 12,
         excercise_set_groups: { create: list_of_excercise_set_groups },
+        workout_type: WorkoutType.AI_MANAGED,
       },
       include: {
         excercise_set_groups: { include: { excercise_sets: true } },
@@ -147,6 +151,10 @@ export const workoutGenerator = async (
   }
   return generated_workout_list;
 };
+
+/**
+ * Generator V2.
+ */
 export const workoutGeneratorV2 = async (
   numberOfWorkouts: Number,
   context: any
@@ -173,7 +181,6 @@ export const workoutGeneratorV2 = async (
   // The name selector cannot be random
 
   // excercise_pointer used with randomRotation determines which exercise type should be next
-  var excercise_pointer = 0;
   let rotationSequenceMuscle: MuscleRegionType[][] = [[]];
   switch (numberOfWorkouts) {
     case 2:
@@ -252,10 +259,14 @@ const excerciseSelector = async (
     const createdWorkout = await prisma.workout.create({
       data: {
         workout_name: _.sample(workout_name_list),
-        order_index: await getActiveWorkoutCount(context),
+        order_index: await getActiveWorkoutCount(
+          context,
+          WorkoutType.AI_MANAGED
+        ),
         user_id: user.user_id,
         life_span: 12,
         excercise_set_groups: { create: list_of_excercises },
+        workout_type: WorkoutType.AI_MANAGED,
       },
       include: {
         excercise_set_groups: {
@@ -329,7 +340,7 @@ export async function generateNextWorkout(
       workout_name: workout_name!,
       life_span:
         workout_type == WorkoutType.SELF_MANAGED ? life_span : life_span! - 1, // Don't deduct life_span from SELF_MANAGED workouts
-      order_index: await getActiveWorkoutCount(context),
+      order_index: await getActiveWorkoutCount(context, workout_type),
       workout_type: workout_type,
       excercise_set_groups: {
         create: formatExcerciseSetGroups(finalExcerciseSetGroups),
