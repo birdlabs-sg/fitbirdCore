@@ -266,7 +266,7 @@ export const deleteWorkout = async (
   });
   // reorder remaining workouts
   await reorderActiveWorkouts(context, undefined, undefined);
-  const activeworkouts: Maybe<Workout>[] = await getActiveWorkouts(context);
+  const activeworkouts: Workout[] = await getActiveWorkouts(context);
   return {
     code: "200",
     success: true,

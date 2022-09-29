@@ -111,6 +111,12 @@ enum WorkoutState {
   DRAFT
 }
 
+enum WorkoutType {
+  AI_MANAGED
+  SELF_MANAGED
+  COACH_MANAGED
+}
+
 // FOR SETS ONLY (Affects their next workout sets, does not affect the current workout's sets)
 // any set that fail will cause the rest time to increase by 1.25x for the next set. 
 // This is effect temporary, will reset back to lower limit in the next workout
@@ -147,6 +153,7 @@ model User {
   isolated_movement_rep_upper_bound Int                 @default(15)
   body_weight_rep_lower_bound       Int                 @default(8)
   body_weight_rep_upper_bound       Int                 @default(20)
+  workout_type_enrollment           WorkoutType         @default(SELF_MANAGED)
   equipment_accessible              Equipment[]
   measurements                      Measurement[]
   workouts                          Workout[]
@@ -195,6 +202,7 @@ model Workout {
   performance_rating   Float?
   user_id              Int
   workout_state        WorkoutState        @default(UNATTEMPTED)
+  workout_type         WorkoutType         @default(SELF_MANAGED)
   excercise_set_groups ExcerciseSetGroup[]
 }
 

@@ -13,7 +13,9 @@ export const Workout = gql`
     performance_rating: Float
     excercise_set_groups: [ExcerciseSetGroup!]
     workout_state: WorkoutState
+    workout_type: WorkoutType
   }
+
   type ExcerciseSetGroup {
     excercise_set_group_id: String
     excercise_name: String!

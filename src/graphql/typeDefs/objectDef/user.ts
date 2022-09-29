@@ -26,5 +26,6 @@ export const User = gql`
     body_weight_rep_lower_bound: Int
     body_weight_rep_upper_bound: Int
     equipment_accessible: [Equipment!]
+    workout_type_enrollment: WorkoutType
   }
 `;
