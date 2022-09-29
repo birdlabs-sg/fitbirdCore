@@ -51,6 +51,7 @@ export const mutateWorkout = gql`
     createWorkout(
       life_span: Int!
       workout_name: String!
+      workout_type: WorkoutType!
       excercise_set_groups: [excerciseSetGroupInput!]!
     ): mutateWorkoutResponse
 
@@ -71,7 +72,11 @@ export const mutateWorkout = gql`
       excercise_set_groups: [excerciseSetGroupInput!]
     ): mutateWorkoutResponse
 
-    updateWorkoutOrder(oldIndex: Int, newIndex: Int): mutateWorkoutsResponse
+    updateWorkoutOrder(
+      oldIndex: Int!
+      newIndex: Int!
+      workout_type: WorkoutType!
+    ): mutateWorkoutsResponse
 
     "[PROTECTED] Deletes a workout object (Must belong to the requestor)."
     deleteWorkout(workout_id: ID!): mutateWorkoutsResponse

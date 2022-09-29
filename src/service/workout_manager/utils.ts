@@ -8,6 +8,7 @@ import {
 } from "../../types/graphql";
 import { AuthenticationError } from "apollo-server";
 import { generateExerciseMetadata } from "./exercise_metadata_manager/exercise_metadata_manager";
+import { WorkoutType } from "@prisma/client";
 const _ = require("lodash");
 
 /**
@@ -38,6 +39,7 @@ export async function formatAndGenerateExcerciseSets(
       excercise_sets: true,
     },
   });
+
   // this function will generate excercise metadata if there is no previous metadata => when the user does it for the first time
   generateExerciseMetadata(context, excercise_name);
   //
@@ -181,12 +183,16 @@ export function exerciseSetGroupStateSeperator(
  * Helps to get all active workouts (AKA the current rotation)
  *
  */
-export async function getActiveWorkouts(context: AppContext) {
+export async function getActiveWorkouts(
+  context: AppContext,
+  workout_type: WorkoutType
+) {
   const prisma = context.dataSources.prisma;
   return await prisma.workout.findMany({
     where: {
       date_completed: null,
       user_id: context.user.user_id,
+      workout_type: workout_type,
     },
     orderBy: {
       order_index: "asc",
@@ -200,12 +206,16 @@ export async function getActiveWorkouts(context: AppContext) {
  * Note:
  * If you want the workouts itself, call getActiveWorkouts()
  */
-export async function getActiveWorkoutCount(context: AppContext) {
+export async function getActiveWorkoutCount(
+  context: AppContext,
+  workout_type: WorkoutType
+) {
   const prisma = context.dataSources.prisma;
   const workouts = await prisma.workout.findMany({
     where: {
       date_completed: null,
       user_id: context.user.user_id,
+      workout_type: workout_type,
     },
     orderBy: {
       order_index: "asc",

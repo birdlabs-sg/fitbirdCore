@@ -29,7 +29,7 @@ const queryTypeDef = gql`
   "This is the root query to resources. Require ADMIN permission to access all, otherwise resources are scoped to the user issuing the request."
   type Query {
     user: User
-    workouts(filter: WorkoutFilter!): [Workout]
+    workouts(filter: WorkoutFilter!, type: WorkoutType): [Workout]
     getWorkout(workout_id: ID!): Workout
     excercises: [Excercise]
     excludedExcercises: [Excercise]

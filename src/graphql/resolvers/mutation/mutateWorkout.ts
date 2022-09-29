@@ -4,10 +4,9 @@ import {
   workoutGenerator,
   workoutGeneratorV2,
 } from "../../../service/workout_manager/workout_generator/workout_generator";
-import { Workout, WorkoutState } from "@prisma/client";
+import { Workout, WorkoutState, WorkoutType } from "@prisma/client";
 import { AppContext } from "../../../types/contextType";
 import {
-  Maybe,
   MutationUpdateWorkoutArgs,
   ExcerciseSetGroupInput,
   MutationCreateWorkoutArgs,
@@ -32,6 +31,10 @@ import {
 } from "../../../service/workout_manager/exercise_metadata_manager/exercise_metadata_manager";
 import { assert } from "console";
 
+/**
+ * Generates @no_of_workouts number of workouts based on expert guidelines.
+ * The generated workouts are of type: WorkoutType.AI_MANAGED
+ */
 export const generateWorkouts = async (
   parent: any,
   { no_of_workouts }: MutationGenerateWorkoutsArgs,
@@ -48,6 +51,13 @@ export const generateWorkouts = async (
   return generatedWorkouts;
 };
 
+/**
+ * Regenerates AI_MANAGED workouts.
+ * NOTE:
+ *
+ * 1. Workout generated are of type: WorkoutType.AI_MANAGED
+ * 2. All existing active workouts of type: WorkoutType.AI_MANAGED are deleted
+ */
 export const regenerateWorkouts = async (
   parent: any,
   args: any,
@@ -58,7 +68,10 @@ export const regenerateWorkouts = async (
   const no_of_workouts = context.user.workout_frequency ?? 3;
   assert(no_of_workouts > 0 && no_of_workouts <= 6);
 
-  const activeWorkouts = await getActiveWorkouts(context);
+  const activeWorkouts = await getActiveWorkouts(
+    context,
+    WorkoutType.AI_MANAGED
+  );
   const activeWorkoutIDS = activeWorkouts.map(
     (workout: any) => workout.workout_id
   );
@@ -67,6 +80,7 @@ export const regenerateWorkouts = async (
       workout_id: {
         in: activeWorkoutIDS,
       },
+      workout_type: WorkoutType.AI_MANAGED,
     },
   });
   var generatedWorkouts: WorkoutWithExerciseSets[];
@@ -78,25 +92,31 @@ export const regenerateWorkouts = async (
   return generatedWorkouts;
 };
 
-// Note: This resolver is only used when the user wishes to create new workout on existing ones.
-// Assumption: active_workouts always have order_index with no gaps when sorted. For eg: 0,1,2,3 and not 0,2,3,5
+/**
+ * Creates a new workout.
+ * Assumption: active_workouts always have order_index with no gaps when sorted. For eg: 0,1,2,3 and not 0,2,3,5
+ */
 export async function createWorkout(
   parent: any,
-  args: MutationCreateWorkoutArgs,
+  {
+    excercise_set_groups,
+    life_span,
+    workout_name,
+    workout_type,
+  }: MutationCreateWorkoutArgs,
   context: AppContext
 ) {
   onlyAuthenticated(context);
+  // Ensure that there is a max of 7 workouts
+  if ((await getActiveWorkoutCount(context, workout_type)) > 6) {
+    throw Error("You can only have 6 active workouts.");
+  }
+
   const prisma = context.dataSources.prisma;
-  const { excercise_set_groups, ...otherArgs } = args;
 
   const [excerciseSetGroups, excerciseMetadatas] = extractMetadatas(
     excercise_set_groups as ExcerciseSetGroupInput[]
   );
-
-  // Ensure that there is a max of 7 workouts
-  if ((await getActiveWorkoutCount(context)) > 6) {
-    throw Error("You can only have 7 active workouts.");
-  }
 
   const formattedExcerciseSetGroups =
     formatExcerciseSetGroups(excerciseSetGroups);
@@ -104,8 +124,10 @@ export async function createWorkout(
   const workout = await prisma.workout.create({
     data: {
       user_id: context.user.user_id,
-      order_index: await getActiveWorkoutCount(context),
-      ...otherArgs,
+      order_index: await getActiveWorkoutCount(context, workout_type),
+      life_span: life_span,
+      workout_name: workout_name,
+      workout_type: workout_type,
       excercise_set_groups: {
         create: formattedExcerciseSetGroups,
       },
@@ -113,7 +135,6 @@ export async function createWorkout(
   });
 
   await generateOrUpdateExcerciseMetadata(context, excerciseMetadatas);
-
   return {
     code: "200",
     success: true,
@@ -122,23 +143,30 @@ export async function createWorkout(
   };
 }
 
-// Assumption: active_workouts always have order_index with no gaps when sorted. For eg: 0,1,2,3 and not 0,2,3,5
+/**
+ * Reorders the given @workout_type active workoust.
+ */
 export const updateWorkoutOrder = async (
   parent: any,
-  args: MutationUpdateWorkoutOrderArgs,
+  { oldIndex, newIndex, workout_type }: MutationUpdateWorkoutOrderArgs,
   context: AppContext
 ) => {
-  let { oldIndex, newIndex } = args;
-  await reorderActiveWorkouts(context, oldIndex, newIndex);
+  await reorderActiveWorkouts(context, oldIndex, newIndex, workout_type);
   return {
     code: "200",
     success: true,
     message: "Successfully updated your workout!",
-    workouts: await getActiveWorkouts(context),
+    workouts: await getActiveWorkouts(context, workout_type),
   };
 };
 
-// Note: Client have to send in all the excercise_sets or it will be treated that the excercise_set is to be deleted
+/**
+ * Completed the workout specified by @workout_id
+ *
+ * NOTE:
+ * 1. Client have to send in all the excercise_sets or it will be treated that the excercise_set is to be deleted
+ * 2. Active workouts returned will belong to the same type as the workout being completed.
+ */
 export const completeWorkout = async (
   parent: any,
   { workout_id, excercise_set_groups }: MutationCompleteWorkoutArgs,
@@ -181,7 +209,12 @@ export const completeWorkout = async (
   await updateExcerciseMetadataWithCompletedWorkout(context, completedWorkout);
 
   // this is to reorder the rest before the workout is generated and inserted to the back
-  await reorderActiveWorkouts(context, undefined, undefined);
+  await reorderActiveWorkouts(
+    context,
+    undefined,
+    undefined,
+    completedWorkout.workout_type
+  );
 
   await generateNextWorkout(
     context,
@@ -193,19 +226,20 @@ export const completeWorkout = async (
     code: "200",
     success: true,
     message: "Successfully updated your workout!",
-    workouts: await getActiveWorkouts(context),
+    workouts: await getActiveWorkouts(context, completedWorkout.workout_type),
   };
 };
 
-// Note: Client have to send in all the excercise_sets with associated data or it will be treated that the excercise_set is to be deleted
-// Note: This only allows active workouts
+/**
+ * Updates the workout specified by @workout_id
+ */
 export const updateWorkout = async (
   _: any,
-  args: MutationUpdateWorkoutArgs,
+  { workout_id, excercise_set_groups, ...otherArgs }: MutationUpdateWorkoutArgs,
   context: AppContext
 ) => {
   onlyAuthenticated(context);
-  const { workout_id, excercise_set_groups, ...otherArgs } = args;
+
   const prisma = context.dataSources.prisma;
   await checkExistsAndOwnership(context, workout_id);
 
@@ -249,28 +283,38 @@ export const updateWorkout = async (
   };
 };
 
+/**
+ * deletes the workout specified by @workout_id
+ * Note:
+ * Returns the active workouts that belong to the same group as the workout being delted
+ */
 export const deleteWorkout = async (
   _: any,
-  args: MutationDeleteWorkoutArgs,
+  { workout_id }: MutationDeleteWorkoutArgs,
   context: AppContext
 ) => {
   onlyAuthenticated(context);
   const prisma = context.dataSources.prisma;
   // Get the workout of interest
-  await checkExistsAndOwnership(context, args.workout_id);
+  await checkExistsAndOwnership(context, workout_id);
   // delete the workout
-  await prisma.workout.delete({
+  var deletedWorkout = await prisma.workout.delete({
     where: {
-      workout_id: parseInt(args.workout_id),
+      workout_id: parseInt(workout_id),
     },
   });
+
   // reorder remaining workouts
-  await reorderActiveWorkouts(context, undefined, undefined);
-  const activeworkouts: Maybe<Workout>[] = await getActiveWorkouts(context);
+  await reorderActiveWorkouts(
+    context,
+    undefined,
+    undefined,
+    deletedWorkout.workout_type
+  );
   return {
     code: "200",
     success: true,
     message: "Successfully deleted your workout!",
-    workouts: activeworkouts,
+    workouts: await getActiveWorkouts(context, deletedWorkout.workout_type),
   };
 };
