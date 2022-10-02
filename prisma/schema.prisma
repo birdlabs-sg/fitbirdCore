@@ -128,11 +128,46 @@ enum FailureReason {
   INSUFFICIENT_SLEEP // (Means that user not enough sleep recently) No change
 }
 
+// // TODO: Use polymorphism. But prisma does not currently support this.
+// // Contains the authentication information of the user.
+model BaseUser {
+  base_user_id Int    @id @default(autoincrement())
+  email        String @unique
+  firebase_uid String @unique
+  displayName  String
+  coach        Coach?
+  User         User?
+}
+
+model Coach {
+  // TODO: Add in more fields as we gain more requirements from gyms
+  coach_id     Int       @id @default(autoincrement())
+  base_user    BaseUser  @relation(fields: [base_user_id], references: [base_user_id], onDelete: Cascade)
+  base_user_id Int       @unique
+  Review       Review[]
+  Program      Program[]
+}
+
+model Review {
+  review_id Int    @id @default(autoincrement())
+  coach     Coach  @relation(fields: [coach_id], references: [coach_id], onDelete: Cascade)
+  rating    Float
+  content   String
+  coach_id  Int
+}
+
+model Program {
+  program_id Int       @id @default(autoincrement())
+  coach      Coach     @relation(fields: [coach_id], references: [coach_id], onDelete: Cascade)
+  user       User      @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
+  workouts   Workout[]
+  coach_id   Int
+  user_id    Int
+}
+
 model User {
   user_id                           Int                 @id @default(autoincrement())
-  email                             String              @unique
-  firebase_uid                      String              @unique
-  displayName                       String
+  base_user                         BaseUser            @relation(fields: [base_user_id], references: [base_user_id], onDelete: Cascade)
   prior_years_of_experience         Float?
   level_of_experience               LevelOfExperience?
   age                               Int?
@@ -154,28 +189,32 @@ model User {
   body_weight_rep_lower_bound       Int                 @default(8)
   body_weight_rep_upper_bound       Int                 @default(20)
   workout_type_enrollment           WorkoutType         @default(SELF_MANAGED)
+  base_user_id                      Int                 @unique
   equipment_accessible              Equipment[]
   measurements                      Measurement[]
   workouts                          Workout[]
   notifications                     Notification[]
   broadcasts                        BroadCast[]
   excerciseMetadata                 ExcerciseMetadata[]
+  Program                           Program[]
 }
 
 model ExcerciseMetadata {
-  excercise_metadata_state ExcerciseMetadataState @default(LEARNING)
-  user                     User                   @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
-  excercise                Excercise              @relation(fields: [excercise_name], references: [excercise_name], onDelete: Cascade)
-  haveRequiredEquipment    Boolean?
-  preferred                Boolean?
-  last_excecuted           DateTime?
-  best_weight              Float                  @default(0)
-  weight_unit              WeightUnit             @default(KG)
-  best_rep                 Int                    @default(0)
-  rest_time_lower_bound    Int                    @default(90)
-  rest_time_upper_bound    Int                    @default(180)
-  user_id                  Int
-  excercise_name           String
+  excercise_metadata_state              ExcerciseMetadataState @default(LEARNING)
+  user                                  User                   @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
+  excercise                             Excercise              @relation(fields: [excercise_name], references: [excercise_name], onDelete: Cascade)
+  haveRequiredEquipment                 Boolean?
+  preferred                             Boolean?
+  last_excecuted                        DateTime?
+  best_weight                           Float                  @default(0)
+  weight_unit                           WeightUnit             @default(KG)
+  best_rep                              Int                    @default(0)
+  rest_time_lower_bound                 Int                    @default(90)
+  rest_time_upper_bound                 Int                    @default(180)
+  user_id                               Int
+  excercise_name                        String
+  estimated_historical_average_best_rep Int                    @default(0)
+  estimated_historical_best_one_rep_max Float                  @default(0)
 
   @@id([user_id, excercise_name])
 }
@@ -204,6 +243,8 @@ model Workout {
   workout_state        WorkoutState        @default(UNATTEMPTED)
   workout_type         WorkoutType         @default(SELF_MANAGED)
   excercise_set_groups ExcerciseSetGroup[]
+  Program              Program?            @relation(fields: [programProgram_id], references: [program_id]) // Will only have a value if this is coach-managed. No choice because polymorphism not supported yet by prisma.
+  programProgram_id    Int?
 }
 
 model ExcerciseSetGroup {

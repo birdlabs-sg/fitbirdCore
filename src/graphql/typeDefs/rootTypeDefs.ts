@@ -9,6 +9,9 @@ import { MuscleRegion } from "./objectDef/muscleRegion";
 import { User } from "./objectDef/user";
 import { Workout } from "./objectDef/workout";
 import { BroadCast } from "./objectDef/broadCast";
+import { Coach } from "./objectDef/coach";
+import { Program } from "./objectDef/program";
+import { Review } from "./objectDef/review";
 
 // Imports for mutations
 import { mutateSignup } from "./mutationDef/mutateSignup";
@@ -30,6 +33,10 @@ const queryTypeDef = gql`
   type Query {
     user: User
     workouts(filter: WorkoutFilter!, type: WorkoutType): [Workout]
+    # TODO: Implement these to fit the description on linear
+    # coach: Coach
+    # programs(user_ids: [ID]): [Program]  // if no user_ids, should query all programs associated to that coach. if have user_ids[] query all programs associated to that coach and user_id
+    # coaches: [Coach] // get a  list of all the coaches
     getWorkout(workout_id: ID!): Workout
     excercises: [Excercise]
     excludedExcercises: [Excercise]
@@ -84,6 +91,9 @@ const objectTypeDefs = [
   ExcerciseMetadata,
   WorkoutFrequency,
   ExcercisePerformance,
+  Coach,
+  Program,
+  Review,
 ];
 
 export const typeDefs = baseTypeDefs.concat.apply(
