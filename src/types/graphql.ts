@@ -17,8 +17,17 @@ export type Scalars = {
   Float: number;
   Date: any;
 };
+export type BaseUser ={
+  __typename?: 'BaseUser';
+  base_user_id:Scalars['ID'];
+  displayName?: Maybe<Scalars['String']>;
+  email?: Maybe<Scalars['String']>;
+  coach?:Maybe<Coach>;
+  user?:Maybe<User>;
 
+}
 /** Represents broadcast message to selected users. */
+
 export type BroadCast = {
   __typename?: 'BroadCast';
   broad_cast_id: Scalars['ID'];
@@ -26,7 +35,12 @@ export type BroadCast = {
   scheduled_end?: Maybe<Scalars['String']>;
   scheduled_start?: Maybe<Scalars['String']>;
 };
+export type Coach = {
+  __typename?: 'Coach';
+  coach_id: Scalars['ID'];
+  base_user_id?:Maybe<Scalars['ID']>;
 
+}
 export enum Equipment {
   Barbell = 'BARBELL',
   Bench = 'BENCH',
@@ -342,6 +356,7 @@ export type MutationSignupArgs = {
   displayName: Scalars['String'];
   email: Scalars['String'];
   password: Scalars['String'];
+  is_user:Scalars['Boolean']
   phoneNumber?: InputMaybe<Scalars['String']>;
 };
 
@@ -443,6 +458,16 @@ export type NotificationResponse = MutationResponse & {
   success: Scalars['Boolean'];
 };
 
+//new type Program
+export type Program={
+  __typename?: 'Program';
+  coach_id?:Maybe<Scalars['ID']>;
+  program_id:Scalars['ID'];
+  user_id?:Maybe<Scalars['ID']>;
+  workouts?: Maybe<Array<Workout>>;
+}
+//new
+
 /** This is the root query to resources. Require ADMIN permission to access all, otherwise resources are scoped to the user issuing the request. */
 export type Query = {
   __typename?: 'Query';
@@ -478,6 +503,9 @@ export type QueryGetExcercisePerformanceArgs = {
   excercise_name: Scalars['ID'];
   span?: InputMaybe<Scalars['Int']>;
 };
+export type QueryGetProgramArgs = {
+  coach_id: Scalars['ID'];
+};
 
 
 /** This is the root query to resources. Require ADMIN permission to access all, otherwise resources are scoped to the user issuing the request. */
@@ -491,7 +519,15 @@ export type QueryWorkoutsArgs = {
   filter: WorkoutFilter;
   type?: InputMaybe<WorkoutType>;
 };
-
+//new type Review
+export type Review ={
+  __typename?:'Review';
+  review_id: Scalars['ID'];
+  coach_id?:Maybe<Scalars['ID']>;
+  content?: Maybe<Scalars['String']>;
+  rating?: Maybe<Scalars['Float']>;
+}
+//
 /** Response if a signup event is successful */
 export type SignupResponse = MutationResponse & {
   __typename?: 'SignupResponse';
@@ -538,6 +574,7 @@ export type User = {
   workout_duration?: Maybe<Scalars['Int']>;
   workout_frequency?: Maybe<Scalars['Int']>;
   workout_type_enrollment?: Maybe<WorkoutType>;
+  Program?: Maybe<Program>;
 };
 
 /** Units for weight */
@@ -560,6 +597,7 @@ export type Workout = {
   workout_name?: Maybe<Scalars['String']>;
   workout_state?: Maybe<WorkoutState>;
   workout_type?: Maybe<WorkoutType>;
+  programProgram_id?: Maybe<Scalars['ID']>;
 };
 
 /** Units for weight */

@@ -1,11 +1,11 @@
 const { gql } = require("apollo-server");
 
 export const Program = gql`
-  "Represents broadcast message to selected users."
+  "Represents programs for coaches."
   type Program {
     program_id: ID!
-    email: String!
-    user: User!
+    user_id: ID!
+    coach_id: ID!
     workouts: [Workout]!
   }
 `;

@@ -9,9 +9,10 @@ import { MuscleRegion } from "./objectDef/muscleRegion";
 import { User } from "./objectDef/user";
 import { Workout } from "./objectDef/workout";
 import { BroadCast } from "./objectDef/broadCast";
-// import { Coach } from "./objectDef/coach";
-// import { Program } from "./objectDef/program";
-// import { Review } from "./objectDef/review";
+import { Coach } from "./objectDef/coach";
+import { Program } from "./objectDef/program";
+import { Review } from "./objectDef/review";
+import { BaseUsers } from "./objectDef/baseUsers";
 
 // Imports for mutations
 import { mutateSignup } from "./mutationDef/mutateSignup";
@@ -27,10 +28,13 @@ import { ExcercisePerformance } from "./objectDef/excercisePerformance";
 import { mutateGenerateWorkouts } from "./mutationDef/mutateGenerateWorkouts";
 import { mutateNotification } from "./mutationDef/mutateNotification";
 
+
 const queryTypeDef = gql`
   scalar Date
   "This is the root query to resources. Require ADMIN permission to access all, otherwise resources are scoped to the user issuing the request."
   type Query {
+    program:[Program]
+    baseUsers:[BaseUsers]
     user: User
     workouts(filter: WorkoutFilter!, type: WorkoutType): [Workout]
     # TODO: Implement these to fit the description on linear
@@ -75,6 +79,7 @@ const mutationTypeDefs = [
 ];
 
 const objectTypeDefs = [
+  BaseUsers,
   queryTypeDef,
   User,
   Enum,

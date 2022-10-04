@@ -4,8 +4,6 @@ export const User = gql`
   "Represents a user. Contains meta-data specific to each user."
   type User {
     user_id: ID!
-    email: String
-    displayName: String
     gender: Gender
     weight: Float
     height: Float

@@ -34,6 +34,8 @@ import { generateNotificationResolver } from "./mutation/generateNotificationRes
 import { Resolvers } from "../../types/graphql";
 import { usersQueryResolver } from "./query/queryUsers";
 import { GraphQLScalarType, Kind } from "graphql";
+import { baseUsersQueryResolver } from "./query/queryBaseUsers";
+import { programQueryResolver } from "./query/queryProgram";
 
 const _ = require("lodash");
 const dateScalar = new GraphQLScalarType({
@@ -73,6 +75,8 @@ export const resolvers: Resolvers = {
 
   //Root Query: Top level querying logic here
   Query: {
+    program:programQueryResolver,
+    baseUsers:baseUsersQueryResolver,
     user: userQueryResolvers,
     workouts: workoutsQueryResolver,
     getWorkout: workoutQueryResolver,
