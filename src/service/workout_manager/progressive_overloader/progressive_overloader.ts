@@ -4,6 +4,7 @@ import { PrismaExerciseSetGroupCreateArgs } from "../../../types/Prisma";
 import { ExcerciseSetInput, FailureReason } from "../../../types/graphql";
 import { retrieveExerciseMetadata } from "../exercise_metadata_manager/exercise_metadata_manager";
 
+// TODO: RPE should have a factor in the overloader algorithm.
 /**
  * Takes in @excercise_set_groups as a base and returns a list of exercise_set_groups that have been overloaded
  * Note: If there are failed sets, the failure reason would determine how the overloader responds

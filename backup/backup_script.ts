@@ -11,7 +11,7 @@ async function loadBackup() {
   );
   const sqlReducedToStatements = rawSql
     .split("\n")
-    .filter((line) => !line.startsWith("--")) // remove comments-only lines
+    .filter((line: any) => !line.startsWith("--")) // remove comments-only lines
     .join("\n")
     .replace(/\r\n|\n|\r/g, " ") // remove newlines
     .replace(/\s+/g, " "); // excess white space
@@ -27,7 +27,7 @@ async function loadBackup() {
 
 loadBackup();
 
-function splitStringByNotQuotedSemicolon(input) {
+function splitStringByNotQuotedSemicolon(input: String) {
   const result = [];
 
   let currentSplitIndex = 0;

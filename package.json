@@ -2,7 +2,7 @@
   "name": "fitbird_core",
   "version": "0.0.0",
   "private": true,
-  "main": "dist/index.js",
+  "main": "dist/src/index.js",
   "scripts": {
     "build": "tsc",
     "dev": "tsc-watch --onSuccess \"node .\"",
