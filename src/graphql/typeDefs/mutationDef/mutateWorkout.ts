@@ -23,6 +23,7 @@ export const mutateWorkout = gql`
     excercise_metadata: excerciseMetaDataInput!
     excercise_sets: [excerciseSetInput!]!
     failure_reason: FailureReason
+    rate_of_perceived_exertion: Float
   }
 
   input excerciseMetaDataInput {

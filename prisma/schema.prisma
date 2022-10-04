@@ -190,6 +190,7 @@ model User {
   body_weight_rep_upper_bound       Int                 @default(20)
   workout_type_enrollment           WorkoutType         @default(SELF_MANAGED)
   base_user_id                      Int                 @unique
+  ai_managed_workouts_life_cycle    Int                 @default(12)
   equipment_accessible              Equipment[]
   measurements                      Measurement[]
   workouts                          Workout[]
@@ -248,14 +249,15 @@ model Workout {
 }
 
 model ExcerciseSetGroup {
-  excercise_set_group_id    Int                    @id @default(autoincrement())
-  workout                   Workout                @relation(fields: [workout_id], references: [workout_id], onDelete: Cascade)
-  excercise                 Excercise              @relation(fields: [excercise_name], references: [excercise_name], onDelete: Cascade)
-  excercise_sets            ExcerciseSet[]
-  excercise_name            String
-  workout_id                Int
-  excercise_set_group_state ExcerciseSetGroupState
-  failure_reason            FailureReason?
+  excercise_set_group_id     Int                    @id @default(autoincrement())
+  workout                    Workout                @relation(fields: [workout_id], references: [workout_id], onDelete: Cascade)
+  excercise                  Excercise              @relation(fields: [excercise_name], references: [excercise_name], onDelete: Cascade)
+  excercise_sets             ExcerciseSet[]
+  excercise_name             String
+  workout_id                 Int
+  excercise_set_group_state  ExcerciseSetGroupState
+  failure_reason             FailureReason?
+  rate_of_perceived_exertion Float?
 }
 
 model MuscleRegion {

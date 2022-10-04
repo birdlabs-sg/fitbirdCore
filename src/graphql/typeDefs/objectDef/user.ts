@@ -27,5 +27,6 @@ export const User = gql`
     body_weight_rep_upper_bound: Int
     equipment_accessible: [Equipment!]
     workout_type_enrollment: WorkoutType
+    ai_managed_workouts_life_cycle: Int
   }
 `;
