@@ -11,6 +11,9 @@ generates:
       contextType: ./contextType#AppContext
       mapperTypeSuffix: Models
       mappers:
+        BaseUser: "@prisma/client#BaseUser"
+        Coach: "@prisma/client#Coach"
+        Program: "@prisma/client#Program"
         User: "@prisma/client#User"
         Workout: "@prisma/client#Workout"
         ExcerciseMetadata: "@prisma/client#ExcerciseMetadata"

@@ -33,7 +33,7 @@ import { workoutQueryResolver } from "./query/queryWorkout";
 import { generateNotificationResolver } from "./mutation/generateNotificationResolver";
 import { Resolvers } from "../../types/graphql";
 import { usersQueryResolver } from "./query/queryUsers";
-import { GraphQLScalarType, Kind } from "graphql";
+import { GraphQLScalarType } from "graphql";
 import { baseUsersQueryResolver } from "./query/queryBaseUsers";
 import { programQueryResolver } from "./query/queryProgram";
 
@@ -75,8 +75,8 @@ export const resolvers: Resolvers = {
 
   //Root Query: Top level querying logic here
   Query: {
-    program:programQueryResolver,
-    baseUsers:baseUsersQueryResolver,
+    programs: programQueryResolver,
+    baseUsers: baseUsersQueryResolver,
     user: userQueryResolvers,
     workouts: workoutsQueryResolver,
     getWorkout: workoutQueryResolver,

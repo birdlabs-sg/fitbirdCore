@@ -1,8 +1,8 @@
 const { gql } = require("apollo-server");
 
-export const BaseUsers = gql`
+export const BaseUser = gql`
   "Represents a user. Contains meta-data specific to each user."
-  type BaseUsers {
+  type BaseUser {
     base_user_id: ID!
     email: String
     displayName: String
