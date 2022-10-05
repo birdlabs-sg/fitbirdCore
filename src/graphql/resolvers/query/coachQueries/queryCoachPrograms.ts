@@ -7,6 +7,7 @@ export const coachProgramsResolver = async (
     __: any,
     context: AppContext
   ) => {
+    
     //onlyCoach(context);
     const prisma = context.dataSources.prisma;
     const programs = await prisma.program.findMany({
