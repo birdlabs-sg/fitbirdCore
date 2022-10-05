@@ -118,6 +118,7 @@ export type ExcerciseSet = {
   actual_reps?: Maybe<Scalars['Int']>;
   actual_weight?: Maybe<Scalars['Float']>;
   excercise_set_id: Scalars['ID'];
+  rate_of_perceived_exertion?: Maybe<Scalars['Int']>;
   target_reps?: Maybe<Scalars['Int']>;
   target_weight?: Maybe<Scalars['Float']>;
   weight_unit?: Maybe<WeightUnit>;
@@ -132,7 +133,6 @@ export type ExcerciseSetGroup = {
   excercise_set_group_state?: Maybe<ExcerciseSetGroupState>;
   excercise_sets: Array<ExcerciseSet>;
   failure_reason?: Maybe<FailureReason>;
-  rate_of_perceived_exertion?: Maybe<Scalars['Float']>;
 };
 
 /** Used in overloading algorithm to determine what to do with that set. */
@@ -413,6 +413,7 @@ export type MutationUpdateUserArgs = {
   isolated_movement_rep_upper_bound?: InputMaybe<Scalars['Int']>;
   level_of_experience?: InputMaybe<LevelOfExperience>;
   prior_years_of_experience?: InputMaybe<Scalars['Float']>;
+  use_rpe?: InputMaybe<Scalars['Boolean']>;
   weight?: InputMaybe<Scalars['Float']>;
   weight_unit?: InputMaybe<WeightUnit>;
   workout_duration?: InputMaybe<Scalars['Int']>;
@@ -569,6 +570,7 @@ export type User = {
   isolated_movement_rep_upper_bound?: Maybe<Scalars['Int']>;
   level_of_experience?: Maybe<LevelOfExperience>;
   prior_years_of_experience?: Maybe<Scalars['Float']>;
+  use_rpe?: Maybe<Scalars['Boolean']>;
   user_id: Scalars['ID'];
   weight?: Maybe<Scalars['Float']>;
   weight_unit?: Maybe<WeightUnit>;
@@ -645,12 +647,12 @@ export type ExcerciseSetGroupInput = {
   excercise_set_group_state: ExcerciseSetGroupState;
   excercise_sets: Array<ExcerciseSetInput>;
   failure_reason?: InputMaybe<FailureReason>;
-  rate_of_perceived_exertion?: InputMaybe<Scalars['Float']>;
 };
 
 export type ExcerciseSetInput = {
   actual_reps?: InputMaybe<Scalars['Int']>;
   actual_weight?: InputMaybe<Scalars['Float']>;
+  rate_of_perceived_exertion?: InputMaybe<Scalars['Int']>;
   target_reps: Scalars['Int'];
   target_weight: Scalars['Float'];
   weight_unit: WeightUnit;
@@ -938,6 +940,7 @@ export type ExcerciseSetResolvers<ContextType = AppContext, ParentType extends R
   actual_reps?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   actual_weight?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
   excercise_set_id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  rate_of_perceived_exertion?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   target_reps?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   target_weight?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
   weight_unit?: Resolver<Maybe<ResolversTypes['WeightUnit']>, ParentType, ContextType>;
@@ -952,7 +955,6 @@ export type ExcerciseSetGroupResolvers<ContextType = AppContext, ParentType exte
   excercise_set_group_state?: Resolver<Maybe<ResolversTypes['ExcerciseSetGroupState']>, ParentType, ContextType>;
   excercise_sets?: Resolver<Array<ResolversTypes['ExcerciseSet']>, ParentType, ContextType>;
   failure_reason?: Resolver<Maybe<ResolversTypes['FailureReason']>, ParentType, ContextType>;
-  rate_of_perceived_exertion?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -1104,6 +1106,7 @@ export type UserResolvers<ContextType = AppContext, ParentType extends Resolvers
   isolated_movement_rep_upper_bound?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   level_of_experience?: Resolver<Maybe<ResolversTypes['LevelOfExperience']>, ParentType, ContextType>;
   prior_years_of_experience?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  use_rpe?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   user_id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   weight?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
   weight_unit?: Resolver<Maybe<ResolversTypes['WeightUnit']>, ParentType, ContextType>;

@@ -24,6 +24,5 @@ export const Workout = gql`
     excercise_set_group_state: ExcerciseSetGroupState
     excercise_sets: [ExcerciseSet!]!
     failure_reason: FailureReason
-    rate_of_perceived_exertion: Float
   }
 `;

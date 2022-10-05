@@ -11,9 +11,7 @@ export const updateUser = async (
 ) => {
   onlyAuthenticated(context);
   const prisma = context.dataSources.prisma;
-  console.log(args);
   if (args.ai_managed_workouts_life_cycle) {
-    console.log("have ai managed");
     // TODO: should have side effects on existing workouts
     const ai_managed_active_workouts = await getActiveWorkouts(
       context,

@@ -26,5 +26,6 @@ export const User = gql`
     equipment_accessible: [Equipment!]
     workout_type_enrollment: WorkoutType
     ai_managed_workouts_life_cycle: Int
+    use_rpe: Boolean
   }
 `;

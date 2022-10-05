@@ -50,7 +50,8 @@ export async function formatAndGenerateExcerciseSets(
       excercise_set_input = _.omit(
         prev_set,
         "excercise_set_group_id",
-        "excercise_set_id"
+        "excercise_set_id",
+        "rate_of_perceived_exertion"
       );
       // Swapping of the "target" vs "actual" roles as now the target of new was actual of the previous
       excercise_set_input.target_reps = prev_set.actual_reps ?? 0;

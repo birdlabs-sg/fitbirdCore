@@ -159,8 +159,14 @@ function generateOverloadedExerciseSets({
   const updatedSets: ExcerciseSetInput[] = [];
   for (let excerciseSet of excercise_sets) {
     // extract actual values and create a base scaffold for the next exerciseset
-    const { actual_reps, actual_weight, ...excercise_set_scaffold } =
-      excerciseSet;
+    const {
+      actual_reps,
+      actual_weight,
+      rate_of_perceived_exertion,
+      ...excercise_set_scaffold
+    } = excerciseSet;
+
+    // TODO: Use rate_of_percieved_exertion for next sets
 
     const category = categorizeExcerciseSet({ excercise_set: excerciseSet });
 
