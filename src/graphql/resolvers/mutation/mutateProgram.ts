@@ -9,7 +9,7 @@ export const CreateProgram = async (
     //at any given time, there will only be one active program for the user,so
     //1. change all existing programs to is_active = false
     //2. set the new program to be active,
-    //onlyCoach(context);
+    // onlyCoach(context);
     await prisma.program.update({
       where: {
         AND: [
@@ -32,6 +32,7 @@ export const CreateProgram = async (
         workouts: workouts,
       },
     });
+
     return {
       code: "200",
       success: true,
