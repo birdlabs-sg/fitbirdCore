@@ -2,8 +2,7 @@ import { AuthenticationError, ForbiddenError } from "apollo-server";
 import * as admin from "firebase-admin";
 import { AppContext } from "../../types/contextType";
 import { Context } from "vm";
-
-const { PrismaClient } = require("@prisma/client");
+import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 const dotenv = require("dotenv");
@@ -38,7 +37,7 @@ export const signupFirebase = async (
   });
 
   if (is_user) {
-    const prismaBaseUser = await prisma.BaseUser.create({
+    const prismaBaseUser = await prisma.baseUser.create({
       data: {
         firebase_uid: firebaseUser.uid,
         email: firebaseUser.email,
@@ -51,7 +50,7 @@ export const signupFirebase = async (
 
     return prismaBaseUser;
   } else {
-    const prismaBaseUser = await prisma.BaseUser.create({
+    const prismaBaseUser = await prisma.baseUser.create({
       data: {
         firebase_uid: firebaseUser.uid,
         email: firebaseUser.email,
@@ -80,7 +79,7 @@ export const authenticate = async (token: string) => {
   }
   try {
     const fireBaseUser = await firebase.auth().verifyIdToken(token);
-    const base_user = await prisma.BaseUser.findUnique({
+    const base_user = await prisma.baseUser.findUnique({
       where: {
         firebase_uid: fireBaseUser.uid,
       },
@@ -94,13 +93,14 @@ export const authenticate = async (token: string) => {
     if (base_user.coach == null) {
       return {
         authenticated: true,
-        user: base_user.user,
+        user: base_user.User, // This is why you need to have typescript, to avoid mistakes like this
         isAdmin: !!fireBaseUser.admin,
         coach: null,
       };
     }
     // if the user is a coach
     else {
+      console.log("inside coach");
       return {
         authenticated: true,
         user: null,
@@ -108,7 +108,6 @@ export const authenticate = async (token: string) => {
         coach: base_user.coach,
       };
     }
-    
   } catch (e) {
     console.log("HAVE TOKEN BUT FAILED TO AUTHENTICATE", e);
     return { authenticated: false, user: null, isAdmin: null, coach: null };
@@ -117,14 +116,13 @@ export const authenticate = async (token: string) => {
 
 export const onlyAuthenticated = (context: AppContext) => {
   if (!context.authenticated) {
-   throw new AuthenticationError("You are not authenticated.");
+    throw new AuthenticationError("You are not authenticated.");
   }
 };
 
 export const onlyAdmin = (context: AppContext) => {
   if (!context.isAdmin) {
     throw new ForbiddenError("You are not authorized.");
-    
   }
 };
 

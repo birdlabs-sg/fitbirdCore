@@ -5,7 +5,7 @@ import {
   getAuthToken,
 } from "./service/firebase/firebase_service";
 import { ApolloServer } from "apollo-server";
-import { Context } from "vm";
+import { AppContext } from "./types/contextType";
 
 const { PrismaClient } = require("@prisma/client");
 
@@ -23,9 +23,9 @@ const server = new ApolloServer({
       prisma: prisma,
     };
   },
-  context: async ({ req }: Context) => {
+  context: async (context: AppContext) => {
     // Get the user token from the headers and put it into the coin.
-    const token = getAuthToken(req);
+    const token = getAuthToken(context.req);
     const authenticationInfo = await authenticate(token);
     return authenticationInfo;
   },
