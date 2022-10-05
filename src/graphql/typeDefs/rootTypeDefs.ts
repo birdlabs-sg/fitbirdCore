@@ -27,13 +27,17 @@ import { WorkoutFrequency } from "./objectDef/workoutFrequency";
 import { ExcercisePerformance } from "./objectDef/excercisePerformance";
 import { mutateGenerateWorkouts } from "./mutationDef/mutateGenerateWorkouts";
 import { mutateNotification } from "./mutationDef/mutateNotification";
-
+import { mutateProgram } from "./mutationDef/mutateProgram";
 const queryTypeDef = gql`
   scalar Date
   "This is the root query to resources. Require ADMIN permission to access all, otherwise resources are scoped to the user issuing the request."
   type Query {
     programs: [Program]
     baseUsers: [BaseUser] #<- follow the prisma model name
+    coachUserInfo(user_id:ID!): BaseUser
+    coachUsers: [BaseUser]
+    coachProgram(program_id:ID!): Program
+    coachPrograms:[Program]
     user: User
     workouts(filter: WorkoutFilter!, type: WorkoutType): [Workout]
     # TODO: Implement these to fit the description on linear
@@ -75,6 +79,7 @@ const mutationTypeDefs = [
   mutateExcerciseMetadata,
   mutateGenerateWorkouts,
   mutateNotification,
+  mutateProgram
 ];
 
 const objectTypeDefs = [

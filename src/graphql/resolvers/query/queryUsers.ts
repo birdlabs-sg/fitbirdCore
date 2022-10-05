@@ -1,7 +1,10 @@
 import { AppContext } from "../../../types/contextType";
 import { onlyAuthenticated } from "../../../service/firebase/firebase_service";
-import { onlyAdmin } from "../../../service/firebase/firebase_service";
-
+import {
+  onlyAdmin,
+  onlyCoach,
+} from "../../../service/firebase/firebase_service";
+import { QueryProgramArgs } from "../../../types/graphql";
 export const usersQueryResolver = async (
   _: any,
   __: any,
@@ -14,3 +17,4 @@ export const usersQueryResolver = async (
   // const requester_user_id = context.user_id
   return await prisma.user.findMany();
 };
+

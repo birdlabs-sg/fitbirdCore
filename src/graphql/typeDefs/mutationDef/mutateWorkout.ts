@@ -16,6 +16,12 @@ export const mutateWorkout = gql`
     message: String!
     workouts: [Workout!]
   }
+  type mutatePlanResponse implements MutationResponse {
+    code: String!
+    success: Boolean!
+    message: String!
+    workouts: [Workout!]
+  }
 
   input excerciseSetGroupInput {
     excercise_name: String!
@@ -80,6 +86,6 @@ export const mutateWorkout = gql`
     ): mutateWorkoutsResponse
 
     "[PROTECTED] Deletes a workout object (Must belong to the requestor)."
-    deleteWorkout(workout_id: ID!): mutateWorkoutsResponse
+    deleteWorkout(workout_id: ID!): mutateWorkoutsResponse    
   }
 `;

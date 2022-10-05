@@ -163,6 +163,7 @@ model Program {
   workouts   Workout[]
   coach_id   Int
   user_id    Int
+  is_active  Boolean   @default(true)
 }
 
 model User {

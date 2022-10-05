@@ -6,6 +6,7 @@ export const Program = gql`
     program_id: ID!
     user_id: ID!
     coach_id: ID!
-    workouts: [Workout]!
+    workouts: [Workout!]
+    is_active: Boolean
   }
 `;

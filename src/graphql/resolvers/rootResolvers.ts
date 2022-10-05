@@ -19,6 +19,7 @@ import {
   updateWorkout,
   updateWorkoutOrder,
 } from "./mutation/mutateWorkout";
+import { CreateProgram } from "./mutation/mutateProgram";
 import { mutateSignup } from "./mutation/mutateSignup";
 import { excercisesQueryResolver } from "./query/queryExcercises";
 import { notificationsQueryResolver } from "./query/queryNotifications";
@@ -36,7 +37,10 @@ import { usersQueryResolver } from "./query/queryUsers";
 import { GraphQLScalarType } from "graphql";
 import { baseUsersQueryResolver } from "./query/queryBaseUsers";
 import { programQueryResolver } from "./query/queryProgram";
-
+import { coachUserInfoQueryResolver } from "./query/coachQueries/queryCoachUserInfo";
+import { coachUsersQueryResolver } from "./query/coachQueries/queryCoachUsers";
+import { coachProgramResolver } from "./query/coachQueries/queryCoachProgram";
+import { coachProgramsResolver } from "./query/coachQueries/queryCoachPrograms";
 const _ = require("lodash");
 const dateScalar = new GraphQLScalarType({
   name: "Date",
@@ -71,12 +75,17 @@ export const resolvers: Resolvers = {
     updateExcerciseMetadata: updateExcerciseMetadata,
     generateWorkouts: generateWorkouts,
     regenerateWorkouts: regenerateWorkouts,
+    createProgram: CreateProgram,
   },
 
   //Root Query: Top level querying logic here
   Query: {
     programs: programQueryResolver,
     baseUsers: baseUsersQueryResolver,
+    coachUserInfo: coachUserInfoQueryResolver,
+    coachUsers: coachUsersQueryResolver,
+    coachProgram: coachProgramResolver,
+    coachPrograms: coachProgramsResolver,
     user: userQueryResolvers,
     workouts: workoutsQueryResolver,
     getWorkout: workoutQueryResolver,

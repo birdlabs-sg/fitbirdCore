@@ -14,6 +14,7 @@ import {
   MutationUpdateWorkoutOrderArgs,
   MutationCompleteWorkoutArgs,
   MutationDeleteWorkoutArgs,
+  MutationCreateProgramArgs,
 } from "../../../types/graphql";
 import { WorkoutWithExerciseSets } from "../../../types/Prisma";
 import {
@@ -21,6 +22,7 @@ import {
   exerciseSetGroupStateSeperator,
   extractMetadatas,
   formatExcerciseSetGroups,
+  getActiveProgram,
   getActiveWorkoutCount,
   getActiveWorkouts,
 } from "../../../service/workout_manager/utils";
@@ -318,3 +320,5 @@ export const deleteWorkout = async (
     workouts: await getActiveWorkouts(context, deletedWorkout.workout_type),
   };
 };
+
+//creates a plan for the specified user marked by user_id, any existng active Programs will be marked as inactive

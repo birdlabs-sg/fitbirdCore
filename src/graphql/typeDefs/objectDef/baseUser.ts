@@ -6,5 +6,7 @@ export const BaseUser = gql`
     base_user_id: ID!
     email: String
     displayName: String
+    coach: Coach
+    User: User
   }
 `;
