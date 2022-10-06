@@ -1,9 +1,10 @@
-import { AppContext } from "../../../types/contextType";
-import { MutationCreateProgramArgs } from "../../../types/graphql";
-import { getActiveProgram } from "../../../service/workout_manager/utils";
+import { AppContext } from "../../../../types/contextType";
+import { getActiveProgram } from "../../../../service/workout_manager/utils";
+import { MutationCreateProgramArgs } from "../../../../types/graphql";
+
 export const CreateProgram = async (
   _: any,
-  { user_id, workouts }: MutationCreateProgramArgs,
+  { user_id, workouts }:MutationCreateProgramArgs,
   context: AppContext
 ) => {
   //at any given time, there will only be one active program for the user,so

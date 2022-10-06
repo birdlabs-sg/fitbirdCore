@@ -1,10 +1,10 @@
 import { AppContext } from "../../../../types/contextType";
-import { QueryBaseUserArgs } from "../../../../types/graphql";
+import { QueryCoachUserInfoArgs } from "../../../../types/graphql";
 
 // find a specific user that is a member of the coach
 export const coachUserInfoQueryResolver = async (
   _: any,
-  args: QueryBaseUserArgs,
+  args: QueryCoachUserInfoArgs,
   context: AppContext
 ) => {
   //onlyCoach(context);

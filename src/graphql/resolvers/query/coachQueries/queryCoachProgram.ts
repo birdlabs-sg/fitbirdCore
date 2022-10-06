@@ -1,11 +1,11 @@
-import { QueryProgramArgs } from "../../../../types/graphql";
-import { AppContext } from "../../../../types/contextType";
 
+import { AppContext } from "../../../../types/contextType";
+import { QueryCoachProgramArgs } from "../../../../types/graphql";
 //find a specific program with the specified program_id
 //must be protected
 export const coachProgramResolver = async (
     _: any,
-    args: QueryProgramArgs,
+    args: QueryCoachProgramArgs,
     context: AppContext
   ) => {
     //onlyCoach(context);

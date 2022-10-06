@@ -1,5 +1,4 @@
 import { AppContext } from "../../../../types/contextType";
-import { QueryProgramArgs } from "../../../../types/graphql";
 import { onlyCoach } from "../../../../service/firebase/firebase_service";
 import { BaseUser } from "../../../../types/graphql";
 // fina all users that are registered with the coach

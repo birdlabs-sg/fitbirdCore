@@ -16,12 +16,7 @@ export const mutateWorkout = gql`
     message: String!
     workouts: [Workout!]
   }
-  type mutatePlanResponse implements MutationResponse {
-    code: String!
-    success: Boolean!
-    message: String!
-    workouts: [Workout!]
-  }
+
 
   input excerciseSetGroupInput {
     excercise_name: String!

@@ -4,7 +4,6 @@ import {
   onlyAdmin,
   onlyCoach,
 } from "../../../service/firebase/firebase_service";
-import { QueryProgramArgs } from "../../../types/graphql";
 export const usersQueryResolver = async (
   _: any,
   __: any,
