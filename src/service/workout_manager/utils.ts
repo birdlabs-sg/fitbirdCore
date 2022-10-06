@@ -272,13 +272,9 @@ export async function getActiveProgram(context: AppContext, user_id: string) {
   const prisma = context.dataSources.prisma;
   return await prisma.program.findFirst({
     where: {
-      AND: [
-        {
-          user_id: parseInt(user_id),
-        },
-        { coach_id: context.coach.coach_id },
-        { is_active: true },
-      ],
+      user_id: parseInt(user_id),
+      coach_id: context.coach.coach_id,
+      is_active: true,
     },
     include: {
       workouts: {

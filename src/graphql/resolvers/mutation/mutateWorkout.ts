@@ -4,7 +4,7 @@ import {
   workoutGenerator,
   workoutGeneratorV2,
 } from "../../../service/workout_manager/workout_generator/workout_generator";
-import { Workout, WorkoutState, WorkoutType } from "@prisma/client";
+import { WorkoutState, WorkoutType } from "@prisma/client";
 import { AppContext } from "../../../types/contextType";
 import {
   MutationUpdateWorkoutArgs,
@@ -14,7 +14,6 @@ import {
   MutationUpdateWorkoutOrderArgs,
   MutationCompleteWorkoutArgs,
   MutationDeleteWorkoutArgs,
-  MutationCreateProgramArgs,
 } from "../../../types/graphql";
 import { WorkoutWithExerciseSets } from "../../../types/Prisma";
 import {
