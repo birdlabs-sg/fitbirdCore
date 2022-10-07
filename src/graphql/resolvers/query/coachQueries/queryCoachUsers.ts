@@ -7,7 +7,7 @@ export const coachUsersQueryResolver = async (
   __: any,
   context: AppContext
 ) => {
-  //onlyCoach(context);
+  onlyCoach(context);
   const prisma = context.dataSources.prisma;
   const users = await prisma.program.findMany({
     where: {

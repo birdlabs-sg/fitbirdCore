@@ -1,6 +1,7 @@
 
 import { AppContext } from "../../../../types/contextType";
 import { QueryCoachProgramArgs } from "../../../../types/graphql";
+import { onlyCoach } from "../../../../service/firebase/firebase_service";
 //find a specific program with the specified program_id
 //must be protected
 export const coachProgramResolver = async (
@@ -8,7 +9,7 @@ export const coachProgramResolver = async (
     args: QueryCoachProgramArgs,
     context: AppContext
   ) => {
-    //onlyCoach(context);
+    onlyCoach(context);
     const {program_id} = args
     const prisma = context.dataSources.prisma;
     const programs = await prisma.program.findFirst({
