@@ -251,7 +251,7 @@ export type Mutation = {
   createMeasurement?: Maybe<MutateMeasurementResponse>;
   /** [PROTECTED] Creates a muscle region object. */
   createMuscleRegion?: Maybe<MutateMuscleRegionResponse>;
-  /** [PROTECTED] Creates a program object. */
+  /** [PROTECTED] Creates a program object (ONLY COACH). */
   createProgram?: Maybe<MutateProgramResponse>;
   /** [PROTECTED] Creates a workout object for the requestor. */
   createWorkout?: Maybe<MutateWorkoutResponse>;
@@ -275,6 +275,8 @@ export type Mutation = {
   updateUser?: Maybe<MutateUserResponse>;
   /** [PROTECTED] Updates a workout object (Must belong to the requestor). Note: This will replace any existing excercise sets. */
   updateWorkout?: Maybe<MutateWorkoutResponse>;
+  /** [PROTECTED] Updates a workout object in a program (ONLY COACH). Note: This will replace any existing excercise sets. */
+  updateWorkoutInProgram?: Maybe<MutateWorkoutResponse>;
   updateWorkoutOrder?: Maybe<MutateWorkoutsResponse>;
 };
 
@@ -435,6 +437,18 @@ export type MutationUpdateUserArgs = {
 
 /** [PUBLIC] Mutation to create a new notification with firebase */
 export type MutationUpdateWorkoutArgs = {
+  date_scheduled?: InputMaybe<Scalars['Date']>;
+  excercise_set_groups?: InputMaybe<Array<ExcerciseSetGroupInput>>;
+  life_span?: InputMaybe<Scalars['Int']>;
+  performance_rating?: InputMaybe<Scalars['Float']>;
+  workout_id: Scalars['ID'];
+  workout_name?: InputMaybe<Scalars['String']>;
+  workout_state?: InputMaybe<WorkoutState>;
+};
+
+
+/** [PUBLIC] Mutation to create a new notification with firebase */
+export type MutationUpdateWorkoutInProgramArgs = {
   date_scheduled?: InputMaybe<Scalars['Date']>;
   excercise_set_groups?: InputMaybe<Array<ExcerciseSetGroupInput>>;
   life_span?: InputMaybe<Scalars['Int']>;
@@ -1072,6 +1086,7 @@ export type MutationResolvers<ContextType = AppContext, ParentType extends Resol
   updateMuscleRegion?: Resolver<Maybe<ResolversTypes['mutateMuscleRegionResponse']>, ParentType, ContextType, RequireFields<MutationUpdateMuscleRegionArgs, 'muscle_region_id'>>;
   updateUser?: Resolver<Maybe<ResolversTypes['MutateUserResponse']>, ParentType, ContextType, Partial<MutationUpdateUserArgs>>;
   updateWorkout?: Resolver<Maybe<ResolversTypes['mutateWorkoutResponse']>, ParentType, ContextType, RequireFields<MutationUpdateWorkoutArgs, 'workout_id'>>;
+  updateWorkoutInProgram?: Resolver<Maybe<ResolversTypes['mutateWorkoutResponse']>, ParentType, ContextType, RequireFields<MutationUpdateWorkoutInProgramArgs, 'workout_id'>>;
   updateWorkoutOrder?: Resolver<Maybe<ResolversTypes['mutateWorkoutsResponse']>, ParentType, ContextType, RequireFields<MutationUpdateWorkoutOrderArgs, 'newIndex' | 'oldIndex' | 'workout_type'>>;
 };
 

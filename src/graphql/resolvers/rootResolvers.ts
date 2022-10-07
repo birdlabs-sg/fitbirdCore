@@ -19,7 +19,6 @@ import {
   updateWorkout,
   updateWorkoutOrder,
 } from "./mutation/mutateWorkout";
-import { CreateProgram } from "./mutation/coachMutations/mutateProgramCoach";
 import { mutateSignup } from "./mutation/mutateSignup";
 import { excercisesQueryResolver } from "./query/queryExcercises";
 import { notificationsQueryResolver } from "./query/queryNotifications";
@@ -41,7 +40,8 @@ import { coachUserInfoQueryResolver } from "./query/coachQueries/queryCoachUserI
 import { coachUsersQueryResolver } from "./query/coachQueries/queryCoachUsers";
 import { coachProgramResolver } from "./query/coachQueries/queryCoachProgram";
 import { coachProgramsResolver } from "./query/coachQueries/queryCoachPrograms";
-import { createProgram } from "typescript";
+import { createProgram } from "./mutation/coachMutations/mutateCoachProgram";
+import { updateWorkoutInProgram } from "./mutation/coachMutations/mutateCoachWorkout";
 const _ = require("lodash");
 const dateScalar = new GraphQLScalarType({
   name: "Date",
@@ -62,7 +62,7 @@ export const resolvers: Resolvers = {
     generateFirebaseIdToken: generateFirebaseIdTokenResolver,
     generateNotification: generateNotificationResolver,
     updateUser: updateUser,
-    createProgram:CreateProgram,
+    createProgram:createProgram,
     createMeasurement: createMeasurement,
     updateMeasurement: updateMeasurement,
     deleteMeasurement: deleteMeasurement,
@@ -77,6 +77,7 @@ export const resolvers: Resolvers = {
     updateExcerciseMetadata: updateExcerciseMetadata,
     generateWorkouts: generateWorkouts,
     regenerateWorkouts: regenerateWorkouts,
+    updateWorkoutInProgram: updateWorkoutInProgram,
   },
 
   //Root Query: Top level querying logic here

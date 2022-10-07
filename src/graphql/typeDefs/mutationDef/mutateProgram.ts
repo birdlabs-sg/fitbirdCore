@@ -47,7 +47,7 @@ type mutateProgramResponse implements MutationResponse {
   }
 
 type Mutation {
-"[PROTECTED] Creates a program object."
+"[PROTECTED] Creates a program object (ONLY COACH)."
     createProgram(
         user_id: ID!
         workouts: [workoutInput!]

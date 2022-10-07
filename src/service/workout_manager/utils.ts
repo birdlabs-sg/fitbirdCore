@@ -5,6 +5,10 @@ import {
   ExcerciseSetGroupInput,
   ExcerciseSetGroupState,
   ExcerciseSetInput,
+  Program,
+  Workout,
+  WorkoutInput,
+  MutationCreateWorkoutArgs
 } from "../../types/graphql";
 import { AuthenticationError } from "apollo-server";
 import { generateExerciseMetadata } from "./exercise_metadata_manager/exercise_metadata_manager";
@@ -209,20 +213,39 @@ export async function getActiveWorkouts(
  */
 export async function getActiveWorkoutCount(
   context: AppContext,
-  workout_type: WorkoutType
+  workout_type: WorkoutType,
+  user_id?: string
 ) {
   const prisma = context.dataSources.prisma;
-  const workouts = await prisma.workout.findMany({
-    where: {
-      date_completed: null,
-      user_id: context.user.user_id,
-      workout_type: workout_type,
-    },
-    orderBy: {
-      order_index: "asc",
-    },
-  });
-  return workouts.length;
+  if(workout_type==WorkoutType.COACH_MANAGED){
+
+    const workouts = await prisma.workout.findMany({
+      where: {
+        date_completed: null,
+        user_id: parseInt(user_id),
+        workout_type: workout_type,
+      },
+      orderBy: {
+        order_index: "asc",
+      },
+    });
+  }
+  else{
+    const workouts = await prisma.workout.findMany({
+      where: {
+        date_completed: null,
+        user_id: context.user.user_id,
+        workout_type: workout_type,
+      },
+      orderBy: {
+        order_index: "asc",
+      },
+    });
+    return workouts.length;
+  }
+  
+  
+  
 }
 
 /**
@@ -248,7 +271,43 @@ export async function checkExistsAndOwnership(
     );
   }
 }
+export async function validateCoachAndUser(
+  context: AppContext,
+  workout_id: string
+) {
+  const prisma = context.dataSources.prisma;
+  const targetWorkout = await prisma.workout.findUnique({
+    where: {
+      workout_id: parseInt(workout_id),
+    },
+  });
+  const targetProgram = await prisma.program.findUnique({
+    where:{
+      program_id:targetWorkout.programProgram_id
+    }
+  })
 
+  if (targetWorkout == null) {
+    throw new Error("The workout does not exist.");
+  }
+  if (targetProgram.coach_id != context.coach.coach_id) {
+    throw new AuthenticationError(
+      "You are not authorized to remove this object"
+    );
+  }
+}
+// retrieve user_id from any given workout
+export async function retrieveUserIdFromWorkout(context:AppContext,workout_id: string){
+  const prisma = context.dataSources.prisma;
+  const target = await prisma.workout.findUnique({
+    where: {
+      workout_id: parseInt(workout_id),
+    },
+
+  });
+
+  return target.user_id;
+}
 /**
  * Enforces that an exercise exists identified by @workout_id
  *
@@ -285,3 +344,4 @@ export async function getActiveProgram(context: AppContext, user_id: string) {
     },
   });
 }
+

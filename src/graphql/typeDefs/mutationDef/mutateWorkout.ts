@@ -74,6 +74,17 @@ export const mutateWorkout = gql`
       excercise_set_groups: [excerciseSetGroupInput!]
     ): mutateWorkoutResponse
 
+    "[PROTECTED] Updates a workout object in a program (ONLY COACH). Note: This will replace any existing excercise sets."
+    updateWorkoutInProgram(
+      workout_id: ID!
+      workout_name: String
+      date_scheduled: Date
+      performance_rating: Float
+      life_span: Int
+      workout_state: WorkoutState
+      excercise_set_groups: [excerciseSetGroupInput!]
+    ): mutateWorkoutResponse
+
     updateWorkoutOrder(
       oldIndex: Int!
       newIndex: Int!

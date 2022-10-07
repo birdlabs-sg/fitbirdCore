@@ -285,14 +285,20 @@ const excerciseSelector = async (
  * Generates the next workout, using the previousWorkout parameter as the base.
  * Note: This function is only called when a workout has been completed.
  */
+
 export async function generateNextWorkout(
   context: AppContext,
   previousWorkout: WorkoutWithExerciseSets,
   next_workout_excercise_set_groups: PrismaExerciseSetGroupCreateArgs[]
 ) {
   const prisma = context.dataSources.prisma;
-  const { life_span, workout_name, workout_type, excercise_set_groups } =
-    previousWorkout;
+  const {
+    life_span,
+    workout_name,
+    workout_type,
+    excercise_set_groups,
+    programProgram_id,
+  } = previousWorkout;
   var previousExerciseSetGroups = excercise_set_groups;
   if (
     previousWorkout.life_span <= 0 &&
@@ -389,18 +395,39 @@ export async function generateNextWorkout(
           excercise_set_group_state: ExcerciseSetGroupState.NormalOperation,
         }));
     // Create the workout and slot behind the rest of the queue.
-    await prisma.workout.create({
-      data: {
-        user_id: context.user.user_id,
-        workout_name: workout_name!,
-        life_span:
-          workout_type == WorkoutType.SELF_MANAGED ? life_span : life_span! - 1, // Don't deduct life_span from SELF_MANAGED workouts
-        order_index: await getActiveWorkoutCount(context, workout_type),
-        workout_type: workout_type,
-        excercise_set_groups: {
-          create: formatExcerciseSetGroups(finalExcerciseSetGroups),
+    if (programProgram_id) {
+      await prisma.workout.create({
+        data: {
+          user_id: context.user.user_id,
+          workout_name: workout_name!,
+          life_span:
+            workout_type == WorkoutType.SELF_MANAGED
+              ? life_span
+              : life_span! - 1, // Don't deduct life_span from SELF_MANAGED workouts
+          order_index: await getActiveWorkoutCount(context, workout_type),
+          workout_type: workout_type,
+          programProgram_id:programProgram_id,
+          excercise_set_groups: {
+            create: formatExcerciseSetGroups(finalExcerciseSetGroups),
+          },
         },
-      },
-    });
+      });
+    } else {
+      await prisma.workout.create({
+        data: {
+          user_id: context.user.user_id,
+          workout_name: workout_name!,
+          life_span:
+            workout_type == WorkoutType.SELF_MANAGED
+              ? life_span
+              : life_span! - 1, // Don't deduct life_span from SELF_MANAGED workouts
+          order_index: await getActiveWorkoutCount(context, workout_type),
+          workout_type: workout_type,
+          excercise_set_groups: {
+            create: formatExcerciseSetGroups(finalExcerciseSetGroups),
+          },
+        },
+      });
+    }
   }
 }
