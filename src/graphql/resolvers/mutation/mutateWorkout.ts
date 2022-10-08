@@ -1,4 +1,4 @@
-import { onlyAuthenticated } from "../../../service/firebase/firebase_service";
+import { onlyAuthenticated, onlyCoach } from "../../../service/firebase/firebase_service";
 import {
   generateNextWorkout,
   workoutGenerator,
@@ -28,6 +28,7 @@ import {
 import { reorderActiveWorkouts } from "../../../service/workout_manager/workout_order_manager";
 import {
   generateOrUpdateExcerciseMetadata,
+  generateOrUpdateExcerciseMetadataForCoaches,
   updateExcerciseMetadataWithCompletedWorkout,
 } from "../../../service/workout_manager/exercise_metadata_manager/exercise_metadata_manager";
 import { assert } from "console";
@@ -284,8 +285,14 @@ export const updateWorkout = async (
       workout: updatedWorkout,
     };
   } else {
+    onlyCoach(context)
     const prisma = context.dataSources.prisma;
-    await checkExistsAndOwnership(context, workout_id); // TODO
+    const retrieveUserId = await prisma.workout.findUnique({
+      where: {
+        workout_id: parseInt(workout_id),
+      },
+     
+    });
 
     let formatedUpdatedData;
 
@@ -302,7 +309,7 @@ export const updateWorkout = async (
           },
         },
       };
-      await generateOrUpdateExcerciseMetadata(context, excercise_metadatas); // TODO
+      await generateOrUpdateExcerciseMetadataForCoaches(context, excercise_metadatas,retrieveUserId.user_id.toString()); 
     } else {
       formatedUpdatedData = {
         ...otherArgs,
