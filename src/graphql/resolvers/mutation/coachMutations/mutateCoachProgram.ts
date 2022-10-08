@@ -64,13 +64,13 @@ export const createProgram = async (
         workout_name: workout_name,
         workout_type: workout_type,
         excercise_set_groups: {
-          create: formattedExcerciseSetGroups,
+          create: formatExcerciseSetGroups(excercise_set_groups),
         },
       };
 
       workoutArray.push(workout_input);
     }
-    console.log(workoutArray);
+    //console.log(workoutArray);
     //3. Create the new program object with its corresponding workouts
     const workout = await prisma.program.create({
       data: {

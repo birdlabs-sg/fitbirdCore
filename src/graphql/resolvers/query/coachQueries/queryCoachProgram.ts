@@ -16,6 +16,9 @@ export const coachProgramResolver = async (
       where: {
         program_id:parseInt(program_id)
       },
+      include:{
+        workouts:true
+      }
     });    
     return programs;
   };
