@@ -5,14 +5,10 @@ import {
   ExcerciseSetGroupInput,
   ExcerciseSetGroupState,
   ExcerciseSetInput,
-  Program,
-  Workout,
-  WorkoutInput,
-  MutationCreateWorkoutArgs
 } from "../../types/graphql";
 import { AuthenticationError } from "apollo-server";
 import { generateExerciseMetadata } from "./exercise_metadata_manager/exercise_metadata_manager";
-import { WorkoutType } from "@prisma/client";
+import { Prisma, WorkoutType } from "@prisma/client";
 const _ = require("lodash");
 
 /**
@@ -54,8 +50,7 @@ export async function formatAndGenerateExcerciseSets(
       excercise_set_input = _.omit(
         prev_set,
         "excercise_set_group_id",
-        "excercise_set_id",
-        "rate_of_perceived_exertion"
+        "excercise_set_id"
       );
       // Swapping of the "target" vs "actual" roles as now the target of new was actual of the previous
       excercise_set_input.target_reps = prev_set.actual_reps ?? 0;
@@ -213,39 +208,20 @@ export async function getActiveWorkouts(
  */
 export async function getActiveWorkoutCount(
   context: AppContext,
-  workout_type: WorkoutType,
-  user_id?: string
+  workout_type: WorkoutType
 ) {
   const prisma = context.dataSources.prisma;
-  if(workout_type==WorkoutType.COACH_MANAGED){
-
-    const workouts = await prisma.workout.findMany({
-      where: {
-        date_completed: null,
-        user_id: parseInt(user_id),
-        workout_type: workout_type,
-      },
-      orderBy: {
-        order_index: "asc",
-      },
-    });
-  }
-  else{
-    const workouts = await prisma.workout.findMany({
-      where: {
-        date_completed: null,
-        user_id: context.user.user_id,
-        workout_type: workout_type,
-      },
-      orderBy: {
-        order_index: "asc",
-      },
-    });
-    return workouts.length;
-  }
-  
-  
-  
+  const workouts = await prisma.workout.findMany({
+    where: {
+      date_completed: null,
+      user_id: context.user.user_id,
+      workout_type: workout_type,
+    },
+    orderBy: {
+      order_index: "asc",
+    },
+  });
+  return workouts.length;
 }
 
 /**
@@ -271,43 +247,7 @@ export async function checkExistsAndOwnership(
     );
   }
 }
-export async function validateCoachAndUser(
-  context: AppContext,
-  workout_id: string
-) {
-  const prisma = context.dataSources.prisma;
-  const targetWorkout = await prisma.workout.findUnique({
-    where: {
-      workout_id: parseInt(workout_id),
-    },
-  });
-  const targetProgram = await prisma.program.findUnique({
-    where:{
-      program_id:targetWorkout.programProgram_id
-    }
-  })
 
-  if (targetWorkout == null) {
-    throw new Error("The workout does not exist.");
-  }
-  if (targetProgram.coach_id != context.coach.coach_id) {
-    throw new AuthenticationError(
-      "You are not authorized to remove this object"
-    );
-  }
-}
-// retrieve user_id from any given workout
-export async function retrieveUserIdFromWorkout(context:AppContext,workout_id: string){
-  const prisma = context.dataSources.prisma;
-  const target = await prisma.workout.findUnique({
-    where: {
-      workout_id: parseInt(workout_id),
-    },
-
-  });
-
-  return target.user_id;
-}
 /**
  * Enforces that an exercise exists identified by @workout_id
  *
@@ -327,6 +267,8 @@ export async function checkExerciseExists(
   }
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+/*COACH*/
 export async function getActiveProgram(context: AppContext, user_id: string) {
   const prisma = context.dataSources.prisma;
   return await prisma.program.findFirst({
@@ -345,3 +287,82 @@ export async function getActiveProgram(context: AppContext, user_id: string) {
   });
 }
 
+export async function validateCoachAndUser(
+  context: AppContext,
+  workout_id: string
+) {
+  const prisma = context.dataSources.prisma;
+  const targetWorkout = await prisma.workout.findUnique({
+    where: {
+      workout_id: parseInt(workout_id),
+    },
+  });
+  const targetProgram = await prisma.program.findUnique({
+    where: {
+      program_id: targetWorkout.programProgram_id,
+    },
+  });
+
+  if (targetWorkout == null) {
+    throw new Error("The workout does not exist.");
+  }
+  if (targetProgram.coach_id != context.coach.coach_id) {
+    throw new AuthenticationError(
+      "You are not authorized to remove this object"
+    );
+  }
+}
+
+// This function resets the active state of the program and workouts,
+// 1. program is_active = false
+// 2. ISSUE: workouts date completed = today => on the frontend how do we idenfity a workout that was skipped? <= @dion
+// 3. ISSUE: does a null date_completed always mean that the workout is active? <= @dion
+export async function resetActiveProgramsForCoaches(
+  context: AppContext,
+  workout_type: WorkoutType,
+  user_id: string
+) {
+  const prisma = context.dataSources.prisma;
+  let date = new Date();
+  //set all active programs to be inactive
+
+  const setInactive = await prisma.program.updateMany({
+    where: {
+      user_id: parseInt(user_id),
+      coach_id: context.coach.coach_id,
+    },
+    data: {
+      is_active: false,
+    },
+  });
+
+  const workouts = await prisma.workout.updateMany({
+    where: {
+      date_completed: null,
+      user_id: parseInt(user_id),
+      workout_type: workout_type,
+    },
+    data: {
+      date_completed: date,
+    },
+  });
+}
+
+export async function getActiveWorkoutCountForCoaches(
+  context: AppContext,
+  workout_type: WorkoutType,
+  user_id: string
+) {
+  const prisma = context.dataSources.prisma;
+  const workouts = await prisma.workout.findMany({
+    where: {
+      date_completed: null,
+      user_id: parseInt(user_id),
+      workout_type: workout_type,
+    },
+    orderBy: {
+      order_index: "asc",
+    },
+  });
+  return workouts.length;
+}

@@ -395,18 +395,19 @@ export async function generateNextWorkout(
           excercise_set_group_state: ExcerciseSetGroupState.NormalOperation,
         }));
     // Create the workout and slot behind the rest of the queue.
-    if (programProgram_id) {
+    //coach management follows weeks
+    if (workout_type == WorkoutType.COACH_MANAGED) {
+      let date = new Date();
+      date.setDate(date.getDate() + 7); // set the date to the next week
       await prisma.workout.create({
         data: {
           user_id: context.user.user_id,
           workout_name: workout_name!,
-          life_span:
-            workout_type == WorkoutType.SELF_MANAGED
-              ? life_span
-              : life_span! - 1, // Don't deduct life_span from SELF_MANAGED workouts
+          life_span: life_span! - 1,
+          date_scheduled: date,
           order_index: await getActiveWorkoutCount(context, workout_type),
           workout_type: workout_type,
-          programProgram_id:programProgram_id,
+          programProgram_id: programProgram_id,
           excercise_set_groups: {
             create: formatExcerciseSetGroups(finalExcerciseSetGroups),
           },
@@ -417,10 +418,7 @@ export async function generateNextWorkout(
         data: {
           user_id: context.user.user_id,
           workout_name: workout_name!,
-          life_span:
-            workout_type == WorkoutType.SELF_MANAGED
-              ? life_span
-              : life_span! - 1, // Don't deduct life_span from SELF_MANAGED workouts
+          life_span: life_span, // Don't deduct life_span from SELF_MANAGED workouts
           order_index: await getActiveWorkoutCount(context, workout_type),
           workout_type: workout_type,
           excercise_set_groups: {

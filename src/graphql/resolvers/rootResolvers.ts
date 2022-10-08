@@ -41,7 +41,6 @@ import { coachUsersQueryResolver } from "./query/coachQueries/queryCoachUsers";
 import { coachProgramResolver } from "./query/coachQueries/queryCoachProgram";
 import { coachProgramsResolver } from "./query/coachQueries/queryCoachPrograms";
 import { createProgram } from "./mutation/coachMutations/mutateCoachProgram";
-import { updateWorkoutInProgram } from "./mutation/coachMutations/mutateCoachWorkout";
 const _ = require("lodash");
 const dateScalar = new GraphQLScalarType({
   name: "Date",
@@ -62,7 +61,7 @@ export const resolvers: Resolvers = {
     generateFirebaseIdToken: generateFirebaseIdTokenResolver,
     generateNotification: generateNotificationResolver,
     updateUser: updateUser,
-    createProgram:createProgram,
+    createProgram: createProgram,
     createMeasurement: createMeasurement,
     updateMeasurement: updateMeasurement,
     deleteMeasurement: deleteMeasurement,
@@ -77,7 +76,6 @@ export const resolvers: Resolvers = {
     updateExcerciseMetadata: updateExcerciseMetadata,
     generateWorkouts: generateWorkouts,
     regenerateWorkouts: regenerateWorkouts,
-    updateWorkoutInProgram: updateWorkoutInProgram,
   },
 
   //Root Query: Top level querying logic here

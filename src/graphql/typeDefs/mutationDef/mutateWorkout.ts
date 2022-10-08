@@ -17,7 +17,6 @@ export const mutateWorkout = gql`
     workouts: [Workout!]
   }
 
-
   input excerciseSetGroupInput {
     excercise_name: String!
     excercise_set_group_state: ExcerciseSetGroupState!
@@ -73,18 +72,6 @@ export const mutateWorkout = gql`
       workout_state: WorkoutState
       excercise_set_groups: [excerciseSetGroupInput!]
     ): mutateWorkoutResponse
-
-    "[PROTECTED] Updates a workout object in a program (ONLY COACH). Note: This will replace any existing excercise sets."
-    updateWorkoutInProgram(
-      workout_id: ID!
-      workout_name: String
-      date_scheduled: Date
-      performance_rating: Float
-      life_span: Int
-      workout_state: WorkoutState
-      excercise_set_groups: [excerciseSetGroupInput!]
-    ): mutateWorkoutResponse
-
     updateWorkoutOrder(
       oldIndex: Int!
       newIndex: Int!
@@ -92,6 +79,6 @@ export const mutateWorkout = gql`
     ): mutateWorkoutsResponse
 
     "[PROTECTED] Deletes a workout object (Must belong to the requestor)."
-    deleteWorkout(workout_id: ID!): mutateWorkoutsResponse    
+    deleteWorkout(workout_id: ID!): mutateWorkoutsResponse
   }
 `;

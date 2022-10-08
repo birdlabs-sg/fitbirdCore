@@ -1,16 +1,19 @@
 import { AppContext } from "../../../../types/contextType";
-import { onlyCoach } from "../../../../service/firebase/firebase_service";
-import { getActiveProgram } from "../../../../service/workout_manager/utils";
-import { MutationCreateProgramArgs } from "../../../../types/graphql";
 import {
-  formatExcerciseSetGroups,
-  getActiveWorkoutCount,
+  onlyAuthenticated,
+  onlyCoach,
+} from "../../../../service/firebase/firebase_service";
+import {
+  getActiveProgram,
+  getActiveWorkoutCountForCoaches,
 } from "../../../../service/workout_manager/utils";
+import { MutationCreateProgramArgs } from "../../../../types/graphql";
+import { formatExcerciseSetGroups } from "../../../../service/workout_manager/utils";
 import { extractMetadatas } from "../../../../service/workout_manager/utils";
-import { generateOrUpdateExcerciseMetadata } from "../../../../service/workout_manager/exercise_metadata_manager/exercise_metadata_manager";
+import { generateOrUpdateExcerciseMetadataForCoaches } from "../../../../service/workout_manager/exercise_metadata_manager/exercise_metadata_manager";
 import { ExcerciseSetGroupInput } from "../../../../types/graphql";
-
-
+import { WorkoutType } from "@prisma/client";
+import { resetActiveProgramsForCoaches } from "../../../../service/workout_manager/utils";
 /*at any given time, there will only be one active program for the user,so
   //1. change all existing programs to is_active = false
   //2. set the new program to be active,
@@ -20,63 +23,71 @@ export const createProgram = async (
   { user_id, workouts }: MutationCreateProgramArgs,
   context: AppContext
 ) => {
+  onlyAuthenticated(context);
   onlyCoach(context);
-  const setInactive = await prisma.program.update({
-    where: {
-      user_id: user_id,
-      coach_id: context.coach.coach_id,
-    },
-    data: {
-      is_active: false,
-    },
-  });
+  const prisma = context.dataSources.prisma;
+  // Ensure that there is a max of 7 workouts
+  if (workouts.length > 6) {
+    throw Error("VALIDATE Must be no more than 6 workouts");
+  } else {
+    //1. Set all existing programs and its corresponding workouts to be inactive
+    resetActiveProgramsForCoaches(context, WorkoutType.COACH_MANAGED, user_id);
+    let workoutArray: any[] = [];
 
-  for (let i = 0; i < workouts.length; i++) {
-    let { life_span, workout_name, workout_type, excercise_set_groups } =
-      workouts[i];
-    const [excerciseSetGroups, excerciseMetadatas] = extractMetadatas(
-      excercise_set_groups as ExcerciseSetGroupInput[]
-    );
+    //2.generate the list of workouts
+    for (let i = 0; i < workouts.length; i++) {
+      let { life_span, workout_name, excercise_set_groups, workout_type } =
+        workouts[i];
+      const [excerciseSetGroups, excerciseMetadatas] = extractMetadatas(
+        excercise_set_groups as ExcerciseSetGroupInput[]
+      );
 
-    const formattedExcerciseSetGroups =
-      formatExcerciseSetGroups(excerciseSetGroups);
+      await generateOrUpdateExcerciseMetadataForCoaches(
+        context,
+        excerciseMetadatas,
+        user_id
+      );
 
+      let formattedExcerciseSetGroups =
+        formatExcerciseSetGroups(excercise_set_groups);
+      var date = new Date();
+      date.setDate(date.getDate() + i);
+      let workout_input: any = {
+        user: { connect: { user_id: parseInt(user_id) } },
+        date_scheduled: date,
+        life_span: life_span,
+        order_index: await getActiveWorkoutCountForCoaches(
+          context,
+          workout_type,
+          user_id
+        ),
+        workout_name: workout_name,
+        workout_type: workout_type,
+        excercise_set_groups: {
+          create: formattedExcerciseSetGroups,
+        },
+      };
+
+      workoutArray.push(workout_input);
+    }
+    console.log(workoutArray);
+    //3. Create the new program object with its corresponding workouts
     const workout = await prisma.program.create({
       data: {
-        coach_id: context.coach.coach_id,
-        user_id: user_id,
-        workout: {
-          create: [
-            {
-              user_id: context.user.user_id,
-              order_index: await getActiveWorkoutCount(
-                context,
-                workout_type,
-                user_id
-              ), // BLOCKER: unsure if this is the safest way for parsing getActiveWorkoutCount
-              life_span: life_span,
-              workout_name: workout_name,
-              workout_type: workout_type,
-              excercise_set_groups: {
-                create: formattedExcerciseSetGroups,
-              },
-            },
-          ],
+        coach: { connect: { coach_id: context.coach.coach_id } },
+        user: { connect: { user_id: parseInt(user_id) } },
+        is_active: true,
+        workouts: {
+          create: workoutArray,
         },
       },
     });
-
-    await generateOrUpdateExcerciseMetadata(
-      context,
-      excerciseMetadatas,
-      user_id
-    ); // BLOCKER: unsure if this is the safest way for parsing generateOrUpdateExcerciseMetadata
   }
 
   return {
     code: "200",
     success: true,
-    message: "Successfully updated your workout!",
+    message: "Successfully Created your program!",
     program: await getActiveProgram(context, user_id),
   };
 };
