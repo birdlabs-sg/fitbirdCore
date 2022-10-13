@@ -100,7 +100,6 @@ export const authenticate = async (token: string) => {
     }
     // if the user is a coach
     else {
-      console.log("inside coach");
       return {
         authenticated: true,
         user: null,
@@ -129,6 +128,7 @@ export const onlyAdmin = (context: AppContext) => {
 export const onlyCoach = (context: AppContext) => {
   if (!context.coach) {
     throw new ForbiddenError("You are not authorized.");
+    //context.coach = { coach_id: 2, base_user_id: 37 }
   }
 };
 

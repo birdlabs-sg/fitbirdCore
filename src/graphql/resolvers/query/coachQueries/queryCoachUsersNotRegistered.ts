@@ -1,8 +1,8 @@
 import { AppContext } from "../../../../types/contextType";
 import { onlyCoach } from "../../../../service/firebase/firebase_service";
 import { BaseUser } from "../../../../types/graphql";
-// finds all users that have programs with coach
-export const coachUsersQueryResolver = async (
+// fina all users that are registered with the coach
+export const coachUsersNotRegisteredQueryResolver = async (
   _: any,
   __: any,
   context: AppContext
@@ -18,14 +18,13 @@ export const coachUsersQueryResolver = async (
 
   const baseusers = await prisma.baseUser.findMany({
     where: {
-      User: {
-        user_id: {
-          in: users.map((user) => user.user_id),
+      NOT: {
+        User: {
+          user_id: {
+            in: users.map((user) => user.user_id),
+          },
         },
       },
-    },
-    include: {
-      User: true,
     },
   });
 

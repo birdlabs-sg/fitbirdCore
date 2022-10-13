@@ -9,10 +9,9 @@ export const baseUsersQueryResolver = async (
   __: any,
   context: AppContext
 ) => {
-  //onlyAuthenticated(context);
-  //onlyAdmin(context);
+  onlyCoach(context)
   const prisma = context.dataSources.prisma;
-  // reject non admins. Exception will be thrown if not
+  // reject non coaches. Exception will be thrown if not
   // const requester_user_id = context.user_id
   
   return await prisma.baseUser.findMany({

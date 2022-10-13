@@ -36,8 +36,10 @@ const queryTypeDef = gql`
     baseUsers: [BaseUser] #<- follow the prisma model name
     coachUserInfo(user_id:ID!): BaseUser
     coachUsers: [BaseUser]
+    coachUsersNotRegistered:[BaseUser]
     coachProgram(program_id:ID!): Program
     coachPrograms:[Program]
+    coachWorkouts(user_id:ID!,filter:WorkoutFilter!):[Workout]
     user: User
     workouts(filter: WorkoutFilter!, type: WorkoutType): [Workout]
     # TODO: Implement these to fit the description on linear
