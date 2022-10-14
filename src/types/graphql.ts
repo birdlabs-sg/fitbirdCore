@@ -494,6 +494,7 @@ export type Query = {
   coachUserInfo?: Maybe<BaseUser>;
   coachUsers?: Maybe<Array<Maybe<BaseUser>>>;
   coachUsersNotRegistered?: Maybe<Array<Maybe<BaseUser>>>;
+  coachWorkoutName?: Maybe<Workout>;
   coachWorkouts?: Maybe<Array<Maybe<Workout>>>;
   excercises?: Maybe<Array<Maybe<Excercise>>>;
   excludedExcercises?: Maybe<Array<Maybe<Excercise>>>;
@@ -520,6 +521,13 @@ export type QueryCoachProgramArgs = {
 /** This is the root query to resources. Require ADMIN permission to access all, otherwise resources are scoped to the user issuing the request. */
 export type QueryCoachUserInfoArgs = {
   user_id: Scalars['ID'];
+};
+
+
+/** This is the root query to resources. Require ADMIN permission to access all, otherwise resources are scoped to the user issuing the request. */
+export type QueryCoachWorkoutNameArgs = {
+  user_id: Scalars['ID'];
+  workout_name: Scalars['ID'];
 };
 
 
@@ -1121,6 +1129,7 @@ export type QueryResolvers<ContextType = AppContext, ParentType extends Resolver
   coachUserInfo?: Resolver<Maybe<ResolversTypes['BaseUser']>, ParentType, ContextType, RequireFields<QueryCoachUserInfoArgs, 'user_id'>>;
   coachUsers?: Resolver<Maybe<Array<Maybe<ResolversTypes['BaseUser']>>>, ParentType, ContextType>;
   coachUsersNotRegistered?: Resolver<Maybe<Array<Maybe<ResolversTypes['BaseUser']>>>, ParentType, ContextType>;
+  coachWorkoutName?: Resolver<Maybe<ResolversTypes['Workout']>, ParentType, ContextType, RequireFields<QueryCoachWorkoutNameArgs, 'user_id' | 'workout_name'>>;
   coachWorkouts?: Resolver<Maybe<Array<Maybe<ResolversTypes['Workout']>>>, ParentType, ContextType, RequireFields<QueryCoachWorkoutsArgs, 'filter' | 'user_id'>>;
   excercises?: Resolver<Maybe<Array<Maybe<ResolversTypes['Excercise']>>>, ParentType, ContextType>;
   excludedExcercises?: Resolver<Maybe<Array<Maybe<ResolversTypes['Excercise']>>>, ParentType, ContextType>;

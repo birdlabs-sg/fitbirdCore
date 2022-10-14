@@ -40,6 +40,7 @@ const queryTypeDef = gql`
     coachProgram(program_id:ID!): Program
     coachPrograms:[Program]
     coachWorkouts(user_id:ID!,filter:WorkoutFilter!):[Workout]
+    coachWorkoutName(workout_name:ID!,user_id:ID!):Workout
     user: User
     workouts(filter: WorkoutFilter!, type: WorkoutType): [Workout]
     # TODO: Implement these to fit the description on linear

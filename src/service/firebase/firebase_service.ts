@@ -128,7 +128,6 @@ export const onlyAdmin = (context: AppContext) => {
 export const onlyCoach = (context: AppContext) => {
   if (!context.coach) {
     throw new ForbiddenError("You are not authorized.");
-    //context.coach = { coach_id: 2, base_user_id: 37 }
   }
 };
 

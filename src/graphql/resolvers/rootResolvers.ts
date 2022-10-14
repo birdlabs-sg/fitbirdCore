@@ -43,6 +43,7 @@ import { coachProgramsResolver } from "./query/coachQueries/queryCoachPrograms";
 import { coachWorkoutsQueryResolver } from "./query/coachQueries/queryCoachWorkouts";
 import { createProgram } from "./mutation/coachMutations/mutateCoachProgram";
 import { coachUsersNotRegisteredQueryResolver } from "./query/coachQueries/queryCoachUsersNotRegistered";
+import { coachWorkoutNameQueryResolver } from "./query/coachQueries/queryCoachWorkoutName";
 const _ = require("lodash");
 const dateScalar = new GraphQLScalarType({
   name: "Date",
@@ -89,6 +90,7 @@ export const resolvers: Resolvers = {
     coachUsersNotRegistered: coachUsersNotRegisteredQueryResolver,
     coachProgram: coachProgramResolver,
     coachPrograms: coachProgramsResolver,
+    coachWorkoutName:coachWorkoutNameQueryResolver,
     coachWorkouts: coachWorkoutsQueryResolver,
     user: userQueryResolvers,
     workouts: workoutsQueryResolver,
