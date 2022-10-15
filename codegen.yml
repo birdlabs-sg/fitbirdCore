@@ -7,11 +7,13 @@ generates:
       - "typescript"
       - "typescript-resolvers"
       - "typescript-operations"
-      - "typed-document-node"
     config:
       contextType: ./contextType#AppContext
-      mapperTypeSuffix: Model
+      mapperTypeSuffix: Models
       mappers:
+        BaseUser: "@prisma/client#BaseUser"
+        Coach: "@prisma/client#Coach"
+        Program: "@prisma/client#Program"
         User: "@prisma/client#User"
         Workout: "@prisma/client#Workout"
         ExcerciseMetadata: "@prisma/client#ExcerciseMetadata"
@@ -37,5 +39,3 @@ generates:
         ExcerciseSetGroupState: "@prisma/client#ExcerciseSetGroupState"
         WorkoutState: "@prisma/client#WorkoutState"
       inputMaybeValue: "undefined | T"
-      noSchemaStitching: true
-      useIndexSignature: true

@@ -2,8 +2,7 @@ import { AuthenticationError, ForbiddenError } from "apollo-server";
 import * as admin from "firebase-admin";
 import { AppContext } from "../../types/contextType";
 import { Context } from "vm";
-
-const { PrismaClient } = require("@prisma/client");
+import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 const dotenv = require("dotenv");
@@ -25,9 +24,10 @@ const firebase = admin.initializeApp({
 export const signupFirebase = async (
   email: string,
   password: string,
-  displayName: string
+  displayName: string,
+  is_user: boolean
 ) => {
-  // Done in backend so as to create an instance within our database as well.
+  // Done in backend so as to create an instance within our database as well. -> to do
   const firebaseUser = await firebase.auth().createUser({
     email: email,
     emailVerified: false,
@@ -35,15 +35,34 @@ export const signupFirebase = async (
     displayName: displayName,
     disabled: false,
   });
-  const prismaUser = await prisma.user.create({
-    data: {
-      firebase_uid: firebaseUser.uid,
-      email: firebaseUser.email,
-      phoneNumber: firebaseUser.phoneNumber,
-      displayName: firebaseUser.displayName,
-    },
-  });
-  return prismaUser;
+
+  if (is_user) {
+    const prismaBaseUser = await prisma.baseUser.create({
+      data: {
+        firebase_uid: firebaseUser.uid,
+        email: firebaseUser.email,
+        displayName: firebaseUser.displayName,
+        User: {
+          create: {},
+        },
+      },
+    });
+
+    return prismaBaseUser;
+  } else {
+    const prismaBaseUser = await prisma.baseUser.create({
+      data: {
+        firebase_uid: firebaseUser.uid,
+        email: firebaseUser.email,
+        displayName: firebaseUser.displayName,
+        coach: {
+          create: {},
+        },
+      },
+    });
+
+    return prismaBaseUser;
+  }
 };
 
 export const getAuthToken = (req: Context) => {
@@ -60,15 +79,37 @@ export const authenticate = async (token: string) => {
   }
   try {
     const fireBaseUser = await firebase.auth().verifyIdToken(token);
-    const user = await prisma.user.findUnique({
+    const base_user = await prisma.baseUser.findUnique({
       where: {
         firebase_uid: fireBaseUser.uid,
       },
+      include: {
+        User: true,
+        coach: true,
+      },
     });
-    return { authenticated: true, user: user, isAdmin: !!fireBaseUser.admin };
+
+    // if the user is not a coach
+    if (base_user.coach == null) {
+      return {
+        authenticated: true,
+        user: base_user.User, // This is why you need to have typescript, to avoid mistakes like this
+        isAdmin: !!fireBaseUser.admin,
+        coach: null,
+      };
+    }
+    // if the user is a coach
+    else {
+      return {
+        authenticated: true,
+        user: null,
+        isAdmin: !!fireBaseUser.admin,
+        coach: base_user.coach,
+      };
+    }
   } catch (e) {
     console.log("HAVE TOKEN BUT FAILED TO AUTHENTICATE", e);
-    return { authenticated: false, user: null, isAdmin: null };
+    return { authenticated: false, user: null, isAdmin: null, coach: null };
   }
 };
 
@@ -80,6 +121,12 @@ export const onlyAuthenticated = (context: AppContext) => {
 
 export const onlyAdmin = (context: AppContext) => {
   if (!context.isAdmin) {
+    throw new ForbiddenError("You are not authorized.");
+  }
+};
+
+export const onlyCoach = (context: AppContext) => {
+  if (!context.coach) {
     throw new ForbiddenError("You are not authorized.");
   }
 };

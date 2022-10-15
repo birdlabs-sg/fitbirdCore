@@ -9,6 +9,10 @@ import { MuscleRegion } from "./objectDef/muscleRegion";
 import { User } from "./objectDef/user";
 import { Workout } from "./objectDef/workout";
 import { BroadCast } from "./objectDef/broadCast";
+import { Coach } from "./objectDef/coach";
+import { Program } from "./objectDef/program";
+import { Review } from "./objectDef/review";
+import { BaseUser } from "./objectDef/baseUser";
 
 // Imports for mutations
 import { mutateSignup } from "./mutationDef/mutateSignup";
@@ -23,13 +27,23 @@ import { WorkoutFrequency } from "./objectDef/workoutFrequency";
 import { ExcercisePerformance } from "./objectDef/excercisePerformance";
 import { mutateGenerateWorkouts } from "./mutationDef/mutateGenerateWorkouts";
 import { mutateNotification } from "./mutationDef/mutateNotification";
-
+import { mutateProgram } from "./mutationDef/mutateProgram";
 const queryTypeDef = gql`
   scalar Date
   "This is the root query to resources. Require ADMIN permission to access all, otherwise resources are scoped to the user issuing the request."
   type Query {
+    programs: [Program]
+    baseUsers: [BaseUser] #<- follow the prisma model name
+    coachUserInfo(user_id:ID!): BaseUser
+    coachUsers: [BaseUser]
+    coachUsersNotRegistered:[BaseUser]
+    coachProgram(program_id:ID!): Program
+    coachPrograms:[Program]
+    coachWorkouts(user_id:ID!,filter:WorkoutFilter!):[Workout]
+    coachWorkoutName(workout_name:ID!,user_id:ID!):Workout
     user: User
     workouts(filter: WorkoutFilter!, type: WorkoutType): [Workout]
+    # TODO: Implement these to fit the description on linear
     getWorkout(workout_id: ID!): Workout
     excercises: [Excercise]
     excludedExcercises: [Excercise]
@@ -68,9 +82,11 @@ const mutationTypeDefs = [
   mutateExcerciseMetadata,
   mutateGenerateWorkouts,
   mutateNotification,
+  mutateProgram
 ];
 
 const objectTypeDefs = [
+  BaseUser,
   queryTypeDef,
   User,
   Enum,
@@ -84,6 +100,9 @@ const objectTypeDefs = [
   ExcerciseMetadata,
   WorkoutFrequency,
   ExcercisePerformance,
+  Coach,
+  Program,
+  Review,
 ];
 
 export const typeDefs = baseTypeDefs.concat.apply(

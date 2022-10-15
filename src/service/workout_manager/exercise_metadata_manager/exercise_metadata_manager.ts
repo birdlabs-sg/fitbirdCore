@@ -6,6 +6,7 @@ import { AppContext } from "../../../types/contextType";
 import { checkExerciseExists } from "../utils";
 
 // If does not exists before hand, generate a new one and return that instead.
+// If does not exists before hand, generate a new one and return that instead.
 export const retrieveExerciseMetadata = async (
   context: AppContext,
   exerciseName: string
@@ -109,7 +110,7 @@ export async function updateExcerciseMetadataWithCompletedWorkout(
     });
   }
 }
-
+// Need to retest this function
 // Generates excerciseMetadata if it's not available for any of the excercises in a workout
 export async function generateOrUpdateExcerciseMetadata(
   context: AppContext,
@@ -179,5 +180,50 @@ export async function generateExerciseMetadata(
         excercise_name: exercise_name,
       },
     });
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+// COACH: Generates excerciseMetadata if it's not available for any of the excercises in a workout
+export async function generateOrUpdateExcerciseMetadataForCoaches(
+  context: AppContext,
+  excercise_metadatas: ExcerciseMetaDataInput[],
+  user_id: string
+) {
+  const prisma = context.dataSources.prisma;
+  for (var excercise_metadata of excercise_metadatas) {
+    delete excercise_metadata["last_excecuted"];
+    const excerciseMetadata = await prisma.excerciseMetadata.findUnique({
+      where: {
+        user_id_excercise_name: {
+          user_id: parseInt(user_id),
+          excercise_name: excercise_metadata.excercise_name,
+        },
+      },
+    });
+
+    if (excerciseMetadata == null) {
+      // create one with the excerciseMetadata provided
+      await prisma.excerciseMetadata.create({
+        data: {
+          user_id: parseInt(user_id),
+          ...excercise_metadata,
+        },
+      });
+    } else {
+      // update the excerciseMetadata with provided ones
+      await prisma.excerciseMetadata.update({
+        where: {
+          user_id_excercise_name: {
+            user_id: parseInt(user_id),
+            excercise_name: excercise_metadata.excercise_name,
+          },
+        },
+        data: {
+          user_id: parseInt(user_id),
+          ...excercise_metadata,
+        },
+      });
+    }
   }
 }

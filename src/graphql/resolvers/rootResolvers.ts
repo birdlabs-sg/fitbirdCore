@@ -33,8 +33,17 @@ import { workoutQueryResolver } from "./query/queryWorkout";
 import { generateNotificationResolver } from "./mutation/generateNotificationResolver";
 import { Resolvers } from "../../types/graphql";
 import { usersQueryResolver } from "./query/queryUsers";
-import { GraphQLScalarType, Kind } from "graphql";
-
+import { GraphQLScalarType } from "graphql";
+import { baseUsersQueryResolver } from "./query/queryBaseUsers";
+import { programQueryResolver } from "./query/queryProgram";
+import { coachUserInfoQueryResolver } from "./query/coachQueries/queryCoachUserInfo";
+import { coachUsersQueryResolver } from "./query/coachQueries/queryCoachUsers";
+import { coachProgramResolver } from "./query/coachQueries/queryCoachProgram";
+import { coachProgramsResolver } from "./query/coachQueries/queryCoachPrograms";
+import { coachWorkoutsQueryResolver } from "./query/coachQueries/queryCoachWorkouts";
+import { createProgram } from "./mutation/coachMutations/mutateCoachProgram";
+import { coachUsersNotRegisteredQueryResolver } from "./query/coachQueries/queryCoachUsersNotRegistered";
+import { coachWorkoutNameQueryResolver } from "./query/coachQueries/queryCoachWorkoutName";
 const _ = require("lodash");
 const dateScalar = new GraphQLScalarType({
   name: "Date",
@@ -55,6 +64,7 @@ export const resolvers: Resolvers = {
     generateFirebaseIdToken: generateFirebaseIdTokenResolver,
     generateNotification: generateNotificationResolver,
     updateUser: updateUser,
+    createProgram: createProgram,
     createMeasurement: createMeasurement,
     updateMeasurement: updateMeasurement,
     deleteMeasurement: deleteMeasurement,
@@ -73,6 +83,15 @@ export const resolvers: Resolvers = {
 
   //Root Query: Top level querying logic here
   Query: {
+    programs: programQueryResolver,
+    baseUsers: baseUsersQueryResolver,
+    coachUserInfo: coachUserInfoQueryResolver,
+    coachUsers: coachUsersQueryResolver,
+    coachUsersNotRegistered: coachUsersNotRegisteredQueryResolver,
+    coachProgram: coachProgramResolver,
+    coachPrograms: coachProgramsResolver,
+    coachWorkoutName:coachWorkoutNameQueryResolver,
+    coachWorkouts: coachWorkoutsQueryResolver,
     user: userQueryResolvers,
     workouts: workoutsQueryResolver,
     getWorkout: workoutQueryResolver,

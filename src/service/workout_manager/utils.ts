@@ -8,7 +8,7 @@ import {
 } from "../../types/graphql";
 import { AuthenticationError } from "apollo-server";
 import { generateExerciseMetadata } from "./exercise_metadata_manager/exercise_metadata_manager";
-import { WorkoutType } from "@prisma/client";
+import { Prisma, WorkoutType } from "@prisma/client";
 const _ = require("lodash");
 
 /**
@@ -265,4 +265,104 @@ export async function checkExerciseExists(
   if (exercise == null) {
     throw new Error("No exercise found");
   }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+/*COACH*/
+export async function getActiveProgram(context: AppContext, user_id: string) {
+  const prisma = context.dataSources.prisma;
+  return await prisma.program.findFirst({
+    where: {
+      user_id: parseInt(user_id),
+      coach_id: context.coach.coach_id,
+      is_active: true,
+    },
+    include: {
+      workouts: {
+        orderBy: {
+          order_index: "asc",
+        },
+      },
+    },
+  });
+}
+
+export async function validateCoachAndUser(
+  context: AppContext,
+  workout_id: string
+) {
+  const prisma = context.dataSources.prisma;
+  const targetWorkout = await prisma.workout.findUnique({
+    where: {
+      workout_id: parseInt(workout_id),
+    },
+  });
+  const targetProgram = await prisma.program.findUnique({
+    where: {
+      program_id: targetWorkout.programProgram_id,
+    },
+  });
+
+  if (targetWorkout == null) {
+    throw new Error("The workout does not exist.");
+  }
+  if (targetProgram.coach_id != context.coach.coach_id) {
+    throw new AuthenticationError(
+      "You are not authorized to remove this object"
+    );
+  }
+}
+
+// This function resets the active state of the program and workouts,
+// 1. program is_active = false
+// 2. ISSUE: workouts date completed = today => on the frontend how do we idenfity a workout that was skipped? <= @dion
+// 3. ISSUE: does a null date_completed always mean that the workout is active? <= @dion
+export async function resetActiveProgramsForCoaches(
+  context: AppContext,
+  workout_type: WorkoutType,
+  user_id: string
+) {
+  const prisma = context.dataSources.prisma;
+  let date = new Date();
+  //set all active programs to be inactive
+
+  const setInactive = await prisma.program.updateMany({
+    where: {
+      user_id: parseInt(user_id),
+      coach_id: context.coach.coach_id,
+    },
+    data: {
+      is_active: false,
+    },
+  });
+
+  const workouts = await prisma.workout.updateMany({
+    where: {
+      date_completed: null,
+      user_id: parseInt(user_id),
+      workout_type: workout_type,
+    },
+    data: {
+      date_completed: date,
+    },
+  });
+}
+
+export async function getActiveWorkoutCountForCoaches(
+  context: AppContext,
+  workout_type: WorkoutType,
+  user_id: string
+) {
+  const prisma = context.dataSources.prisma;
+  const workouts = await prisma.workout.findMany({
+    where: {
+      date_completed: null,
+      user_id: parseInt(user_id),
+      workout_type: workout_type,
+    },
+    orderBy: {
+      order_index: "asc",
+    },
+  });
+  return workouts.length;
 }
