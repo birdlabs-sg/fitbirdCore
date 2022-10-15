@@ -9,5 +9,6 @@ export const ExcerciseSet = gql`
     target_reps: Int
     actual_weight: Float
     actual_reps: Int
+    rate_of_perceived_exertion: Int
   }
 `;

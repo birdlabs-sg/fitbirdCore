@@ -15,6 +15,7 @@ export const mutateSignup = gql`
       phoneNumber: String
       password: String!
       displayName: String!
+      is_user: Boolean!
     ): SignupResponse
   }
 `;

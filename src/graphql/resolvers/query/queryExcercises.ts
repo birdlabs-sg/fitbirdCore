@@ -7,6 +7,7 @@ export const excercisesQueryResolver = async (
   context: AppContext
 ) => {
   const prisma = context.dataSources.prisma;
+  if(context.user){
   const user_constaints = lodash.differenceWith(
     Object.keys(Equipment),
     context.user.equipment_accessible,
@@ -21,5 +22,10 @@ export const excercisesQueryResolver = async (
       },
     },
   });
+  
   return filteredExcercises;
+}
+else{
+  await prisma.excercise.findMany();
+}
 };

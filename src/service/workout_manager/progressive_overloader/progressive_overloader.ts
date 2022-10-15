@@ -4,6 +4,7 @@ import { PrismaExerciseSetGroupCreateArgs } from "../../../types/Prisma";
 import { ExcerciseSetInput, FailureReason } from "../../../types/graphql";
 import { retrieveExerciseMetadata } from "../exercise_metadata_manager/exercise_metadata_manager";
 
+// TODO: RPE should have a factor in the overloader algorithm.
 /**
  * Takes in @excercise_set_groups as a base and returns a list of exercise_set_groups that have been overloaded
  * Note: If there are failed sets, the failure reason would determine how the overloader responds
@@ -158,8 +159,14 @@ function generateOverloadedExerciseSets({
   const updatedSets: ExcerciseSetInput[] = [];
   for (let excerciseSet of excercise_sets) {
     // extract actual values and create a base scaffold for the next exerciseset
-    const { actual_reps, actual_weight, ...excercise_set_scaffold } =
-      excerciseSet;
+    const {
+      actual_reps,
+      actual_weight,
+      rate_of_perceived_exertion,
+      ...excercise_set_scaffold
+    } = excerciseSet;
+
+    // TODO: Use rate_of_percieved_exertion for next sets
 
     const category = categorizeExcerciseSet({ excercise_set: excerciseSet });
 

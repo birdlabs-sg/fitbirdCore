@@ -44,6 +44,7 @@ export const mutateWorkout = gql`
     target_reps: Int!
     actual_weight: Float
     actual_reps: Int
+    rate_of_perceived_exertion: Int
   }
 
   type Mutation {
@@ -71,7 +72,6 @@ export const mutateWorkout = gql`
       workout_state: WorkoutState
       excercise_set_groups: [excerciseSetGroupInput!]
     ): mutateWorkoutResponse
-
     updateWorkoutOrder(
       oldIndex: Int!
       newIndex: Int!

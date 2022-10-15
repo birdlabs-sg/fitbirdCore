@@ -4,8 +4,6 @@ export const User = gql`
   "Represents a user. Contains meta-data specific to each user."
   type User {
     user_id: ID!
-    email: String
-    displayName: String
     gender: Gender
     weight: Float
     height: Float
@@ -27,5 +25,8 @@ export const User = gql`
     body_weight_rep_upper_bound: Int
     equipment_accessible: [Equipment!]
     workout_type_enrollment: WorkoutType
+    ai_managed_workouts_life_cycle: Int
+    use_rpe: Boolean
+    program:[Program]
   }
 `;

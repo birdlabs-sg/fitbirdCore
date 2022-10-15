@@ -138,7 +138,7 @@ export const workoutGenerator = async (
           WorkoutType.AI_MANAGED
         ),
         user_id: user.user_id,
-        life_span: 12,
+        life_span: user.ai_managed_workouts_life_cycle,
         excercise_set_groups: { create: list_of_excercise_set_groups },
         workout_type: WorkoutType.AI_MANAGED,
       },
@@ -264,7 +264,7 @@ const excerciseSelector = async (
           WorkoutType.AI_MANAGED
         ),
         user_id: user.user_id,
-        life_span: 12,
+        life_span: user.ai_managed_workouts_life_cycle,
         excercise_set_groups: { create: list_of_excercises },
         workout_type: WorkoutType.AI_MANAGED,
       },
@@ -285,66 +285,147 @@ const excerciseSelector = async (
  * Generates the next workout, using the previousWorkout parameter as the base.
  * Note: This function is only called when a workout has been completed.
  */
+
 export async function generateNextWorkout(
   context: AppContext,
   previousWorkout: WorkoutWithExerciseSets,
   next_workout_excercise_set_groups: PrismaExerciseSetGroupCreateArgs[]
 ) {
   const prisma = context.dataSources.prisma;
-  const { life_span, workout_name, workout_type, excercise_set_groups } =
-    previousWorkout;
-
+  const {
+    life_span,
+    workout_name,
+    workout_type,
+    excercise_set_groups,
+    programProgram_id,
+  } = previousWorkout;
   var previousExerciseSetGroups = excercise_set_groups;
-
-  // Don't need progressive overload because it was NOT completed in previous workout (It was temporarily replaced or removed)
-  const excercise_set_groups_without_progressive_overload: PrismaExerciseSetGroupCreateArgs[] =
-    _.differenceWith(
-      next_workout_excercise_set_groups,
-      previousExerciseSetGroups,
-      (
-        x: PrismaExerciseSetGroupCreateArgs,
-        y: PrismaExerciseSetGroupCreateArgs
-      ) => x.excercise_name === y.excercise_name
+  if (
+    previousWorkout.life_span <= 0 &&
+    previousWorkout.workout_type == WorkoutType.AI_MANAGED
+  ) {
+    // Build a new workout using the same exercisegroups
+    const user_constaints = _.differenceWith(
+      Object.keys(Equipment),
+      context.user.equipment_accessible,
+      _.isEqual
     );
+    const list_of_excercise_set_groups = [];
+    for (var exerciseSetGroup of previousExerciseSetGroups) {
+      var previousExercise = await prisma.excercise.findUnique({
+        where: {
+          excercise_name: exerciseSetGroup.excercise_name,
+        },
+        include: {
+          target_regions: true,
+        },
+      });
 
-  // Need progressive overload because it was completed in the previous workout
-  const excercise_set_groups_to_progressive_overload: PrismaExerciseSetGroupCreateArgs[] =
-    _.differenceWith(
-      next_workout_excercise_set_groups,
-      excercise_set_groups_without_progressive_overload,
-      (
-        x: PrismaExerciseSetGroupCreateArgs,
-        y: PrismaExerciseSetGroupCreateArgs
-      ) => x.excercise_name === y.excercise_name
-    );
+      var differentExercises = await prisma.excercise.findMany({
+        where: {
+          target_regions: {
+            some: previousExercise.target_regions[0],
+          },
+          NOT: {
+            excercise_name: previousExercise.excercise_name,
+            equipment_required: {
+              hasSome: user_constaints,
+            },
+          },
+          body_weight: !(context.user.equipment_accessible.length > 0), // use body weight excercise if don't have accessible equipments
+          assisted: false,
+        },
+      });
+      var excercise = _.sample(differentExercises);
+      list_of_excercise_set_groups.push(
+        await formatAndGenerateExcerciseSets(excercise.excercise_name, context)
+      );
+      await prisma.workout.create({
+        data: {
+          workout_name: previousWorkout.workout_name,
+          order_index: await getActiveWorkoutCount(
+            context,
+            WorkoutType.AI_MANAGED
+          ),
+          user_id: context.user.user_id,
+          life_span: context.user.ai_managed_workouts_life_cycle,
+          excercise_set_groups: { create: list_of_excercise_set_groups },
+          workout_type: WorkoutType.AI_MANAGED,
+        },
+        include: {
+          excercise_set_groups: { include: { excercise_sets: true } },
+        },
+      });
+    }
+  } else {
+    // Don't need progressive overload because it was NOT completed in previous workout (It was temporarily replaced or removed)
+    const excercise_set_groups_without_progressive_overload: PrismaExerciseSetGroupCreateArgs[] =
+      _.differenceWith(
+        next_workout_excercise_set_groups,
+        previousExerciseSetGroups,
+        (
+          x: PrismaExerciseSetGroupCreateArgs,
+          y: PrismaExerciseSetGroupCreateArgs
+        ) => x.excercise_name === y.excercise_name
+      );
 
-  const progressively_overloaded_excercise_set_groups =
-    await progressivelyOverload(
-      excercise_set_groups_to_progressive_overload,
-      context
-    );
+    // Need progressive overload because it was completed in the previous workout
+    const excercise_set_groups_to_progressive_overload: PrismaExerciseSetGroupCreateArgs[] =
+      _.differenceWith(
+        next_workout_excercise_set_groups,
+        excercise_set_groups_without_progressive_overload,
+        (
+          x: PrismaExerciseSetGroupCreateArgs,
+          y: PrismaExerciseSetGroupCreateArgs
+        ) => x.excercise_name === y.excercise_name
+      );
 
-  // Combine the excerciseSetGroups together and set them to back to normal operation
-  const finalExcerciseSetGroups =
-    excercise_set_groups_without_progressive_overload
-      .concat(progressively_overloaded_excercise_set_groups)
-      .map((e) => ({
-        ...e,
-        excercise_set_group_state: ExcerciseSetGroupState.NormalOperation,
-      }));
+    const progressively_overloaded_excercise_set_groups =
+      await progressivelyOverload(
+        excercise_set_groups_to_progressive_overload,
+        context
+      );
 
-  // Create the workout and slot behind the rest of the queue.
-  await prisma.workout.create({
-    data: {
-      user_id: context.user.user_id,
-      workout_name: workout_name!,
-      life_span:
-        workout_type == WorkoutType.SELF_MANAGED ? life_span : life_span! - 1, // Don't deduct life_span from SELF_MANAGED workouts
-      order_index: await getActiveWorkoutCount(context, workout_type),
-      workout_type: workout_type,
-      excercise_set_groups: {
-        create: formatExcerciseSetGroups(finalExcerciseSetGroups),
-      },
-    },
-  });
+    // Combine the excerciseSetGroups together and set them to back to normal operation
+    const finalExcerciseSetGroups =
+      excercise_set_groups_without_progressive_overload
+        .concat(progressively_overloaded_excercise_set_groups)
+        .map((e) => ({
+          ...e,
+          excercise_set_group_state: ExcerciseSetGroupState.NormalOperation,
+        }));
+    // Create the workout and slot behind the rest of the queue.
+    //coach management follows weeks
+    if (workout_type == WorkoutType.COACH_MANAGED) {
+      let date = new Date();
+      date.setDate(date.getDate() + 7); // set the date to the next week
+      await prisma.workout.create({
+        data: {
+          user_id: context.user.user_id,
+          workout_name: workout_name!,
+          life_span: life_span! - 1,
+          date_scheduled: date,
+          order_index: await getActiveWorkoutCount(context, workout_type),
+          workout_type: workout_type,
+          programProgram_id: programProgram_id,
+          excercise_set_groups: {
+            create: formatExcerciseSetGroups(finalExcerciseSetGroups),
+          },
+        },
+      });
+    } else {
+      await prisma.workout.create({
+        data: {
+          user_id: context.user.user_id,
+          workout_name: workout_name!,
+          life_span: life_span, // Don't deduct life_span from SELF_MANAGED workouts
+          order_index: await getActiveWorkoutCount(context, workout_type),
+          workout_type: workout_type,
+          excercise_set_groups: {
+            create: formatExcerciseSetGroups(finalExcerciseSetGroups),
+          },
+        },
+      });
+    }
+  }
 }
