@@ -246,7 +246,7 @@ model Workout {
   workout_state        WorkoutState        @default(UNATTEMPTED)
   workout_type         WorkoutType         @default(SELF_MANAGED)
   excercise_set_groups ExcerciseSetGroup[]
-  Program              Program?            @relation(fields: [programProgram_id], references: [program_id]) // Will only have a value if this is coach-managed. No choice because polymorphism not supported yet by prisma.
+  Program              Program?            @relation(fields: [programProgram_id], references: [program_id], onDelete: Cascade) // Will only have a value if this is coach-managed. No choice because polymorphism not supported yet by prisma.
   programProgram_id    Int?
 }
 
