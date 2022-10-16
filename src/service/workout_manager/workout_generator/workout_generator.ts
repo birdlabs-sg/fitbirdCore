@@ -18,6 +18,7 @@ import { progressivelyOverload } from "../progressive_overloader/progressive_ove
 import { Equipment, WorkoutType } from "@prisma/client";
 const _ = require("lodash");
 import * as workoutSplit from "./rotations_types_general";
+import { GraphQLError } from "graphql";
 /**
  * Generates a list of workouts (AKA a single rotation) based on requestors's equipment constraints.
  */
@@ -30,7 +31,7 @@ export const workoutGenerator = async (
 
   // guard clause
   if (numberOfWorkouts > 6) {
-    throw Error("Can only generate 6 workouts maximum.");
+    throw new GraphQLError("Can only generate 6 workouts maximum.");
   }
   const generated_workout_list: WorkoutWithExerciseSets[] = [];
 
@@ -164,10 +165,10 @@ export const workoutGeneratorV2 = async (
 
   // guard clause
   if (numberOfWorkouts > 6) {
-    throw Error("Can only generate 6 workouts maximum per week.");
+    throw new GraphQLError("Can only generate 6 workouts maximum per week.");
   }
   if (numberOfWorkouts < 2) {
-    throw Error("A minimum of 2 workouts per week.");
+    throw new GraphQLError("A minimum of 2 workouts per week.");
   }
 
   const generated_workout_list: WorkoutWithExerciseSets[] = [];

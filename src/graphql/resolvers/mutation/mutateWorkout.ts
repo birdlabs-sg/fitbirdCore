@@ -1,4 +1,7 @@
-import { onlyAuthenticated, onlyCoach } from "../../../service/firebase/firebase_service";
+import {
+  onlyAuthenticated,
+  onlyCoach,
+} from "../../../service/firebase/firebase_service";
 import {
   generateNextWorkout,
   workoutGenerator,
@@ -21,7 +24,6 @@ import {
   exerciseSetGroupStateSeperator,
   extractMetadatas,
   formatExcerciseSetGroups,
-  getActiveProgram,
   getActiveWorkoutCount,
   getActiveWorkouts,
 } from "../../../service/workout_manager/utils";
@@ -32,6 +34,7 @@ import {
   updateExcerciseMetadataWithCompletedWorkout,
 } from "../../../service/workout_manager/exercise_metadata_manager/exercise_metadata_manager";
 import { assert } from "console";
+import { GraphQLError } from "graphql";
 
 /**
  * Generates @no_of_workouts number of workouts based on expert guidelines.
@@ -111,7 +114,11 @@ export async function createWorkout(
   onlyAuthenticated(context);
   // Ensure that there is a max of 7 workouts
   if ((await getActiveWorkoutCount(context, workout_type)) > 6) {
-    throw Error("You can only have 6 active workouts.");
+    throw new GraphQLError("You can only have 6 active workouts.", {
+      extensions: {
+        code: "FORBIDDEN",
+      },
+    });
   }
 
   const prisma = context.dataSources.prisma;
@@ -285,13 +292,12 @@ export const updateWorkout = async (
       workout: updatedWorkout,
     };
   } else {
-    onlyCoach(context)
+    onlyCoach(context);
     const prisma = context.dataSources.prisma;
     const retrieveUserId = await prisma.workout.findUnique({
       where: {
         workout_id: parseInt(workout_id),
       },
-     
     });
 
     let formatedUpdatedData;
@@ -309,7 +315,11 @@ export const updateWorkout = async (
           },
         },
       };
-      await generateOrUpdateExcerciseMetadataForCoaches(context, excercise_metadatas,retrieveUserId.user_id.toString()); 
+      await generateOrUpdateExcerciseMetadataForCoaches(
+        context,
+        excercise_metadatas,
+        retrieveUserId.user_id.toString()
+      );
     } else {
       formatedUpdatedData = {
         ...otherArgs,

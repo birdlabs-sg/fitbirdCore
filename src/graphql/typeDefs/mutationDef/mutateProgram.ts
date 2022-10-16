@@ -1,6 +1,6 @@
-const { gql } = require("apollo-server");
+import gql from "graphql-tag";
 export const mutateProgram = gql`
-type mutateProgramResponse implements MutationResponse {
+  type mutateProgramResponse implements MutationResponse {
     code: String!
     success: Boolean!
     message: String!
@@ -37,20 +37,20 @@ type mutateProgramResponse implements MutationResponse {
   }
   input workoutInput {
     user_id: ID!
-    workout_type:WorkoutType!
+    workout_type: WorkoutType!
     workout_name: String
     date_scheduled: Date
-    order_index:Int
+    order_index: Int
     life_span: Int
     workout_state: WorkoutState
     excercise_set_groups: [excerciseSetGroupInput!]
   }
 
-type Mutation {
-"[PROTECTED] Creates a program object (ONLY COACH)."
+  type Mutation {
+    "[PROTECTED] Creates a program object (ONLY COACH)."
     createProgram(
-        user_id: ID!
-        workouts: [workoutInput!]
-    ):mutateProgramResponse
+      user_id: ID!
+      workouts: [workoutInput!]
+    ): mutateProgramResponse
   }
 `;

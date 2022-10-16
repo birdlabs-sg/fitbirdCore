@@ -1,4 +1,4 @@
-const { gql } = require("apollo-server");
+import gql from "graphql-tag";
 
 export const mutateMeasurement = gql`
   "Response if a mutation of a measurement is successful"

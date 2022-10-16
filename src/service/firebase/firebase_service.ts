@@ -1,8 +1,8 @@
-import { AuthenticationError, ForbiddenError } from "apollo-server";
 import * as admin from "firebase-admin";
 import { AppContext } from "../../types/contextType";
 import { Context } from "vm";
 import { PrismaClient } from "@prisma/client";
+import { GraphQLError } from "graphql";
 
 const prisma = new PrismaClient();
 const dotenv = require("dotenv");
@@ -115,19 +115,32 @@ export const authenticate = async (token: string) => {
 
 export const onlyAuthenticated = (context: AppContext) => {
   if (!context.authenticated) {
-    throw new AuthenticationError("You are not authenticated.");
+    throw new GraphQLError("You are not authenticated.", {
+      extensions: {
+        code: "FORBIDDEN",
+      },
+    });
   }
 };
 
 export const onlyAdmin = (context: AppContext) => {
   if (!context.isAdmin) {
-    throw new ForbiddenError("You are not authorized.");
+    throw new GraphQLError("You are not authorized.", {
+      extensions: {
+        code: "FORBIDDEN",
+      },
+    });
   }
 };
 
 export const onlyCoach = (context: AppContext) => {
   if (!context.coach) {
-    throw new ForbiddenError("You are not authorized.");
+    throw new GraphQLError("You are not authorized.", {
+      extensions: {
+        code: "FORBIDDEN",
+      },
+    });
+    //context.coach = { coach_id: 2, base_user_id: 37 }
   }
 };
 

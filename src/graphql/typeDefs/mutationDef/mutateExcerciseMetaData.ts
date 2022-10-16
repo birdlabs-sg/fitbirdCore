@@ -1,4 +1,4 @@
-const { gql } = require("apollo-server");
+import gql from "graphql-tag";
 
 export const mutateExcerciseMetadata = gql`
   "Response if mutating a excercise was successful"

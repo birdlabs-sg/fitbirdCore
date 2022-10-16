@@ -1,4 +1,4 @@
-const { gql } = require("apollo-server");
+import gql from "graphql-tag";
 // Imports for object types
 import { Enum } from "./objectDef/enum";
 import { Excercise } from "./objectDef/excercise";
@@ -34,13 +34,13 @@ const queryTypeDef = gql`
   type Query {
     programs: [Program]
     baseUsers: [BaseUser] #<- follow the prisma model name
-    coachUserInfo(user_id:ID!): BaseUser
+    coachUserInfo(user_id: ID!): BaseUser
     coachUsers: [BaseUser]
-    coachUsersNotRegistered:[BaseUser]
-    coachProgram(program_id:ID!): Program
-    coachPrograms:[Program]
-    coachWorkouts(user_id:ID!,filter:WorkoutFilter!):[Workout]
-    coachWorkoutName(workout_name:ID!,user_id:ID!):Workout
+    coachUsersNotRegistered: [BaseUser]
+    coachProgram(program_id: ID!): Program
+    coachPrograms: [Program]
+    coachWorkouts(user_id: ID!, filter: WorkoutFilter!): [Workout]
+    coachWorkoutName(workout_name: ID!, user_id: ID!): Workout
     user: User
     workouts(filter: WorkoutFilter!, type: WorkoutType): [Workout]
     # TODO: Implement these to fit the description on linear
@@ -82,7 +82,7 @@ const mutationTypeDefs = [
   mutateExcerciseMetadata,
   mutateGenerateWorkouts,
   mutateNotification,
-  mutateProgram
+  mutateProgram,
 ];
 
 const objectTypeDefs = [
