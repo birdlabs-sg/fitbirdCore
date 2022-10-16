@@ -39,7 +39,7 @@ async function startApolloServer() {
         isAdmin,
         coach,
         dataSources: {
-          prisma: PrismaClient,
+          prisma: prisma,
         },
       };
     },
@@ -50,25 +50,3 @@ async function startApolloServer() {
 }
 
 startApolloServer();
-// const server = new ApolloServer({
-//   typeDefs: typeDefs,
-//   resolvers: resolvers,
-//   csrfPrevention: true,
-//   plugins: [logger],
-
-//   dataSources: () => {
-//     return {
-//       prisma: prisma,
-//     };
-//   },
-//   context: async (context: AppContext) => {
-//     // Get the user token from the headers and put it into the coin.
-//     const token = getAuthToken(context.req);
-//     const authenticationInfo = await authenticate(token);
-//     return authenticationInfo;
-//   },
-// });
-
-// server.listen({ port: 8080 }).then(({ url }) => {
-//   console.log(`🚀 ${new Date().toISOString()}  Server ready at: ${url}`);
-// });
