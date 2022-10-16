@@ -6,9 +6,10 @@ import {
   ExcerciseSetGroupState,
   ExcerciseSetInput,
 } from "../../types/graphql";
-import { AuthenticationError } from "apollo-server";
+
 import { generateExerciseMetadata } from "./exercise_metadata_manager/exercise_metadata_manager";
 import { Prisma, WorkoutType } from "@prisma/client";
+import { graphql, GraphQLError } from "graphql";
 const _ = require("lodash");
 
 /**
@@ -239,12 +240,14 @@ export async function checkExistsAndOwnership(
     },
   });
   if (targetWorkout == null) {
-    throw new Error("The workout does not exist.");
+    throw new GraphQLError("The workout does not exist.");
   }
   if (targetWorkout.user_id != context.user.user_id) {
-    throw new AuthenticationError(
-      "You are not authorized to remove this object"
-    );
+    throw new GraphQLError("You are not authorized to remove this object", {
+      extensions: {
+        code: "FORBIDDEN",
+      },
+    });
   }
 }
 
@@ -263,7 +266,7 @@ export async function checkExerciseExists(
     },
   });
   if (exercise == null) {
-    throw new Error("No exercise found");
+    throw new GraphQLError("No exercise found");
   }
 }
 
@@ -304,12 +307,14 @@ export async function validateCoachAndUser(
   });
 
   if (targetWorkout == null) {
-    throw new Error("The workout does not exist.");
+    throw new GraphQLError("The workout does not exist.");
   }
   if (targetProgram.coach_id != context.coach.coach_id) {
-    throw new AuthenticationError(
-      "You are not authorized to remove this object"
-    );
+    throw new GraphQLError("You are not authorized to remove this object", {
+      extensions: {
+        code: "FORBIDDEN",
+      },
+    });
   }
 }
 

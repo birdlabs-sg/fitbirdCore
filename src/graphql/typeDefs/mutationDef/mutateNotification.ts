@@ -1,4 +1,4 @@
-const { gql } = require("apollo-server");
+import gql from "graphql-tag";
 
 export const mutateNotification = gql`
   "Response if a signup event is successful"

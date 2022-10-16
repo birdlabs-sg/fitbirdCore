@@ -1,4 +1,4 @@
-const { gql } = require("apollo-server");
+import gql from "graphql-tag";
 
 export const Measurement = gql`
   "Represents a measurement of a body part taken at a certain date."

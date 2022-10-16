@@ -1,4 +1,4 @@
-const { gql } = require("apollo-server");
+import gql from "graphql-tag";
 
 export const Coach = gql`
   "Represents broadcast message to selected users."

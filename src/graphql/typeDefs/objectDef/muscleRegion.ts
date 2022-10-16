@@ -1,4 +1,4 @@
-const { gql } = require("apollo-server");
+import gql from "graphql-tag";
 
 export const MuscleRegion = gql`
   "Represents a specific body part in the human anatomy."

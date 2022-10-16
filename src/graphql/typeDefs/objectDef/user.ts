@@ -1,4 +1,4 @@
-const { gql } = require("apollo-server");
+import gql from "graphql-tag";
 
 export const User = gql`
   "Represents a user. Contains meta-data specific to each user."
@@ -27,6 +27,6 @@ export const User = gql`
     workout_type_enrollment: WorkoutType
     ai_managed_workouts_life_cycle: Int
     use_rpe: Boolean
-    program:[Program]
+    program: [Program]
   }
 `;

@@ -1,4 +1,4 @@
-const { gql } = require("apollo-server");
+import gql from "graphql-tag";
 
 export const ExcerciseSet = gql`
   "Represents a logical component of a workout session."

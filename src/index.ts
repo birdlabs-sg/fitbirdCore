@@ -4,8 +4,9 @@ import {
   authenticate,
   getAuthToken,
 } from "./service/firebase/firebase_service";
-import { ApolloServer } from "apollo-server";
-import { AppContext } from "./types/contextType";
+import { ApolloServer } from "@apollo/server";
+import { startStandaloneServer } from "@apollo/server/standalone";
+import { ApolloServerPluginUsageReporting } from "@apollo/server/plugin/usageReporting";
 
 const { PrismaClient } = require("@prisma/client");
 
@@ -13,24 +14,61 @@ const prisma = new PrismaClient();
 
 const { logger } = require("./service/logging/logging_service");
 
-const server = new ApolloServer({
-  typeDefs: typeDefs,
-  resolvers: resolvers,
-  csrfPrevention: true,
-  plugins: [logger],
-  dataSources: () => {
-    return {
-      prisma: prisma,
-    };
-  },
-  context: async (context: AppContext) => {
-    // Get the user token from the headers and put it into the coin.
-    const token = getAuthToken(context.req);
-    const authenticationInfo = await authenticate(token);
-    return authenticationInfo;
-  },
-});
+async function startApolloServer() {
+  const server = new ApolloServer<any>({
+    typeDefs: typeDefs,
+    resolvers: resolvers,
+    csrfPrevention: true,
+    plugins: [
+      ApolloServerPluginUsageReporting({
+        // If you pass unmodified: true to the usage reporting
+        // plugin, Apollo Studio receives ALL error details
+        sendErrors: { unmodified: true },
+      }),
+    ],
+  });
 
-server.listen({ port: 8080 }).then(({ url }) => {
-  console.log(`🚀 ${new Date().toISOString()}  Server ready at: ${url}`);
-});
+  const { url } = await startStandaloneServer(server, {
+    context: async ({ req }) => {
+      const token = getAuthToken(req);
+      const { authenticated, user, isAdmin, coach } = await authenticate(token);
+      return {
+        token,
+        authenticated,
+        user,
+        isAdmin,
+        coach,
+        dataSources: {
+          prisma: PrismaClient,
+        },
+      };
+    },
+    listen: { port: 8080 },
+  });
+
+  console.log(`🚀  Server ready at ${url}`);
+}
+
+startApolloServer();
+// const server = new ApolloServer({
+//   typeDefs: typeDefs,
+//   resolvers: resolvers,
+//   csrfPrevention: true,
+//   plugins: [logger],
+
+//   dataSources: () => {
+//     return {
+//       prisma: prisma,
+//     };
+//   },
+//   context: async (context: AppContext) => {
+//     // Get the user token from the headers and put it into the coin.
+//     const token = getAuthToken(context.req);
+//     const authenticationInfo = await authenticate(token);
+//     return authenticationInfo;
+//   },
+// });
+
+// server.listen({ port: 8080 }).then(({ url }) => {
+//   console.log(`🚀 ${new Date().toISOString()}  Server ready at: ${url}`);
+// });
