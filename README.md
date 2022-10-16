@@ -63,3 +63,19 @@ Plugins:
 
 You will have to use the cloud sql auth proxy (https://cloud.google.com/sql/docs/mysql/connect-admin-proxy)
 `./cloud_sql_proxy -instances=fitbird-353419:asia-southeast1:fitbird-production-db-sg=tcp:3306 &`
+
+To remove node module quick:
+
+# MACOS
+
+cd <directoryToDeleteFrom>
+`find . -name 'node_modules' -type d -prune -print -exec rm -rf '{}' \;`
+
+# WINDOWS
+
+cd <directoryToDeleteFrom>
+`FOR /d /r . %d in (node_modules) DO @IF EXIST "%d" rm -rf "%d"`
+
+# POWERSHELL
+
+`Get-ChildItem -Path "." -Include "node_modules" -Recurse -Directory | Remove-Item -Recurse -Force`

@@ -1,4 +1,4 @@
-const { gql } = require("apollo-server");
+import gql from "graphql-tag";
 
 export const mutateMuscleRegion = gql`
   "Response if mutating a muscle region was successful"

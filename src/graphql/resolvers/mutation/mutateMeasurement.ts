@@ -1,9 +1,9 @@
-import { ForbiddenError } from "apollo-server";
 import { AppContext } from "../../../types/contextType";
 import { MutationUpdateMeasurementArgs } from "../../../types/graphql";
 import { MutationDeleteMeasurementArgs } from "../../../types/graphql";
 import { MutationCreateMeasurementArgs } from "../../../types/graphql";
 import { onlyAuthenticated } from "../../../service/firebase/firebase_service";
+import { GraphQLError } from "graphql";
 
 export const createMeasurement = async (
   _: any,
@@ -54,7 +54,7 @@ export const updateMeasurement = async (
     targetMeasurement != null &&
     targetMeasurement.user_id !== context.user.user_id
   ) {
-    throw new ForbiddenError("You are not authororized to mutate this object.");
+    throw new GraphQLError("You are not authororized to mutate this object.");
   }
 
   const updatedMeasurement = await prisma.measurement.update({
@@ -94,7 +94,7 @@ export const deleteMeasurement = async (
     targetMeasurement != null &&
     targetMeasurement.user_id !== context.user.user_id
   ) {
-    throw new ForbiddenError("You are not authororized to remove this object.");
+    throw new GraphQLError("You are not authororized to remove this object.");
   }
 
   const deletedMeasurement = await prisma.measurement.delete({

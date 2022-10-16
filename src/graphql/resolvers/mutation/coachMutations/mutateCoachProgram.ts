@@ -14,6 +14,7 @@ import { generateOrUpdateExcerciseMetadataForCoaches } from "../../../../service
 import { ExcerciseSetGroupInput } from "../../../../types/graphql";
 import { WorkoutType } from "@prisma/client";
 import { resetActiveProgramsForCoaches } from "../../../../service/workout_manager/utils";
+import { GraphQLError } from "graphql";
 /*at any given time, there will only be one active program for the user,so
   //1. change all existing programs to is_active = false
   //2. set the new program to be active,
@@ -28,7 +29,7 @@ export const createProgram = async (
   const prisma = context.dataSources.prisma;
   // Ensure that there is a max of 7 workouts
   if (workouts.length > 6) {
-    throw Error("VALIDATE Must be no more than 6 workouts");
+    throw new GraphQLError("You can only have 6 active workouts.");
   } else {
     //1. Set all existing programs and its corresponding workouts to be inactive
     resetActiveProgramsForCoaches(context, WorkoutType.COACH_MANAGED, user_id);

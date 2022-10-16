@@ -1,4 +1,4 @@
-const { gql } = require("apollo-server");
+import gql from "graphql-tag";
 
 export const BaseUser = gql`
   "Represents a user. Contains meta-data specific to each user."
