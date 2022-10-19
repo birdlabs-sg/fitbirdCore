@@ -130,11 +130,19 @@ enum FailureReason {
 
 // // TODO: Use polymorphism. But prisma does not currently support this.
 // // Contains the authentication information of the user.
+model FCMToken {
+  token                String   @id
+  date_issued          DateTime @default(now())
+  BaseUser             BaseUser @relation(fields: [baseUserBase_user_id], references: [base_user_id])
+  baseUserBase_user_id Int
+}
+
 model BaseUser {
-  base_user_id Int    @id @default(autoincrement())
-  email        String @unique
-  firebase_uid String @unique
+  base_user_id Int        @id @default(autoincrement())
+  email        String     @unique
+  firebase_uid String     @unique
   displayName  String
+  fcm_tokens   FCMToken[]
   coach        Coach?
   User         User?
 }

@@ -35,6 +35,7 @@ export const mutateUser = gql`
       workout_type_enrollment: WorkoutType
       ai_managed_workouts_life_cycle: Int
       use_rpe: Boolean
+      fcm_tokens: [String]
     ): MutateUserResponse
   }
 `;

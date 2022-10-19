@@ -71,7 +71,6 @@ export const createProgram = async (
 
       workoutArray.push(workout_input);
     }
-    //console.log(workoutArray);
     //3. Create the new program object with its corresponding workouts
     const workout = await prisma.program.create({
       data: {

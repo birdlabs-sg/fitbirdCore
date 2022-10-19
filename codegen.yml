@@ -11,6 +11,7 @@ generates:
       contextType: ./contextType#AppContext
       mapperTypeSuffix: Models
       mappers:
+        Token: "./tokenType#Token"
         BaseUser: "@prisma/client#BaseUser"
         Coach: "@prisma/client#Coach"
         Program: "@prisma/client#Program"
