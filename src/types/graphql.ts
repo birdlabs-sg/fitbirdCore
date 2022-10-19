@@ -1,4 +1,5 @@
 import { GraphQLResolveInfo, GraphQLScalarType, GraphQLScalarTypeConfig } from 'graphql';
+import { Token as TokenModels } from './tokenType';
 import { BaseUser as BaseUserModels, Coach as CoachModels, Program as ProgramModels, User as UserModels, Workout as WorkoutModels, ExcerciseMetadata as ExcerciseMetadataModels, Measurement as MeasurementModels, ExcerciseSetGroup as ExcerciseSetGroupModels, MuscleRegion as MuscleRegionModels, Excercise as ExcerciseModels, ExcerciseSet as ExcerciseSetModels, BroadCast as BroadCastModels, Notification as NotificationModels } from '@prisma/client';
 import { AppContext } from './contextType';
 export type Maybe<T> = T | null;
@@ -26,6 +27,7 @@ export type BaseUser = {
   coach?: Maybe<Coach>;
   displayName?: Maybe<Scalars['String']>;
   email?: Maybe<Scalars['String']>;
+  fcm_tokens?: Maybe<Array<FcmToken>>;
 };
 
 /** Represents broadcast message to selected users. */
@@ -146,6 +148,12 @@ export enum ExcerciseSetGroupState {
   ReplacementTemporarily = 'REPLACEMENT_TEMPORARILY'
 }
 
+export type FcmToken = {
+  __typename?: 'FCMToken';
+  date_issued?: Maybe<Scalars['Date']>;
+  token?: Maybe<Scalars['String']>;
+};
+
 export enum FailureReason {
   InsufficientRestTime = 'INSUFFICIENT_REST_TIME',
   InsufficientSleep = 'INSUFFICIENT_SLEEP',
@@ -233,6 +241,15 @@ export enum MuscleRegionType {
 }
 
 /** Response if a mutation event is successful */
+export type MutateBaseUserResponse = MutationResponse & {
+  __typename?: 'MutateBaseUserResponse';
+  code: Scalars['String'];
+  message: Scalars['String'];
+  success: Scalars['Boolean'];
+  user?: Maybe<BaseUser>;
+};
+
+/** Response if a mutation event is successful */
 export type MutateUserResponse = MutationResponse & {
   __typename?: 'MutateUserResponse';
   code: Scalars['String'];
@@ -241,7 +258,7 @@ export type MutateUserResponse = MutationResponse & {
   user?: Maybe<User>;
 };
 
-/** [PUBLIC] Mutation to create a new notification with firebase */
+/** [PROTECTED] Mutation to update the requestor's user information */
 export type Mutation = {
   __typename?: 'Mutation';
   /** [PROTECTED] Updates a workout object (Must belong to the requestor). Note: This will replace any existing excercise sets. */
@@ -263,9 +280,11 @@ export type Mutation = {
   deleteWorkout?: Maybe<MutateWorkoutsResponse>;
   generateFirebaseIdToken?: Maybe<GenerateIdTokenResponse>;
   generateNotification?: Maybe<NotificationResponse>;
+  generateWorkoutReminder?: Maybe<NotificationResponse>;
   generateWorkouts?: Maybe<Array<Workout>>;
   regenerateWorkouts?: Maybe<Array<Workout>>;
   signup?: Maybe<SignupResponse>;
+  updateBaseUser?: Maybe<MutateBaseUserResponse>;
   /** [PROTECTED] Updates a excerciseMetadata object. */
   updateExcerciseMetadata?: Maybe<MutateExcerciseMetaDataResponse>;
   /** [PROTECTED] Update a measurement object for the requestor (Must belong to the requestor). */
@@ -279,14 +298,14 @@ export type Mutation = {
 };
 
 
-/** [PUBLIC] Mutation to create a new notification with firebase */
+/** [PROTECTED] Mutation to update the requestor's user information */
 export type MutationCompleteWorkoutArgs = {
   excercise_set_groups: Array<ExcerciseSetGroupInput>;
   workout_id: Scalars['ID'];
 };
 
 
-/** [PUBLIC] Mutation to create a new notification with firebase */
+/** [PROTECTED] Mutation to update the requestor's user information */
 export type MutationCreateExcerciseMetadataArgs = {
   excercise_name: Scalars['ID'];
   haveRequiredEquipment?: InputMaybe<Scalars['Boolean']>;
@@ -296,7 +315,7 @@ export type MutationCreateExcerciseMetadataArgs = {
 };
 
 
-/** [PUBLIC] Mutation to create a new notification with firebase */
+/** [PROTECTED] Mutation to update the requestor's user information */
 export type MutationCreateMeasurementArgs = {
   length_units: LengthUnit;
   measured_at: Scalars['Date'];
@@ -305,7 +324,7 @@ export type MutationCreateMeasurementArgs = {
 };
 
 
-/** [PUBLIC] Mutation to create a new notification with firebase */
+/** [PROTECTED] Mutation to update the requestor's user information */
 export type MutationCreateMuscleRegionArgs = {
   muscle_region_description: Scalars['String'];
   muscle_region_name: Scalars['String'];
@@ -313,14 +332,14 @@ export type MutationCreateMuscleRegionArgs = {
 };
 
 
-/** [PUBLIC] Mutation to create a new notification with firebase */
+/** [PROTECTED] Mutation to update the requestor's user information */
 export type MutationCreateProgramArgs = {
   user_id: Scalars['ID'];
   workouts?: InputMaybe<Array<WorkoutInput>>;
 };
 
 
-/** [PUBLIC] Mutation to create a new notification with firebase */
+/** [PROTECTED] Mutation to update the requestor's user information */
 export type MutationCreateWorkoutArgs = {
   excercise_set_groups: Array<ExcerciseSetGroupInput>;
   life_span: Scalars['Int'];
@@ -329,31 +348,31 @@ export type MutationCreateWorkoutArgs = {
 };
 
 
-/** [PUBLIC] Mutation to create a new notification with firebase */
+/** [PROTECTED] Mutation to update the requestor's user information */
 export type MutationDeleteMeasurementArgs = {
   measurement_id: Scalars['ID'];
 };
 
 
-/** [PUBLIC] Mutation to create a new notification with firebase */
+/** [PROTECTED] Mutation to update the requestor's user information */
 export type MutationDeleteMuscleRegionArgs = {
   muscle_region_id: Scalars['ID'];
 };
 
 
-/** [PUBLIC] Mutation to create a new notification with firebase */
+/** [PROTECTED] Mutation to update the requestor's user information */
 export type MutationDeleteWorkoutArgs = {
   workout_id: Scalars['ID'];
 };
 
 
-/** [PUBLIC] Mutation to create a new notification with firebase */
+/** [PROTECTED] Mutation to update the requestor's user information */
 export type MutationGenerateFirebaseIdTokenArgs = {
   uid: Scalars['String'];
 };
 
 
-/** [PUBLIC] Mutation to create a new notification with firebase */
+/** [PROTECTED] Mutation to update the requestor's user information */
 export type MutationGenerateNotificationArgs = {
   body: Scalars['String'];
   title: Scalars['String'];
@@ -361,13 +380,13 @@ export type MutationGenerateNotificationArgs = {
 };
 
 
-/** [PUBLIC] Mutation to create a new notification with firebase */
+/** [PROTECTED] Mutation to update the requestor's user information */
 export type MutationGenerateWorkoutsArgs = {
   no_of_workouts: Scalars['Int'];
 };
 
 
-/** [PUBLIC] Mutation to create a new notification with firebase */
+/** [PROTECTED] Mutation to update the requestor's user information */
 export type MutationSignupArgs = {
   displayName: Scalars['String'];
   email: Scalars['String'];
@@ -377,7 +396,15 @@ export type MutationSignupArgs = {
 };
 
 
-/** [PUBLIC] Mutation to create a new notification with firebase */
+/** [PROTECTED] Mutation to update the requestor's user information */
+export type MutationUpdateBaseUserArgs = {
+  displayName?: InputMaybe<Scalars['String']>;
+  email?: InputMaybe<Scalars['String']>;
+  fcm_tokens?: InputMaybe<Array<InputMaybe<Scalars['String']>>>;
+};
+
+
+/** [PROTECTED] Mutation to update the requestor's user information */
 export type MutationUpdateExcerciseMetadataArgs = {
   excercise_name: Scalars['ID'];
   haveRequiredEquipment?: InputMaybe<Scalars['Boolean']>;
@@ -387,7 +414,7 @@ export type MutationUpdateExcerciseMetadataArgs = {
 };
 
 
-/** [PUBLIC] Mutation to create a new notification with firebase */
+/** [PROTECTED] Mutation to update the requestor's user information */
 export type MutationUpdateMeasurementArgs = {
   length_units?: InputMaybe<LengthUnit>;
   measured_at?: InputMaybe<Scalars['Date']>;
@@ -397,7 +424,7 @@ export type MutationUpdateMeasurementArgs = {
 };
 
 
-/** [PUBLIC] Mutation to create a new notification with firebase */
+/** [PROTECTED] Mutation to update the requestor's user information */
 export type MutationUpdateMuscleRegionArgs = {
   muscle_region_description?: InputMaybe<Scalars['String']>;
   muscle_region_id: Scalars['ID'];
@@ -405,7 +432,7 @@ export type MutationUpdateMuscleRegionArgs = {
 };
 
 
-/** [PUBLIC] Mutation to create a new notification with firebase */
+/** [PROTECTED] Mutation to update the requestor's user information */
 export type MutationUpdateUserArgs = {
   age?: InputMaybe<Scalars['Int']>;
   ai_managed_workouts_life_cycle?: InputMaybe<Scalars['Int']>;
@@ -416,6 +443,7 @@ export type MutationUpdateUserArgs = {
   compound_movement_rep_upper_bound?: InputMaybe<Scalars['Int']>;
   dark_mode?: InputMaybe<Scalars['Boolean']>;
   equipment_accessible?: InputMaybe<Array<Equipment>>;
+  fcm_tokens?: InputMaybe<Array<InputMaybe<Scalars['String']>>>;
   gender?: InputMaybe<Gender>;
   goal?: InputMaybe<Goal>;
   height?: InputMaybe<Scalars['Float']>;
@@ -433,7 +461,7 @@ export type MutationUpdateUserArgs = {
 };
 
 
-/** [PUBLIC] Mutation to create a new notification with firebase */
+/** [PROTECTED] Mutation to update the requestor's user information */
 export type MutationUpdateWorkoutArgs = {
   date_scheduled?: InputMaybe<Scalars['Date']>;
   excercise_set_groups?: InputMaybe<Array<ExcerciseSetGroupInput>>;
@@ -445,7 +473,7 @@ export type MutationUpdateWorkoutArgs = {
 };
 
 
-/** [PUBLIC] Mutation to create a new notification with firebase */
+/** [PROTECTED] Mutation to update the requestor's user information */
 export type MutationUpdateWorkoutOrderArgs = {
   newIndex: Scalars['Int'];
   oldIndex: Scalars['Int'];
@@ -488,6 +516,7 @@ export type Program = {
 /** This is the root query to resources. Require ADMIN permission to access all, otherwise resources are scoped to the user issuing the request. */
 export type Query = {
   __typename?: 'Query';
+  baseUser?: Maybe<BaseUser>;
   baseUsers?: Maybe<Array<Maybe<BaseUser>>>;
   coachProgram?: Maybe<Program>;
   coachPrograms?: Maybe<Array<Maybe<Program>>>;
@@ -850,10 +879,11 @@ export type ResolversTypes = {
   ExcerciseSet: ResolverTypeWrapper<ExcerciseSetModels>;
   ExcerciseSetGroup: ResolverTypeWrapper<ExcerciseSetGroupModels>;
   ExcerciseSetGroupState: ExcerciseSetGroupState;
+  FCMToken: ResolverTypeWrapper<FcmToken>;
   FailureReason: FailureReason;
   Float: ResolverTypeWrapper<Scalars['Float']>;
   Gender: Gender;
-  GenerateIdTokenResponse: ResolverTypeWrapper<GenerateIdTokenResponse>;
+  GenerateIdTokenResponse: ResolverTypeWrapper<Omit<GenerateIdTokenResponse, 'token'> & { token?: Maybe<ResolversTypes['Token']> }>;
   Goal: Goal;
   GroupedExcerciseSets: ResolverTypeWrapper<Omit<GroupedExcerciseSets, 'excercise_sets'> & { excercise_sets?: Maybe<Array<ResolversTypes['ExcerciseSet']>> }>;
   ID: ResolverTypeWrapper<Scalars['ID']>;
@@ -863,9 +893,10 @@ export type ResolversTypes = {
   Measurement: ResolverTypeWrapper<MeasurementModels>;
   MuscleRegion: ResolverTypeWrapper<MuscleRegionModels>;
   MuscleRegionType: MuscleRegionType;
+  MutateBaseUserResponse: ResolverTypeWrapper<Omit<MutateBaseUserResponse, 'user'> & { user?: Maybe<ResolversTypes['BaseUser']> }>;
   MutateUserResponse: ResolverTypeWrapper<Omit<MutateUserResponse, 'user'> & { user?: Maybe<ResolversTypes['User']> }>;
   Mutation: ResolverTypeWrapper<{}>;
-  MutationResponse: ResolversTypes['GenerateIdTokenResponse'] | ResolversTypes['MutateUserResponse'] | ResolversTypes['NotificationResponse'] | ResolversTypes['SignupResponse'] | ResolversTypes['mutateExcerciseMetaDataResponse'] | ResolversTypes['mutateMeasurementResponse'] | ResolversTypes['mutateMuscleRegionResponse'] | ResolversTypes['mutateProgramResponse'] | ResolversTypes['mutateWorkoutResponse'] | ResolversTypes['mutateWorkoutsResponse'];
+  MutationResponse: ResolversTypes['GenerateIdTokenResponse'] | ResolversTypes['MutateBaseUserResponse'] | ResolversTypes['MutateUserResponse'] | ResolversTypes['NotificationResponse'] | ResolversTypes['SignupResponse'] | ResolversTypes['mutateExcerciseMetaDataResponse'] | ResolversTypes['mutateMeasurementResponse'] | ResolversTypes['mutateMuscleRegionResponse'] | ResolversTypes['mutateProgramResponse'] | ResolversTypes['mutateWorkoutResponse'] | ResolversTypes['mutateWorkoutsResponse'];
   Notification: ResolverTypeWrapper<NotificationModels>;
   NotificationResponse: ResolverTypeWrapper<NotificationResponse>;
   Program: ResolverTypeWrapper<ProgramModels>;
@@ -873,7 +904,7 @@ export type ResolversTypes = {
   Review: ResolverTypeWrapper<Review>;
   SignupResponse: ResolverTypeWrapper<SignupResponse>;
   String: ResolverTypeWrapper<Scalars['String']>;
-  Token: ResolverTypeWrapper<Token>;
+  Token: ResolverTypeWrapper<TokenModels>;
   User: ResolverTypeWrapper<UserModels>;
   WeightUnit: WeightUnit;
   Workout: ResolverTypeWrapper<WorkoutModels>;
@@ -905,16 +936,18 @@ export type ResolversParentTypes = {
   ExcercisePerformance: Omit<ExcercisePerformance, 'grouped_excercise_sets'> & { grouped_excercise_sets?: Maybe<Array<ResolversParentTypes['GroupedExcerciseSets']>> };
   ExcerciseSet: ExcerciseSetModels;
   ExcerciseSetGroup: ExcerciseSetGroupModels;
+  FCMToken: FcmToken;
   Float: Scalars['Float'];
-  GenerateIdTokenResponse: GenerateIdTokenResponse;
+  GenerateIdTokenResponse: Omit<GenerateIdTokenResponse, 'token'> & { token?: Maybe<ResolversParentTypes['Token']> };
   GroupedExcerciseSets: Omit<GroupedExcerciseSets, 'excercise_sets'> & { excercise_sets?: Maybe<Array<ResolversParentTypes['ExcerciseSet']>> };
   ID: Scalars['ID'];
   Int: Scalars['Int'];
   Measurement: MeasurementModels;
   MuscleRegion: MuscleRegionModels;
+  MutateBaseUserResponse: Omit<MutateBaseUserResponse, 'user'> & { user?: Maybe<ResolversParentTypes['BaseUser']> };
   MutateUserResponse: Omit<MutateUserResponse, 'user'> & { user?: Maybe<ResolversParentTypes['User']> };
   Mutation: {};
-  MutationResponse: ResolversParentTypes['GenerateIdTokenResponse'] | ResolversParentTypes['MutateUserResponse'] | ResolversParentTypes['NotificationResponse'] | ResolversParentTypes['SignupResponse'] | ResolversParentTypes['mutateExcerciseMetaDataResponse'] | ResolversParentTypes['mutateMeasurementResponse'] | ResolversParentTypes['mutateMuscleRegionResponse'] | ResolversParentTypes['mutateProgramResponse'] | ResolversParentTypes['mutateWorkoutResponse'] | ResolversParentTypes['mutateWorkoutsResponse'];
+  MutationResponse: ResolversParentTypes['GenerateIdTokenResponse'] | ResolversParentTypes['MutateBaseUserResponse'] | ResolversParentTypes['MutateUserResponse'] | ResolversParentTypes['NotificationResponse'] | ResolversParentTypes['SignupResponse'] | ResolversParentTypes['mutateExcerciseMetaDataResponse'] | ResolversParentTypes['mutateMeasurementResponse'] | ResolversParentTypes['mutateMuscleRegionResponse'] | ResolversParentTypes['mutateProgramResponse'] | ResolversParentTypes['mutateWorkoutResponse'] | ResolversParentTypes['mutateWorkoutsResponse'];
   Notification: NotificationModels;
   NotificationResponse: NotificationResponse;
   Program: ProgramModels;
@@ -922,7 +955,7 @@ export type ResolversParentTypes = {
   Review: Review;
   SignupResponse: SignupResponse;
   String: Scalars['String'];
-  Token: Token;
+  Token: TokenModels;
   User: UserModels;
   Workout: WorkoutModels;
   WorkoutFrequency: WorkoutFrequency;
@@ -944,6 +977,7 @@ export type BaseUserResolvers<ContextType = AppContext, ParentType extends Resol
   coach?: Resolver<Maybe<ResolversTypes['Coach']>, ParentType, ContextType>;
   displayName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   email?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  fcm_tokens?: Resolver<Maybe<Array<ResolversTypes['FCMToken']>>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -1029,6 +1063,12 @@ export type ExcerciseSetGroupResolvers<ContextType = AppContext, ParentType exte
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type FcmTokenResolvers<ContextType = AppContext, ParentType extends ResolversParentTypes['FCMToken'] = ResolversParentTypes['FCMToken']> = {
+  date_issued?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
+  token?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type GenerateIdTokenResponseResolvers<ContextType = AppContext, ParentType extends ResolversParentTypes['GenerateIdTokenResponse'] = ResolversParentTypes['GenerateIdTokenResponse']> = {
   code?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -1061,6 +1101,14 @@ export type MuscleRegionResolvers<ContextType = AppContext, ParentType extends R
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type MutateBaseUserResponseResolvers<ContextType = AppContext, ParentType extends ResolversParentTypes['MutateBaseUserResponse'] = ResolversParentTypes['MutateBaseUserResponse']> = {
+  code?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  user?: Resolver<Maybe<ResolversTypes['BaseUser']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type MutateUserResponseResolvers<ContextType = AppContext, ParentType extends ResolversParentTypes['MutateUserResponse'] = ResolversParentTypes['MutateUserResponse']> = {
   code?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -1081,9 +1129,11 @@ export type MutationResolvers<ContextType = AppContext, ParentType extends Resol
   deleteWorkout?: Resolver<Maybe<ResolversTypes['mutateWorkoutsResponse']>, ParentType, ContextType, RequireFields<MutationDeleteWorkoutArgs, 'workout_id'>>;
   generateFirebaseIdToken?: Resolver<Maybe<ResolversTypes['GenerateIdTokenResponse']>, ParentType, ContextType, RequireFields<MutationGenerateFirebaseIdTokenArgs, 'uid'>>;
   generateNotification?: Resolver<Maybe<ResolversTypes['NotificationResponse']>, ParentType, ContextType, RequireFields<MutationGenerateNotificationArgs, 'body' | 'title' | 'token'>>;
+  generateWorkoutReminder?: Resolver<Maybe<ResolversTypes['NotificationResponse']>, ParentType, ContextType>;
   generateWorkouts?: Resolver<Maybe<Array<ResolversTypes['Workout']>>, ParentType, ContextType, RequireFields<MutationGenerateWorkoutsArgs, 'no_of_workouts'>>;
   regenerateWorkouts?: Resolver<Maybe<Array<ResolversTypes['Workout']>>, ParentType, ContextType>;
   signup?: Resolver<Maybe<ResolversTypes['SignupResponse']>, ParentType, ContextType, RequireFields<MutationSignupArgs, 'displayName' | 'email' | 'is_user' | 'password'>>;
+  updateBaseUser?: Resolver<Maybe<ResolversTypes['MutateBaseUserResponse']>, ParentType, ContextType, Partial<MutationUpdateBaseUserArgs>>;
   updateExcerciseMetadata?: Resolver<Maybe<ResolversTypes['mutateExcerciseMetaDataResponse']>, ParentType, ContextType, RequireFields<MutationUpdateExcerciseMetadataArgs, 'excercise_name'>>;
   updateMeasurement?: Resolver<Maybe<ResolversTypes['mutateMeasurementResponse']>, ParentType, ContextType, RequireFields<MutationUpdateMeasurementArgs, 'measurement_id'>>;
   updateMuscleRegion?: Resolver<Maybe<ResolversTypes['mutateMuscleRegionResponse']>, ParentType, ContextType, RequireFields<MutationUpdateMuscleRegionArgs, 'muscle_region_id'>>;
@@ -1093,7 +1143,7 @@ export type MutationResolvers<ContextType = AppContext, ParentType extends Resol
 };
 
 export type MutationResponseResolvers<ContextType = AppContext, ParentType extends ResolversParentTypes['MutationResponse'] = ResolversParentTypes['MutationResponse']> = {
-  __resolveType: TypeResolveFn<'GenerateIdTokenResponse' | 'MutateUserResponse' | 'NotificationResponse' | 'SignupResponse' | 'mutateExcerciseMetaDataResponse' | 'mutateMeasurementResponse' | 'mutateMuscleRegionResponse' | 'mutateProgramResponse' | 'mutateWorkoutResponse' | 'mutateWorkoutsResponse', ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'GenerateIdTokenResponse' | 'MutateBaseUserResponse' | 'MutateUserResponse' | 'NotificationResponse' | 'SignupResponse' | 'mutateExcerciseMetaDataResponse' | 'mutateMeasurementResponse' | 'mutateMuscleRegionResponse' | 'mutateProgramResponse' | 'mutateWorkoutResponse' | 'mutateWorkoutsResponse', ParentType, ContextType>;
   code?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
@@ -1123,6 +1173,7 @@ export type ProgramResolvers<ContextType = AppContext, ParentType extends Resolv
 };
 
 export type QueryResolvers<ContextType = AppContext, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
+  baseUser?: Resolver<Maybe<ResolversTypes['BaseUser']>, ParentType, ContextType>;
   baseUsers?: Resolver<Maybe<Array<Maybe<ResolversTypes['BaseUser']>>>, ParentType, ContextType>;
   coachProgram?: Resolver<Maybe<ResolversTypes['Program']>, ParentType, ContextType, RequireFields<QueryCoachProgramArgs, 'program_id'>>;
   coachPrograms?: Resolver<Maybe<Array<Maybe<ResolversTypes['Program']>>>, ParentType, ContextType>;
@@ -1276,10 +1327,12 @@ export type Resolvers<ContextType = AppContext> = {
   ExcercisePerformance?: ExcercisePerformanceResolvers<ContextType>;
   ExcerciseSet?: ExcerciseSetResolvers<ContextType>;
   ExcerciseSetGroup?: ExcerciseSetGroupResolvers<ContextType>;
+  FCMToken?: FcmTokenResolvers<ContextType>;
   GenerateIdTokenResponse?: GenerateIdTokenResponseResolvers<ContextType>;
   GroupedExcerciseSets?: GroupedExcerciseSetsResolvers<ContextType>;
   Measurement?: MeasurementResolvers<ContextType>;
   MuscleRegion?: MuscleRegionResolvers<ContextType>;
+  MutateBaseUserResponse?: MutateBaseUserResponseResolvers<ContextType>;
   MutateUserResponse?: MutateUserResponseResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
   MutationResponse?: MutationResponseResolvers<ContextType>;

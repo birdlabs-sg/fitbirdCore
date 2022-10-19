@@ -15,5 +15,7 @@ export const mutateNotification = gql`
       title: String!
       body: String!
     ): NotificationResponse
+
+    generateWorkoutReminder: NotificationResponse
   }
 `;
