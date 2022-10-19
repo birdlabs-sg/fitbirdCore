@@ -30,7 +30,10 @@ import { getExcerciseQueryResolver } from "./query/queryExcercise";
 import { excercisePerformanceQueryResolver } from "./query/queryExcercisePerformance";
 import { getExcerciseMetadatasQueryResolver } from "./query/queryExcerciseMetadatas";
 import { workoutQueryResolver } from "./query/queryWorkout";
-import { generateNotificationResolver } from "./mutation/generateNotificationResolver";
+import {
+  generateNotificationResolver,
+  generateWorkoutReminderResolver,
+} from "./mutation/generateNotificationResolver";
 import { Resolvers } from "../../types/graphql";
 import { usersQueryResolver } from "./query/queryUsers";
 import { GraphQLScalarType } from "graphql";
@@ -44,6 +47,9 @@ import { coachWorkoutsQueryResolver } from "./query/coachQueries/queryCoachWorko
 import { createProgram } from "./mutation/coachMutations/mutateCoachProgram";
 import { coachUsersNotRegisteredQueryResolver } from "./query/coachQueries/queryCoachUsersNotRegistered";
 import { coachWorkoutNameQueryResolver } from "./query/coachQueries/queryCoachWorkoutName";
+import { updateBaseUserResolver } from "./mutation/mutateBaseUser";
+import { baseUserQueryResolver } from "./query/queryBaseUser";
+
 const _ = require("lodash");
 const dateScalar = new GraphQLScalarType({
   name: "Date",
@@ -62,8 +68,10 @@ export const resolvers: Resolvers = {
   Mutation: {
     signup: mutateSignup,
     generateFirebaseIdToken: generateFirebaseIdTokenResolver,
+    generateWorkoutReminder: generateWorkoutReminderResolver,
     generateNotification: generateNotificationResolver,
     updateUser: updateUser,
+    updateBaseUser: updateBaseUserResolver,
     createProgram: createProgram,
     createMeasurement: createMeasurement,
     updateMeasurement: updateMeasurement,
@@ -84,13 +92,14 @@ export const resolvers: Resolvers = {
   //Root Query: Top level querying logic here
   Query: {
     programs: programQueryResolver,
+    baseUser: baseUserQueryResolver,
     baseUsers: baseUsersQueryResolver,
     coachUserInfo: coachUserInfoQueryResolver,
     coachUsers: coachUsersQueryResolver,
     coachUsersNotRegistered: coachUsersNotRegisteredQueryResolver,
     coachProgram: coachProgramResolver,
     coachPrograms: coachProgramsResolver,
-    coachWorkoutName:coachWorkoutNameQueryResolver,
+    coachWorkoutName: coachWorkoutNameQueryResolver,
     coachWorkouts: coachWorkoutsQueryResolver,
     user: userQueryResolvers,
     workouts: workoutsQueryResolver,
@@ -110,6 +119,15 @@ export const resolvers: Resolvers = {
       const prisma = context.dataSources.prisma;
       return await prisma.excerciseSetGroup.findMany({
         where: { workout_id: parent.workout_id },
+      });
+    },
+  },
+
+  BaseUser: {
+    async fcm_tokens(parent, _, context) {
+      const prisma = context.dataSources.prisma;
+      return await prisma.fCMToken.findMany({
+        where: { baseUserBase_user_id: parent.base_user_id },
       });
     },
   },

@@ -21,6 +21,7 @@ import { mutateMuscleRegion } from "./mutationDef/mutateMuscleRegion";
 import { mutateMeasurement } from "./mutationDef/mutateMeasurement";
 import { mutateWorkout } from "./mutationDef/mutateWorkout";
 import { mutateUser } from "./mutationDef/mutateUser";
+import { mutateBaseUser } from "./mutationDef/mutateBaseUser";
 import { ExcerciseMetadata } from "./objectDef/exerciseMetadata";
 import { mutateExcerciseMetadata } from "./mutationDef/mutateExcerciseMetaData";
 import { WorkoutFrequency } from "./objectDef/workoutFrequency";
@@ -33,6 +34,7 @@ const queryTypeDef = gql`
   "This is the root query to resources. Require ADMIN permission to access all, otherwise resources are scoped to the user issuing the request."
   type Query {
     programs: [Program]
+    baseUser: BaseUser #<- follow the prisma model name
     baseUsers: [BaseUser] #<- follow the prisma model name
     coachUserInfo(user_id: ID!): BaseUser
     coachUsers: [BaseUser]
@@ -83,6 +85,7 @@ const mutationTypeDefs = [
   mutateGenerateWorkouts,
   mutateNotification,
   mutateProgram,
+  mutateBaseUser,
 ];
 
 const objectTypeDefs = [

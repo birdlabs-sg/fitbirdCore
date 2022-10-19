@@ -3,6 +3,7 @@ import { AppContext } from "../../types/contextType";
 import { Context } from "vm";
 import { PrismaClient } from "@prisma/client";
 import { GraphQLError } from "graphql";
+import { Token } from "../../types/graphql";
 
 const prisma = new PrismaClient();
 const dotenv = require("dotenv");
@@ -144,7 +145,7 @@ export const onlyCoach = (context: AppContext) => {
   }
 };
 
-export const getFirebaseIdToken = async (uid: string) => {
+export async function getFirebaseIdToken(uid: string): Promise<Token> {
   const customToken = await firebase.auth().createCustomToken(uid);
   const res = await axios({
     url: `https://www.googleapis.com/identitytoolkit/v3/relyingparty/verifyCustomToken?key=${process.env.GOOGLE_API_KEY}`,
@@ -156,4 +157,4 @@ export const getFirebaseIdToken = async (uid: string) => {
     json: true,
   });
   return res.data;
-};
+}
