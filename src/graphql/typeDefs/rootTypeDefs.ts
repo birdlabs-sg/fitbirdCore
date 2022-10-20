@@ -13,6 +13,7 @@ import { Coach } from "./objectDef/coach";
 import { Program } from "./objectDef/program";
 import { Review } from "./objectDef/review";
 import { BaseUser } from "./objectDef/baseUser";
+import { Analytics } from "./objectDef/analytics";
 
 // Imports for mutations
 import { mutateSignup } from "./mutationDef/mutateSignup";
@@ -29,6 +30,7 @@ import { ExcercisePerformance } from "./objectDef/excercisePerformance";
 import { mutateGenerateWorkouts } from "./mutationDef/mutateGenerateWorkouts";
 import { mutateNotification } from "./mutationDef/mutateNotification";
 import { mutateProgram } from "./mutationDef/mutateProgram";
+
 const queryTypeDef = gql`
   scalar Date
   "This is the root query to resources. Require ADMIN permission to access all, otherwise resources are scoped to the user issuing the request."
@@ -51,6 +53,13 @@ const queryTypeDef = gql`
     excludedExcercises: [Excercise]
     getExcercise(excercise_name: ID!): Excercise
     notifications: [Notification]
+    analyticsExerciseOneRepMax(
+      excercise_names_list: [ID]!
+    ): [ExerciseOneRepMaxDataPoint]
+    analyticsExerciseTotalVolume(
+      excercise_names_list: [ID]!
+    ): [ExerciseTotalVolumeDataPoint]
+    analyticsWorkoutAverageRPE: [WorkoutAverageRPEDataPoint]
     workout_frequencies: [WorkoutFrequency]
     getExcercisePerformance(
       excercise_name: ID!
@@ -106,6 +115,7 @@ const objectTypeDefs = [
   Coach,
   Program,
   Review,
+  Analytics,
 ];
 
 export const typeDefs = baseTypeDefs.concat.apply(

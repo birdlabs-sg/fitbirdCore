@@ -49,6 +49,11 @@ import { coachUsersNotRegisteredQueryResolver } from "./query/coachQueries/query
 import { coachWorkoutNameQueryResolver } from "./query/coachQueries/queryCoachWorkoutName";
 import { updateBaseUserResolver } from "./mutation/mutateBaseUser";
 import { baseUserQueryResolver } from "./query/queryBaseUser";
+import {
+  analyticsExerciseOneRepMaxResolver,
+  analyticsExerciseTotalVolumeResolver,
+  analyticsWorkoutAverageRPEResolver,
+} from "./query/queryAnalytics";
 
 const _ = require("lodash");
 const dateScalar = new GraphQLScalarType({
@@ -111,6 +116,9 @@ export const resolvers: Resolvers = {
     workout_frequencies: workoutFrequencyQueryResolver,
     getExcercisePerformance: excercisePerformanceQueryResolver,
     getExcerciseMetadatas: getExcerciseMetadatasQueryResolver,
+    analyticsExerciseOneRepMax: analyticsExerciseOneRepMaxResolver,
+    analyticsExerciseTotalVolume: analyticsExerciseTotalVolumeResolver,
+    analyticsWorkoutAverageRPE: analyticsWorkoutAverageRPEResolver,
   },
 
   // workout query
