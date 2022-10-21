@@ -148,6 +148,20 @@ export enum ExcerciseSetGroupState {
   ReplacementTemporarily = 'REPLACEMENT_TEMPORARILY'
 }
 
+export type ExerciseOneRepMaxDataPoint = {
+  __typename?: 'ExerciseOneRepMaxDataPoint';
+  date_completed?: Maybe<Scalars['Date']>;
+  estimated_one_rep_max_value?: Maybe<Scalars['Float']>;
+  exercise_name?: Maybe<Scalars['String']>;
+};
+
+export type ExerciseTotalVolumeDataPoint = {
+  __typename?: 'ExerciseTotalVolumeDataPoint';
+  date_completed?: Maybe<Scalars['Date']>;
+  exercise_name?: Maybe<Scalars['String']>;
+  exercise_total_volume?: Maybe<Scalars['Float']>;
+};
+
 export type FcmToken = {
   __typename?: 'FCMToken';
   date_issued?: Maybe<Scalars['Date']>;
@@ -516,6 +530,9 @@ export type Program = {
 /** This is the root query to resources. Require ADMIN permission to access all, otherwise resources are scoped to the user issuing the request. */
 export type Query = {
   __typename?: 'Query';
+  analyticsExerciseOneRepMax?: Maybe<Array<Maybe<ExerciseOneRepMaxDataPoint>>>;
+  analyticsExerciseTotalVolume?: Maybe<Array<Maybe<ExerciseTotalVolumeDataPoint>>>;
+  analyticsWorkoutAverageRPE?: Maybe<Array<Maybe<WorkoutAverageRpeDataPoint>>>;
   baseUser?: Maybe<BaseUser>;
   baseUsers?: Maybe<Array<Maybe<BaseUser>>>;
   coachProgram?: Maybe<Program>;
@@ -538,6 +555,18 @@ export type Query = {
   users?: Maybe<Array<Maybe<User>>>;
   workout_frequencies?: Maybe<Array<Maybe<WorkoutFrequency>>>;
   workouts?: Maybe<Array<Maybe<Workout>>>;
+};
+
+
+/** This is the root query to resources. Require ADMIN permission to access all, otherwise resources are scoped to the user issuing the request. */
+export type QueryAnalyticsExerciseOneRepMaxArgs = {
+  excercise_names_list: Array<InputMaybe<Scalars['ID']>>;
+};
+
+
+/** This is the root query to resources. Require ADMIN permission to access all, otherwise resources are scoped to the user issuing the request. */
+export type QueryAnalyticsExerciseTotalVolumeArgs = {
+  excercise_names_list: Array<InputMaybe<Scalars['ID']>>;
 };
 
 
@@ -674,6 +703,12 @@ export type Workout = {
   workout_name?: Maybe<Scalars['String']>;
   workout_state?: Maybe<WorkoutState>;
   workout_type?: Maybe<WorkoutType>;
+};
+
+export type WorkoutAverageRpeDataPoint = {
+  __typename?: 'WorkoutAverageRPEDataPoint';
+  average_rpe_value?: Maybe<Scalars['Float']>;
+  date_completed?: Maybe<Scalars['Date']>;
 };
 
 /** Units for weight */
@@ -879,6 +914,8 @@ export type ResolversTypes = {
   ExcerciseSet: ResolverTypeWrapper<ExcerciseSetModels>;
   ExcerciseSetGroup: ResolverTypeWrapper<ExcerciseSetGroupModels>;
   ExcerciseSetGroupState: ExcerciseSetGroupState;
+  ExerciseOneRepMaxDataPoint: ResolverTypeWrapper<ExerciseOneRepMaxDataPoint>;
+  ExerciseTotalVolumeDataPoint: ResolverTypeWrapper<ExerciseTotalVolumeDataPoint>;
   FCMToken: ResolverTypeWrapper<FcmToken>;
   FailureReason: FailureReason;
   Float: ResolverTypeWrapper<Scalars['Float']>;
@@ -908,6 +945,7 @@ export type ResolversTypes = {
   User: ResolverTypeWrapper<UserModels>;
   WeightUnit: WeightUnit;
   Workout: ResolverTypeWrapper<WorkoutModels>;
+  WorkoutAverageRPEDataPoint: ResolverTypeWrapper<WorkoutAverageRpeDataPoint>;
   WorkoutFilter: WorkoutFilter;
   WorkoutFrequency: ResolverTypeWrapper<WorkoutFrequency>;
   WorkoutState: WorkoutState;
@@ -936,6 +974,8 @@ export type ResolversParentTypes = {
   ExcercisePerformance: Omit<ExcercisePerformance, 'grouped_excercise_sets'> & { grouped_excercise_sets?: Maybe<Array<ResolversParentTypes['GroupedExcerciseSets']>> };
   ExcerciseSet: ExcerciseSetModels;
   ExcerciseSetGroup: ExcerciseSetGroupModels;
+  ExerciseOneRepMaxDataPoint: ExerciseOneRepMaxDataPoint;
+  ExerciseTotalVolumeDataPoint: ExerciseTotalVolumeDataPoint;
   FCMToken: FcmToken;
   Float: Scalars['Float'];
   GenerateIdTokenResponse: Omit<GenerateIdTokenResponse, 'token'> & { token?: Maybe<ResolversParentTypes['Token']> };
@@ -958,6 +998,7 @@ export type ResolversParentTypes = {
   Token: TokenModels;
   User: UserModels;
   Workout: WorkoutModels;
+  WorkoutAverageRPEDataPoint: WorkoutAverageRpeDataPoint;
   WorkoutFrequency: WorkoutFrequency;
   excerciseMetaDataInput: ExcerciseMetaDataInput;
   excerciseSetGroupInput: ExcerciseSetGroupInput;
@@ -1060,6 +1101,20 @@ export type ExcerciseSetGroupResolvers<ContextType = AppContext, ParentType exte
   excercise_set_group_state?: Resolver<Maybe<ResolversTypes['ExcerciseSetGroupState']>, ParentType, ContextType>;
   excercise_sets?: Resolver<Array<ResolversTypes['ExcerciseSet']>, ParentType, ContextType>;
   failure_reason?: Resolver<Maybe<ResolversTypes['FailureReason']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type ExerciseOneRepMaxDataPointResolvers<ContextType = AppContext, ParentType extends ResolversParentTypes['ExerciseOneRepMaxDataPoint'] = ResolversParentTypes['ExerciseOneRepMaxDataPoint']> = {
+  date_completed?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
+  estimated_one_rep_max_value?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  exercise_name?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type ExerciseTotalVolumeDataPointResolvers<ContextType = AppContext, ParentType extends ResolversParentTypes['ExerciseTotalVolumeDataPoint'] = ResolversParentTypes['ExerciseTotalVolumeDataPoint']> = {
+  date_completed?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
+  exercise_name?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  exercise_total_volume?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -1173,6 +1228,9 @@ export type ProgramResolvers<ContextType = AppContext, ParentType extends Resolv
 };
 
 export type QueryResolvers<ContextType = AppContext, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
+  analyticsExerciseOneRepMax?: Resolver<Maybe<Array<Maybe<ResolversTypes['ExerciseOneRepMaxDataPoint']>>>, ParentType, ContextType, RequireFields<QueryAnalyticsExerciseOneRepMaxArgs, 'excercise_names_list'>>;
+  analyticsExerciseTotalVolume?: Resolver<Maybe<Array<Maybe<ResolversTypes['ExerciseTotalVolumeDataPoint']>>>, ParentType, ContextType, RequireFields<QueryAnalyticsExerciseTotalVolumeArgs, 'excercise_names_list'>>;
+  analyticsWorkoutAverageRPE?: Resolver<Maybe<Array<Maybe<ResolversTypes['WorkoutAverageRPEDataPoint']>>>, ParentType, ContextType>;
   baseUser?: Resolver<Maybe<ResolversTypes['BaseUser']>, ParentType, ContextType>;
   baseUsers?: Resolver<Maybe<Array<Maybe<ResolversTypes['BaseUser']>>>, ParentType, ContextType>;
   coachProgram?: Resolver<Maybe<ResolversTypes['Program']>, ParentType, ContextType, RequireFields<QueryCoachProgramArgs, 'program_id'>>;
@@ -1263,6 +1321,12 @@ export type WorkoutResolvers<ContextType = AppContext, ParentType extends Resolv
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type WorkoutAverageRpeDataPointResolvers<ContextType = AppContext, ParentType extends ResolversParentTypes['WorkoutAverageRPEDataPoint'] = ResolversParentTypes['WorkoutAverageRPEDataPoint']> = {
+  average_rpe_value?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  date_completed?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type WorkoutFrequencyResolvers<ContextType = AppContext, ParentType extends ResolversParentTypes['WorkoutFrequency'] = ResolversParentTypes['WorkoutFrequency']> = {
   week_identifier?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   workout_count?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
@@ -1327,6 +1391,8 @@ export type Resolvers<ContextType = AppContext> = {
   ExcercisePerformance?: ExcercisePerformanceResolvers<ContextType>;
   ExcerciseSet?: ExcerciseSetResolvers<ContextType>;
   ExcerciseSetGroup?: ExcerciseSetGroupResolvers<ContextType>;
+  ExerciseOneRepMaxDataPoint?: ExerciseOneRepMaxDataPointResolvers<ContextType>;
+  ExerciseTotalVolumeDataPoint?: ExerciseTotalVolumeDataPointResolvers<ContextType>;
   FCMToken?: FcmTokenResolvers<ContextType>;
   GenerateIdTokenResponse?: GenerateIdTokenResponseResolvers<ContextType>;
   GroupedExcerciseSets?: GroupedExcerciseSetsResolvers<ContextType>;
@@ -1345,6 +1411,7 @@ export type Resolvers<ContextType = AppContext> = {
   Token?: TokenResolvers<ContextType>;
   User?: UserResolvers<ContextType>;
   Workout?: WorkoutResolvers<ContextType>;
+  WorkoutAverageRPEDataPoint?: WorkoutAverageRpeDataPointResolvers<ContextType>;
   WorkoutFrequency?: WorkoutFrequencyResolvers<ContextType>;
   mutateExcerciseMetaDataResponse?: MutateExcerciseMetaDataResponseResolvers<ContextType>;
   mutateMeasurementResponse?: MutateMeasurementResponseResolvers<ContextType>;
