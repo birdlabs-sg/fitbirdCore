@@ -44,20 +44,23 @@ import { coachWorkoutNameQueryResolver } from "./query/coachQueries/queryCoachWo
 import { coachUsersQueryResolver } from "./query/coachQueries/queryCoachUsers";
 import { coachProgramQueryResolver } from "./query/coachQueries/queryCoachProgram";
 import { coachProgramsQueryResolver } from "./query/coachQueries/queryCoachPrograms";
-import { analyticsWorkoutAverageRPEResolver,analyticsExerciseOneRepMaxResolver,analyticsExerciseTotalVolumeResolver } from "./query/queryAnalytics";
+import {
+  analyticsWorkoutAverageRPEResolver,
+  analyticsExerciseOneRepMaxResolver,
+  analyticsExerciseTotalVolumeResolver,
+} from "./query/queryAnalytics";
 import { updateBaseUserResolver } from "./mutation/mutateBaseUser";
-
 
 const _ = require("lodash");
 const dateScalar = new GraphQLScalarType({
   name: "Date",
   description: "Date custom scalar type",
-  serialize(value: Date) {
-    return value.toISOString(); // Convert outgoing Date to integer for JSON
-  },
-  parseValue(value: string) {
-    return Date.parse(value); // Convert incoming integer to Date
-  },
+  // serialize(value: Date) {
+  //   return value.toISOString(); // Convert outgoing Date to integer for JSON
+  // },
+  // parseValue(value: string) {
+  //   return Date.parse(value); // Convert incoming integer to Date
+  // },
 });
 
 export const resolvers: Resolvers = {
@@ -94,7 +97,7 @@ export const resolvers: Resolvers = {
     coachUsersNotRegistered: coachUsersNotRegisteredQueryResolver,
     coachProgram: coachProgramQueryResolver,
     coachPrograms: coachProgramsQueryResolver,
-    coachWorkoutName:coachWorkoutNameQueryResolver,
+    coachWorkoutName: coachWorkoutNameQueryResolver,
     user: userQueryResolvers,
     workouts: workoutsQueryResolver,
     getWorkout: workoutQueryResolver,

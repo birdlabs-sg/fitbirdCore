@@ -21,7 +21,7 @@ export const updateBaseUserResolver = async (
       if (current_token == null) {
         await prisma.fCMToken.create({
           data: {
-            token: fcm_token,
+            token: fcm_token!,
             baseUserBase_user_id: context.user.base_user_id,
           },
         });

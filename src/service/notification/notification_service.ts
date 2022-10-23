@@ -31,7 +31,7 @@ export const generateNotification = async (
         },
       },
     });
-  } catch (error) {
+  } catch (error: any) {
     if (
       error.errorInfo?.code === "messaging/invalid-argument" ||
       error.errorInfo?.code === "messaging/unregistered"
@@ -76,7 +76,7 @@ export const generateWorkoutReminder = async (context: AppContext) => {
             base_user_id: user.base_user_id,
           },
           date_completed: null,
-          workout_type: user.User.workout_type_enrollment,
+          workout_type: user.User!.workout_type_enrollment,
         },
         include: {
           excercise_set_groups: true,

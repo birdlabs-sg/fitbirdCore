@@ -537,7 +537,6 @@ export type Query = {
   analyticsExerciseOneRepMax?: Maybe<Array<Maybe<ExerciseOneRepMaxDataPoint>>>;
   analyticsExerciseTotalVolume?: Maybe<Array<Maybe<ExerciseTotalVolumeDataPoint>>>;
   analyticsWorkoutAverageRPE?: Maybe<Array<Maybe<WorkoutAverageRpeDataPoint>>>;
-  baseUser?: Maybe<BaseUser>;
   baseUsers?: Maybe<Array<Maybe<BaseUser>>>;
   coachProgram?: Maybe<Program>;
   coachPrograms?: Maybe<Array<Maybe<Program>>>;
@@ -561,13 +560,13 @@ export type Query = {
 
 /** This is the root query to resources. Require ADMIN permission to access all, otherwise resources are scoped to the user issuing the request. */
 export type QueryAnalyticsExerciseOneRepMaxArgs = {
-  excercise_names_list: Array<InputMaybe<Scalars['ID']>>;
+  excercise_names_list: Array<Scalars['ID']>;
 };
 
 
 /** This is the root query to resources. Require ADMIN permission to access all, otherwise resources are scoped to the user issuing the request. */
 export type QueryAnalyticsExerciseTotalVolumeArgs = {
-  excercise_names_list: Array<InputMaybe<Scalars['ID']>>;
+  excercise_names_list: Array<Scalars['ID']>;
 };
 
 
@@ -1225,7 +1224,6 @@ export type QueryResolvers<ContextType = AppContext, ParentType extends Resolver
   analyticsExerciseOneRepMax?: Resolver<Maybe<Array<Maybe<ResolversTypes['ExerciseOneRepMaxDataPoint']>>>, ParentType, ContextType, RequireFields<QueryAnalyticsExerciseOneRepMaxArgs, 'excercise_names_list'>>;
   analyticsExerciseTotalVolume?: Resolver<Maybe<Array<Maybe<ResolversTypes['ExerciseTotalVolumeDataPoint']>>>, ParentType, ContextType, RequireFields<QueryAnalyticsExerciseTotalVolumeArgs, 'excercise_names_list'>>;
   analyticsWorkoutAverageRPE?: Resolver<Maybe<Array<Maybe<ResolversTypes['WorkoutAverageRPEDataPoint']>>>, ParentType, ContextType>;
-  baseUser?: Resolver<Maybe<ResolversTypes['BaseUser']>, ParentType, ContextType>;
   baseUsers?: Resolver<Maybe<Array<Maybe<ResolversTypes['BaseUser']>>>, ParentType, ContextType>;
   coachProgram?: Resolver<Maybe<ResolversTypes['Program']>, ParentType, ContextType, RequireFields<QueryCoachProgramArgs, 'program_id'>>;
   coachPrograms?: Resolver<Maybe<Array<Maybe<ResolversTypes['Program']>>>, ParentType, ContextType>;
