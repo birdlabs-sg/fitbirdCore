@@ -135,7 +135,7 @@ export const onlyAdmin = (context: AppContext) => {
 };
 
 export const onlyCoach = (context: AppContext) => {
-  if (!context.coach) {
+  if (!context.coach||!context.authenticated) {
     throw new GraphQLError("You are not authorized.", {
       extensions: {
         code: "FORBIDDEN",
@@ -151,6 +151,7 @@ export const isUser=(context: AppContext) => {
   else{
     return false
   }
+}
 
 export async function getFirebaseIdToken(uid: string): Promise<Token> {
   const customToken = await firebase.auth().createCustomToken(uid);
