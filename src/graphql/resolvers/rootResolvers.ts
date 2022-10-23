@@ -38,23 +38,12 @@ import { Resolvers } from "../../types/graphql";
 import { usersQueryResolver } from "./query/queryUsers";
 import { GraphQLScalarType } from "graphql";
 import { baseUsersQueryResolver } from "./query/queryBaseUsers";
-import { programQueryResolver } from "./query/queryProgram";
-import { coachUserInfoQueryResolver } from "./query/coachQueries/queryCoachUserInfo";
-import { coachUsersQueryResolver } from "./query/coachQueries/queryCoachUsers";
-import { coachProgramResolver } from "./query/coachQueries/queryCoachProgram";
-import { coachProgramsResolver } from "./query/coachQueries/queryCoachPrograms";
-import { coachWorkoutsQueryResolver } from "./query/coachQueries/queryCoachWorkouts";
 import { createProgram } from "./mutation/coachMutations/mutateCoachProgram";
 import { coachUsersNotRegisteredQueryResolver } from "./query/coachQueries/queryCoachUsersNotRegistered";
 import { coachWorkoutNameQueryResolver } from "./query/coachQueries/queryCoachWorkoutName";
-import { updateBaseUserResolver } from "./mutation/mutateBaseUser";
-import { baseUserQueryResolver } from "./query/queryBaseUser";
-import {
-  analyticsExerciseOneRepMaxResolver,
-  analyticsExerciseTotalVolumeResolver,
-  analyticsWorkoutAverageRPEResolver,
-} from "./query/queryAnalytics";
-
+import { coachUsersQueryResolver } from "./query/coachQueries/queryCoachUsers";
+import { coachProgramQueryResolver } from "./query/coachQueries/queryCoachProgram";
+import { coachProgramsQueryResolver } from "./query/coachQueries/queryCoachPrograms";
 const _ = require("lodash");
 const dateScalar = new GraphQLScalarType({
   name: "Date",
@@ -96,16 +85,12 @@ export const resolvers: Resolvers = {
 
   //Root Query: Top level querying logic here
   Query: {
-    programs: programQueryResolver,
-    baseUser: baseUserQueryResolver,
     baseUsers: baseUsersQueryResolver,
-    coachUserInfo: coachUserInfoQueryResolver,
     coachUsers: coachUsersQueryResolver,
     coachUsersNotRegistered: coachUsersNotRegisteredQueryResolver,
-    coachProgram: coachProgramResolver,
-    coachPrograms: coachProgramsResolver,
-    coachWorkoutName: coachWorkoutNameQueryResolver,
-    coachWorkouts: coachWorkoutsQueryResolver,
+    coachProgram: coachProgramQueryResolver,
+    coachPrograms: coachProgramsQueryResolver,
+    coachWorkoutName:coachWorkoutNameQueryResolver,
     user: userQueryResolvers,
     workouts: workoutsQueryResolver,
     getWorkout: workoutQueryResolver,

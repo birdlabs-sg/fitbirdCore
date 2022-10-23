@@ -1,7 +1,4 @@
-import {
-  onlyAuthenticated,
-  onlyCoach,
-} from "../../../service/firebase/firebase_service";
+import { isUser, onlyAuthenticated, onlyCoach } from "../../../service/firebase/firebase_service";
 import {
   generateNextWorkout,
   workoutGenerator,
@@ -30,7 +27,6 @@ import {
 import { reorderActiveWorkouts } from "../../../service/workout_manager/workout_order_manager";
 import {
   generateOrUpdateExcerciseMetadata,
-  generateOrUpdateExcerciseMetadataForCoaches,
   updateExcerciseMetadataWithCompletedWorkout,
 } from "../../../service/workout_manager/exercise_metadata_manager/exercise_metadata_manager";
 import { assert } from "console";
@@ -248,8 +244,10 @@ export const updateWorkout = async (
   { workout_id, excercise_set_groups, ...otherArgs }: MutationUpdateWorkoutArgs,
   context: AppContext
 ) => {
-  onlyAuthenticated(context);
-  if (context.user) {
+  
+  //onlyAuthenticated(context);
+  
+  if (isUser(context)) {
     const prisma = context.dataSources.prisma;
     await checkExistsAndOwnership(context, workout_id);
 
@@ -315,11 +313,8 @@ export const updateWorkout = async (
           },
         },
       };
-      await generateOrUpdateExcerciseMetadataForCoaches(
-        context,
-        excercise_metadatas,
-        retrieveUserId.user_id.toString()
-      );
+      if(retrieveUserId){
+      await generateOrUpdateExcerciseMetadata(context, excercise_metadatas,retrieveUserId.user_id.toString())}; 
     } else {
       formatedUpdatedData = {
         ...otherArgs,
