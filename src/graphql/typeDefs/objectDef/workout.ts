@@ -14,6 +14,7 @@ export const Workout = gql`
     excercise_set_groups: [ExcerciseSetGroup!]
     workout_state: WorkoutState
     workout_type: WorkoutType
+    programProgram_id:ID
   }
 
   type ExcerciseSetGroup {

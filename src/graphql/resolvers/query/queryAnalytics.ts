@@ -13,7 +13,6 @@ export async function analyticsExerciseOneRepMaxResolver(
 ) {
   onlyAuthenticated(context);
   const prisma = context.dataSources.prisma;
-
   // queries completed workouts that has at least 1 exercise set group that appear in the excercise_name_list
   var workouts = await prisma.workout.findMany({
     where: {
@@ -24,7 +23,7 @@ export async function analyticsExerciseOneRepMaxResolver(
       excercise_set_groups: {
         some: {
           excercise_name: {
-            in: excercise_names_list,
+            in: excercise_names_list!,
           },
         },
       },
@@ -126,7 +125,7 @@ export async function analyticsExerciseTotalVolumeResolver(
 
 export async function analyticsWorkoutAverageRPEResolver(
   _: any,
-  { excercise_names_list }: QueryAnalyticsExerciseTotalVolumeArgs,
+  { excercise_names_list }: any,
   context: AppContext
 ) {
   onlyAuthenticated(context);
@@ -175,6 +174,5 @@ export async function analyticsWorkoutAverageRPEResolver(
       date_completed: workout.date_completed,
     };
   });
-
   return average_rpe_value_data_points;
 }

@@ -41,8 +41,8 @@ export const signupFirebase = async (
     const prismaBaseUser = await prisma.baseUser.create({
       data: {
         firebase_uid: firebaseUser.uid,
-        email: firebaseUser.email,
-        displayName: firebaseUser.displayName,
+        email: firebaseUser.email!,
+        displayName: firebaseUser.displayName!,
         User: {
           create: {},
         },
@@ -54,8 +54,8 @@ export const signupFirebase = async (
     const prismaBaseUser = await prisma.baseUser.create({
       data: {
         firebase_uid: firebaseUser.uid,
-        email: firebaseUser.email,
-        displayName: firebaseUser.displayName,
+        email: firebaseUser.email!,
+        displayName: firebaseUser.displayName!,
         coach: {
           create: {},
         },
@@ -91,10 +91,10 @@ export const authenticate = async (token: string) => {
     });
 
     // if the user is not a coach
-    if (base_user.coach == null) {
+    if (base_user?.coach == null) {
       return {
         authenticated: true,
-        user: base_user.User, // This is why you need to have typescript, to avoid mistakes like this
+        user: base_user?.User, // This is why you need to have typescript, to avoid mistakes like this
         isAdmin: !!fireBaseUser.admin,
         coach: null,
       };
@@ -135,7 +135,7 @@ export const onlyAdmin = (context: AppContext) => {
 };
 
 export const onlyCoach = (context: AppContext) => {
-  if (!context.coach) {
+  if (!context.coach||!context.authenticated) {
     throw new GraphQLError("You are not authorized.", {
       extensions: {
         code: "FORBIDDEN",
@@ -144,6 +144,14 @@ export const onlyCoach = (context: AppContext) => {
     //context.coach = { coach_id: 2, base_user_id: 37 }
   }
 };
+export const isUser=(context: AppContext) => {
+  if(context.user){
+    return true
+  }
+  else{
+    return false
+  }
+}
 
 export async function getFirebaseIdToken(uid: string): Promise<Token> {
   const customToken = await firebase.auth().createCustomToken(uid);

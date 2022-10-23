@@ -8,7 +8,8 @@ import {
 } from "../../types/graphql";
 
 import { generateExerciseMetadata } from "./exercise_metadata_manager/exercise_metadata_manager";
-import { Prisma, WorkoutType } from "@prisma/client";
+import { Prisma, WorkoutState, WorkoutType } from "@prisma/client";
+import { isUser } from "../../service/firebase/firebase_service";
 import { graphql, GraphQLError } from "graphql";
 const _ = require("lodash");
 
@@ -209,9 +210,11 @@ export async function getActiveWorkouts(
  */
 export async function getActiveWorkoutCount(
   context: AppContext,
-  workout_type: WorkoutType
+  workout_type: WorkoutType,
+  user_id?:string
 ) {
   const prisma = context.dataSources.prisma;
+  if(isUser(context)){
   const workouts = await prisma.workout.findMany({
     where: {
       date_completed: null,
@@ -223,6 +226,20 @@ export async function getActiveWorkoutCount(
     },
   });
   return workouts.length;
+}
+else{
+  const workouts = await prisma.workout.findMany({
+    where: {
+      date_completed: null,
+      user_id: parseInt(user_id!),
+      workout_type: workout_type,
+    },
+    orderBy: {
+      order_index: "asc",
+    },
+  });
+  return workouts.length;
+}
 }
 
 /**
@@ -290,38 +307,10 @@ export async function getActiveProgram(context: AppContext, user_id: string) {
   });
 }
 
-export async function validateCoachAndUser(
-  context: AppContext,
-  workout_id: string
-) {
-  const prisma = context.dataSources.prisma;
-  const targetWorkout = await prisma.workout.findUnique({
-    where: {
-      workout_id: parseInt(workout_id),
-    },
-  });
-  const targetProgram = await prisma.program.findUnique({
-    where: {
-      program_id: targetWorkout.programProgram_id,
-    },
-  });
 
-  if (targetWorkout == null) {
-    throw new GraphQLError("The workout does not exist.");
-  }
-  if (targetProgram.coach_id != context.coach.coach_id) {
-    throw new GraphQLError("You are not authorized to remove this object", {
-      extensions: {
-        code: "FORBIDDEN",
-      },
-    });
-  }
-}
 
 // This function resets the active state of the program and workouts,
 // 1. program is_active = false
-// 2. ISSUE: workouts date completed = today => on the frontend how do we idenfity a workout that was skipped? <= @dion
-// 3. ISSUE: does a null date_completed always mean that the workout is active? <= @dion
 export async function resetActiveProgramsForCoaches(
   context: AppContext,
   workout_type: WorkoutType,
@@ -353,21 +342,3 @@ export async function resetActiveProgramsForCoaches(
   });
 }
 
-export async function getActiveWorkoutCountForCoaches(
-  context: AppContext,
-  workout_type: WorkoutType,
-  user_id: string
-) {
-  const prisma = context.dataSources.prisma;
-  const workouts = await prisma.workout.findMany({
-    where: {
-      date_completed: null,
-      user_id: parseInt(user_id),
-      workout_type: workout_type,
-    },
-    orderBy: {
-      order_index: "asc",
-    },
-  });
-  return workouts.length;
-}

@@ -9,7 +9,7 @@ export const baseUsersQueryResolver = async (
   __: any,
   context: AppContext
 ) => {
-  onlyCoach(context)
+  onlyAuthenticated(context);
   const prisma = context.dataSources.prisma;
   // reject non coaches. Exception will be thrown if not
   // const requester_user_id = context.user_id
