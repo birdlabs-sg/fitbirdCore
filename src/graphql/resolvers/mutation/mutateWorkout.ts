@@ -251,6 +251,8 @@ export const updateWorkout = async (
     const prisma = context.dataSources.prisma;
     await checkExistsAndOwnership(context, workout_id);
 
+    console.log(otherArgs);
+
     let formatedUpdatedData;
 
     if (excercise_set_groups != null) {
@@ -272,7 +274,8 @@ export const updateWorkout = async (
         ...otherArgs,
       };
     }
-    // extract out metadatas
+
+    console.log(formatedUpdatedData);
     const updatedWorkout = await prisma.workout.update({
       where: {
         workout_id: parseInt(workout_id),

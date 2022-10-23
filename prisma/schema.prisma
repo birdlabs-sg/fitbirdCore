@@ -208,6 +208,7 @@ model User {
   broadcasts                        BroadCast[]
   excerciseMetadata                 ExcerciseMetadata[]
   Program                           Program[]
+  selected_exercise_for_analytics   Excercise[]
 }
 
 model ExcerciseMetadata {
@@ -298,6 +299,8 @@ model Excercise {
   assisted                   Boolean
   excercise_set_groups       ExcerciseSetGroup[]
   excerciseMetadata          ExcerciseMetadata[]
+  User                       User[]
+  userUser_id                Int?
 }
 
 model ExcerciseSet {

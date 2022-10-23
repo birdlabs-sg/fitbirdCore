@@ -89,6 +89,10 @@ export type Excercise = {
   target_regions?: Maybe<Array<MuscleRegion>>;
 };
 
+export type ExcerciseInput = {
+  excercise_name: Scalars['String'];
+};
+
 /** Represents a logical component of a workout session. */
 export type ExcerciseMetadata = {
   __typename?: 'ExcerciseMetadata';
@@ -457,7 +461,6 @@ export type MutationUpdateUserArgs = {
   compound_movement_rep_upper_bound?: InputMaybe<Scalars['Int']>;
   dark_mode?: InputMaybe<Scalars['Boolean']>;
   equipment_accessible?: InputMaybe<Array<Equipment>>;
-  fcm_tokens?: InputMaybe<Array<InputMaybe<Scalars['String']>>>;
   gender?: InputMaybe<Gender>;
   goal?: InputMaybe<Goal>;
   height?: InputMaybe<Scalars['Float']>;
@@ -466,6 +469,7 @@ export type MutationUpdateUserArgs = {
   isolated_movement_rep_upper_bound?: InputMaybe<Scalars['Int']>;
   level_of_experience?: InputMaybe<LevelOfExperience>;
   prior_years_of_experience?: InputMaybe<Scalars['Float']>;
+  selected_exercise_for_analytics?: InputMaybe<Array<ExcerciseInput>>;
   use_rpe?: InputMaybe<Scalars['Boolean']>;
   weight?: InputMaybe<Scalars['Float']>;
   weight_unit?: InputMaybe<WeightUnit>;
@@ -659,7 +663,8 @@ export type User = {
   isolated_movement_rep_upper_bound?: Maybe<Scalars['Int']>;
   level_of_experience?: Maybe<LevelOfExperience>;
   prior_years_of_experience?: Maybe<Scalars['Float']>;
-  program?: Maybe<Array<Maybe<Program>>>;
+  program?: Maybe<Array<Program>>;
+  selected_exercise_for_analytics?: Maybe<Array<Excercise>>;
   use_rpe?: Maybe<Scalars['Boolean']>;
   user_id: Scalars['ID'];
   weight?: Maybe<Scalars['Float']>;
@@ -895,6 +900,7 @@ export type ResolversTypes = {
   Date: ResolverTypeWrapper<Scalars['Date']>;
   Equipment: Equipment;
   Excercise: ResolverTypeWrapper<ExcerciseModels>;
+  ExcerciseInput: ExcerciseInput;
   ExcerciseMetadata: ResolverTypeWrapper<ExcerciseMetadataModels>;
   ExcerciseMetadataState: ExcerciseMetadataState;
   ExcercisePerformance: ResolverTypeWrapper<Omit<ExcercisePerformance, 'grouped_excercise_sets'> & { grouped_excercise_sets?: Maybe<Array<ResolversTypes['GroupedExcerciseSets']>> }>;
@@ -957,6 +963,7 @@ export type ResolversParentTypes = {
   Coach: CoachModels;
   Date: Scalars['Date'];
   Excercise: ExcerciseModels;
+  ExcerciseInput: ExcerciseInput;
   ExcerciseMetadata: ExcerciseMetadataModels;
   ExcercisePerformance: Omit<ExcercisePerformance, 'grouped_excercise_sets'> & { grouped_excercise_sets?: Maybe<Array<ResolversParentTypes['GroupedExcerciseSets']>> };
   ExcerciseSet: ExcerciseSetModels;
@@ -1279,7 +1286,8 @@ export type UserResolvers<ContextType = AppContext, ParentType extends Resolvers
   isolated_movement_rep_upper_bound?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   level_of_experience?: Resolver<Maybe<ResolversTypes['LevelOfExperience']>, ParentType, ContextType>;
   prior_years_of_experience?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
-  program?: Resolver<Maybe<Array<Maybe<ResolversTypes['Program']>>>, ParentType, ContextType>;
+  program?: Resolver<Maybe<Array<ResolversTypes['Program']>>, ParentType, ContextType>;
+  selected_exercise_for_analytics?: Resolver<Maybe<Array<ResolversTypes['Excercise']>>, ParentType, ContextType>;
   use_rpe?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   user_id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   weight?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;

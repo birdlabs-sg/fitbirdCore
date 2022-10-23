@@ -13,7 +13,6 @@ export async function analyticsExerciseOneRepMaxResolver(
 ) {
   onlyAuthenticated(context);
   const prisma = context.dataSources.prisma;
-
   // queries completed workouts that has at least 1 exercise set group that appear in the excercise_name_list
   var workouts = await prisma.workout.findMany({
     where: {

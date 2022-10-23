@@ -120,6 +120,21 @@ export const resolvers: Resolvers = {
     },
   },
 
+  User: {
+    async selected_exercise_for_analytics(parent, _, context) {
+      const prisma = context.dataSources.prisma;
+      return await prisma.excercise.findMany({
+        where: {
+          User: {
+            some: {
+              user_id: parent.user_id,
+            },
+          },
+        },
+      });
+    },
+  },
+
   BaseUser: {
     async fcm_tokens(parent, _, context) {
       const prisma = context.dataSources.prisma;
