@@ -27,6 +27,7 @@ export const User = gql`
     workout_type_enrollment: WorkoutType
     ai_managed_workouts_life_cycle: Int
     use_rpe: Boolean
-    program: [Program]
+    program: [Program!]
+    selected_exercise_for_analytics: [Excercise!]
   }
 `;

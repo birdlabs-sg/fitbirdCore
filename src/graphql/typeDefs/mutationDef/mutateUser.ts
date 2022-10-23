@@ -9,6 +9,10 @@ export const mutateUser = gql`
     user: User
   }
 
+  input ExcerciseInput {
+    excercise_name: String!
+  }
+
   "[PROTECTED] Mutation to update the requestor's user information"
   type Mutation {
     updateUser(
@@ -35,7 +39,7 @@ export const mutateUser = gql`
       workout_type_enrollment: WorkoutType
       ai_managed_workouts_life_cycle: Int
       use_rpe: Boolean
-      fcm_tokens: [String]
+      selected_exercise_for_analytics: [ExcerciseInput!]
     ): MutateUserResponse
   }
 `;

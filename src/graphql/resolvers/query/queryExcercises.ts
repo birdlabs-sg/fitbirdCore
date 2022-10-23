@@ -1,13 +1,15 @@
 import { Equipment } from "@prisma/client";
 import { AppContext } from "../../../types/contextType";
+import { isUser, onlyCoach,onlyAuthenticated } from "../../../service/firebase/firebase_service";
 const lodash = require("lodash");
 export const excercisesQueryResolver = async (
   _: any,
   __: any,
   context: AppContext
 ) => {
+  onlyAuthenticated(context);
   const prisma = context.dataSources.prisma;
-  if(context.user){
+  if(isUser(context)){
   const user_constaints = lodash.differenceWith(
     Object.keys(Equipment),
     context.user.equipment_accessible,
@@ -26,6 +28,7 @@ export const excercisesQueryResolver = async (
   return filteredExcercises;
 }
 else{
-  await prisma.excercise.findMany();
+  onlyCoach(context)
+  return await prisma.excercise.findMany({});
 }
 };

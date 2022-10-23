@@ -49,8 +49,8 @@ export const mutateProgram = gql`
   type Mutation {
     "[PROTECTED] Creates a program object (ONLY COACH)."
     createProgram(
-      user_id: ID!
-      workouts: [workoutInput!]
-    ): mutateProgramResponse
+        user_id: ID!
+        workoutsInput: [workoutInput!]
+    ):mutateProgramResponse
   }
 `;

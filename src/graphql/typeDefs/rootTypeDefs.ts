@@ -13,6 +13,7 @@ import { Coach } from "./objectDef/coach";
 import { Program } from "./objectDef/program";
 import { Review } from "./objectDef/review";
 import { BaseUser } from "./objectDef/baseUser";
+import { Analytics } from "./objectDef/analytics";
 
 // Imports for mutations
 import { mutateSignup } from "./mutationDef/mutateSignup";
@@ -29,28 +30,36 @@ import { ExcercisePerformance } from "./objectDef/excercisePerformance";
 import { mutateGenerateWorkouts } from "./mutationDef/mutateGenerateWorkouts";
 import { mutateNotification } from "./mutationDef/mutateNotification";
 import { mutateProgram } from "./mutationDef/mutateProgram";
+
 const queryTypeDef = gql`
   scalar Date
   "This is the root query to resources. Require ADMIN permission to access all, otherwise resources are scoped to the user issuing the request."
   type Query {
-    programs: [Program]
-    baseUser: BaseUser #<- follow the prisma model name
-    baseUsers: [BaseUser] #<- follow the prisma model name
-    coachUserInfo(user_id: ID!): BaseUser
+    baseUsers: [BaseUser]
     coachUsers: [BaseUser]
     coachUsersNotRegistered: [BaseUser]
     coachProgram(program_id: ID!): Program
     coachPrograms: [Program]
-    coachWorkouts(user_id: ID!, filter: WorkoutFilter!): [Workout]
-    coachWorkoutName(workout_name: ID!, user_id: ID!): Workout
+    coachWorkoutName(
+      workout_name: ID!
+      user_id: ID!
+      programProgram_id: ID!
+    ): Workout
     user: User
-    workouts(filter: WorkoutFilter!, type: WorkoutType): [Workout]
+    workouts(filter: WorkoutFilter!, type: WorkoutType, user_id: ID): [Workout]
     # TODO: Implement these to fit the description on linear
     getWorkout(workout_id: ID!): Workout
     excercises: [Excercise]
     excludedExcercises: [Excercise]
     getExcercise(excercise_name: ID!): Excercise
     notifications: [Notification]
+    analyticsExerciseOneRepMax(
+      excercise_names_list: [ID!]!
+    ): [ExerciseOneRepMaxDataPoint]
+    analyticsExerciseTotalVolume(
+      excercise_names_list: [ID!]!
+    ): [ExerciseTotalVolumeDataPoint]
+    analyticsWorkoutAverageRPE: [WorkoutAverageRPEDataPoint]
     workout_frequencies: [WorkoutFrequency]
     getExcercisePerformance(
       excercise_name: ID!
@@ -106,6 +115,7 @@ const objectTypeDefs = [
   Coach,
   Program,
   Review,
+  Analytics,
 ];
 
 export const typeDefs = baseTypeDefs.concat.apply(

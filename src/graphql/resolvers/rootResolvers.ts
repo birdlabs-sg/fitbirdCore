@@ -38,28 +38,29 @@ import { Resolvers } from "../../types/graphql";
 import { usersQueryResolver } from "./query/queryUsers";
 import { GraphQLScalarType } from "graphql";
 import { baseUsersQueryResolver } from "./query/queryBaseUsers";
-import { programQueryResolver } from "./query/queryProgram";
-import { coachUserInfoQueryResolver } from "./query/coachQueries/queryCoachUserInfo";
-import { coachUsersQueryResolver } from "./query/coachQueries/queryCoachUsers";
-import { coachProgramResolver } from "./query/coachQueries/queryCoachProgram";
-import { coachProgramsResolver } from "./query/coachQueries/queryCoachPrograms";
-import { coachWorkoutsQueryResolver } from "./query/coachQueries/queryCoachWorkouts";
 import { createProgram } from "./mutation/coachMutations/mutateCoachProgram";
 import { coachUsersNotRegisteredQueryResolver } from "./query/coachQueries/queryCoachUsersNotRegistered";
 import { coachWorkoutNameQueryResolver } from "./query/coachQueries/queryCoachWorkoutName";
+import { coachUsersQueryResolver } from "./query/coachQueries/queryCoachUsers";
+import { coachProgramQueryResolver } from "./query/coachQueries/queryCoachProgram";
+import { coachProgramsQueryResolver } from "./query/coachQueries/queryCoachPrograms";
+import {
+  analyticsWorkoutAverageRPEResolver,
+  analyticsExerciseOneRepMaxResolver,
+  analyticsExerciseTotalVolumeResolver,
+} from "./query/queryAnalytics";
 import { updateBaseUserResolver } from "./mutation/mutateBaseUser";
-import { baseUserQueryResolver } from "./query/queryBaseUser";
 
 const _ = require("lodash");
 const dateScalar = new GraphQLScalarType({
   name: "Date",
   description: "Date custom scalar type",
-  serialize(value: Date) {
-    return value.toISOString(); // Convert outgoing Date to integer for JSON
-  },
-  parseValue(value: string) {
-    return Date.parse(value); // Convert incoming integer to Date
-  },
+  // serialize(value: Date) {
+  //   return value.toISOString(); // Convert outgoing Date to integer for JSON
+  // },
+  // parseValue(value: string) {
+  //   return Date.parse(value); // Convert incoming integer to Date
+  // },
 });
 
 export const resolvers: Resolvers = {
@@ -91,16 +92,12 @@ export const resolvers: Resolvers = {
 
   //Root Query: Top level querying logic here
   Query: {
-    programs: programQueryResolver,
-    baseUser: baseUserQueryResolver,
     baseUsers: baseUsersQueryResolver,
-    coachUserInfo: coachUserInfoQueryResolver,
     coachUsers: coachUsersQueryResolver,
     coachUsersNotRegistered: coachUsersNotRegisteredQueryResolver,
-    coachProgram: coachProgramResolver,
-    coachPrograms: coachProgramsResolver,
+    coachProgram: coachProgramQueryResolver,
+    coachPrograms: coachProgramsQueryResolver,
     coachWorkoutName: coachWorkoutNameQueryResolver,
-    coachWorkouts: coachWorkoutsQueryResolver,
     user: userQueryResolvers,
     workouts: workoutsQueryResolver,
     getWorkout: workoutQueryResolver,
@@ -111,6 +108,9 @@ export const resolvers: Resolvers = {
     workout_frequencies: workoutFrequencyQueryResolver,
     getExcercisePerformance: excercisePerformanceQueryResolver,
     getExcerciseMetadatas: getExcerciseMetadatasQueryResolver,
+    analyticsExerciseOneRepMax: analyticsExerciseOneRepMaxResolver,
+    analyticsExerciseTotalVolume: analyticsExerciseTotalVolumeResolver,
+    analyticsWorkoutAverageRPE: analyticsWorkoutAverageRPEResolver,
   },
 
   // workout query
@@ -119,6 +119,21 @@ export const resolvers: Resolvers = {
       const prisma = context.dataSources.prisma;
       return await prisma.excerciseSetGroup.findMany({
         where: { workout_id: parent.workout_id },
+      });
+    },
+  },
+
+  User: {
+    async selected_exercise_for_analytics(parent, _, context) {
+      const prisma = context.dataSources.prisma;
+      return await prisma.excercise.findMany({
+        where: {
+          User: {
+            some: {
+              user_id: parent.user_id,
+            },
+          },
+        },
       });
     },
   },
