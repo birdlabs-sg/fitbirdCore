@@ -5,7 +5,7 @@ import {
   QueryAnalyticsExerciseTotalVolumeArgs,
 } from "../../../types/graphql";
 
-// Averaged Brzycki formula: Weight × (36 / (37 – number of reps))
+// Averaged Brzycki formula: weight * (1+reps/30)
 export async function analyticsExerciseOneRepMaxResolver(
   _: any,
   { excercise_names_list }: QueryAnalyticsExerciseOneRepMaxArgs,
@@ -44,14 +44,21 @@ export async function analyticsExerciseOneRepMaxResolver(
           (exercise_name) => exercise_name == esg.excercise_name
         )
     );
+
     const data_points = exercise_set_groups_of_interest.map((esg) => {
-      var estimated_one_rep_max_value = esg.excercise_sets.reduce(
-        (previousValue, currentSet) =>
-          previousValue +
-          ((currentSet.actual_weight ?? 0) * 36) /
-            (37 - (currentSet.actual_reps ?? 0)),
-        0
-      );
+      var estimated_one_rep_max_value = esg.excercise_sets.reduce(function (
+        previousValue,
+        currentSet
+      ) {
+        var current_set_est_value =
+          (currentSet?.actual_weight ?? 0) *
+          (1 + (currentSet.actual_reps ?? 0) / 30);
+        var averaged_current_set_est_value =
+          current_set_est_value / esg.excercise_sets.length;
+        return previousValue + averaged_current_set_est_value;
+      },
+      0);
+
       return {
         exercise_name: esg.excercise_name,
         estimated_one_rep_max_value: estimated_one_rep_max_value,
