@@ -177,7 +177,12 @@ function generateOverloadedExerciseSets({
         let newTargetWeight = excerciseSet.target_weight;
         if (newTargetReps < lowerBound) {
           // hit the lower bound, recalibrate
-          newTargetReps = upperBound;
+          newTargetReps =
+            upperBound == Infinity
+              ? newTargetReps == 0
+                ? 1
+                : newTargetReps
+              : upperBound;
           newTargetWeight =
             excerciseSet.target_weight -
             parseFloat(

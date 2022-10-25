@@ -15,10 +15,11 @@ import {
   getActiveWorkoutCount,
 } from "../utils";
 import { progressivelyOverload } from "../progressive_overloader/progressive_overloader";
-import { Equipment, WorkoutType } from "@prisma/client";
+import { Equipment, WeightUnit, WorkoutType } from "@prisma/client";
 const _ = require("lodash");
 import * as workoutSplit from "./rotations_types_general";
 import { GraphQLError } from "graphql";
+import { group } from "console";
 /**
  * Generates a list of workouts (AKA a single rotation) based on requestors's equipment constraints.
  */
@@ -341,6 +342,7 @@ export async function generateNextWorkout(
       list_of_excercise_set_groups.push(
         await formatAndGenerateExcerciseSets(excercise.excercise_name, context)
       );
+
       await prisma.workout.create({
         data: {
           workout_name: previousWorkout.workout_name,
@@ -415,6 +417,10 @@ export async function generateNextWorkout(
         },
       });
     } else {
+      const util = require("util");
+
+      var formated = formatExcerciseSetGroups(finalExcerciseSetGroups);
+
       await prisma.workout.create({
         data: {
           user_id: context.user.user_id,
@@ -423,10 +429,36 @@ export async function generateNextWorkout(
           order_index: await getActiveWorkoutCount(context, workout_type),
           workout_type: workout_type,
           excercise_set_groups: {
-            create: formatExcerciseSetGroups(finalExcerciseSetGroups),
+            create: formated,
           },
         },
       });
     }
   }
 }
+
+// [
+//   {
+//     failure_reason: "TOO_DIFFICULT",
+//     excercise: {
+//       connect: { excercise_name: "Machine-assisted Triceps Dip (kneeling)" },
+//     },
+//     excercise_set_group_state: "NORMAL_OPERATION",
+//     excercise_sets: {
+//       create: [{ target_weight: 0, weight_unit: "KG", target_reps: Infinity }],
+//     },
+//   },
+// ];
+
+// [
+//   {
+//     failure_reason: null,
+//     excercise: {
+//       connect: { excercise_name: "Machine-assisted Triceps Dip (kneeling)" },
+//     },
+//     excercise_set_group_state: "NORMAL_OPERATION",
+//     excercise_sets: {
+//       create: [{ target_weight: 0, weight_unit: "KG", target_reps: 2 }],
+//     },
+//   },
+// ];
