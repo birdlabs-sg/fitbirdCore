@@ -28,7 +28,7 @@ export const workoutGenerator = async (
   context: AppContext
 ) => {
   const prisma = context.dataSources.prisma;
-  const user = context.user;
+  const user = context.base_user!.User!;
 
   // guard clause
   if (numberOfWorkouts > 6) {
@@ -216,7 +216,7 @@ const excerciseSelector = async (
   generated_workout_list: WorkoutWithExerciseSets[]
 ) => {
   const prisma = context.dataSources.prisma;
-  const user = context.user;
+  const user = context.base_user!.User!;
   let Rotation = [];
   let max = 0;
 
@@ -309,7 +309,7 @@ export async function generateNextWorkout(
     // Build a new workout using the same exercisegroups
     const user_constaints = _.differenceWith(
       Object.keys(Equipment),
-      context.user.equipment_accessible,
+      context.base_user!.User!.equipment_accessible,
       _.isEqual
     );
     const list_of_excercise_set_groups = [];
@@ -334,7 +334,9 @@ export async function generateNextWorkout(
               hasSome: user_constaints,
             },
           },
-          body_weight: !(context.user.equipment_accessible.length > 0), // use body weight excercise if don't have accessible equipments
+          body_weight: !(
+            context.base_user!.User!.equipment_accessible.length > 0
+          ), // use body weight excercise if don't have accessible equipments
           assisted: false,
         },
       });
@@ -350,8 +352,8 @@ export async function generateNextWorkout(
             context,
             WorkoutType.AI_MANAGED
           ),
-          user_id: context.user.user_id,
-          life_span: context.user.ai_managed_workouts_life_cycle,
+          user_id: context.base_user!.User!.user_id,
+          life_span: context.base_user!.User!.ai_managed_workouts_life_cycle,
           excercise_set_groups: { create: list_of_excercise_set_groups },
           workout_type: WorkoutType.AI_MANAGED,
         },
@@ -404,7 +406,7 @@ export async function generateNextWorkout(
       date.setDate(date.getDate() + 7); // set the date to the next week
       await prisma.workout.create({
         data: {
-          user_id: context.user.user_id,
+          user_id: context.base_user!.User!.user_id,
           workout_name: workout_name!,
           life_span: life_span! - 1,
           date_scheduled: date,
@@ -423,7 +425,7 @@ export async function generateNextWorkout(
 
       await prisma.workout.create({
         data: {
-          user_id: context.user.user_id,
+          user_id: context.base_user!.User!.user_id,
           workout_name: workout_name!,
           life_span: life_span, // Don't deduct life_span from SELF_MANAGED workouts
           order_index: await getActiveWorkoutCount(context, workout_type),

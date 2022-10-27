@@ -14,7 +14,7 @@ export const coachUsersQueryResolver = async (
       User: {
         Program: {
           some: {
-            coach_id: context.coach.coach_id,
+            coach_id: context.base_user!.coach!.coach_id,
           },
         },
       },

@@ -31,13 +31,9 @@ async function startApolloServer() {
   const { url } = await startStandaloneServer(server, {
     context: async ({ req }) => {
       const token = getAuthToken(req);
-      const { authenticated, user, isAdmin, coach } = await authenticate(token);
       return {
         token,
-        authenticated,
-        user,
-        isAdmin,
-        coach,
+        ...(await authenticate(token)),
         dataSources: {
           prisma: prisma,
         },

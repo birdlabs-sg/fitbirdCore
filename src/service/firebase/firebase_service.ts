@@ -76,7 +76,7 @@ export const getAuthToken = (req: Context) => {
 
 export const authenticate = async (token: string) => {
   if (!token) {
-    return { authenticated: false, user: null, isAdmin: null };
+    return { authenticated: false, base_user: null, isAdmin: null };
   }
   try {
     const fireBaseUser = await firebase.auth().verifyIdToken(token);
@@ -90,27 +90,14 @@ export const authenticate = async (token: string) => {
       },
     });
 
-    // if the user is not a coach
-    if (base_user?.coach == null) {
-      return {
-        authenticated: true,
-        user: base_user?.User, // This is why you need to have typescript, to avoid mistakes like this
-        isAdmin: !!fireBaseUser.admin,
-        coach: null,
-      };
-    }
-    // if the user is a coach
-    else {
-      return {
-        authenticated: true,
-        user: null,
-        isAdmin: !!fireBaseUser.admin,
-        coach: base_user.coach,
-      };
-    }
+    return {
+      authenticated: true,
+      isAdmin: !!fireBaseUser.admin,
+      base_user: base_user!,
+    };
   } catch (e) {
     console.log("HAVE TOKEN BUT FAILED TO AUTHENTICATE", e);
-    return { authenticated: false, user: null, isAdmin: null, coach: null };
+    return { authenticated: false, base_user: null, isAdmin: null };
   }
 };
 
@@ -135,7 +122,7 @@ export const onlyAdmin = (context: AppContext) => {
 };
 
 export const onlyCoach = (context: AppContext) => {
-  if (!context.coach||!context.authenticated) {
+  if (!context.base_user?.coach || !context.authenticated) {
     throw new GraphQLError("You are not authorized.", {
       extensions: {
         code: "FORBIDDEN",
@@ -144,14 +131,13 @@ export const onlyCoach = (context: AppContext) => {
     //context.coach = { coach_id: 2, base_user_id: 37 }
   }
 };
-export const isUser=(context: AppContext) => {
-  if(context.user){
-    return true
+export const isUser = (context: AppContext) => {
+  if (context.base_user?.User) {
+    return true;
+  } else {
+    return false;
   }
-  else{
-    return false
-  }
-}
+};
 
 export async function getFirebaseIdToken(uid: string): Promise<Token> {
   const customToken = await firebase.auth().createCustomToken(uid);

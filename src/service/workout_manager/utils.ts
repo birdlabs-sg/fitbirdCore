@@ -24,7 +24,7 @@ export async function formatAndGenerateExcerciseSets(
 ) {
   await checkExerciseExists(context, excercise_name);
   const prisma = context.dataSources.prisma;
-  const user = context.user;
+  const user = context.base_user!.User!;
 
   var excercise_sets_input: ExcerciseSetInput[] = [];
 
@@ -193,7 +193,7 @@ export async function getActiveWorkouts(
   return await prisma.workout.findMany({
     where: {
       date_completed: null,
-      user_id: context.user.user_id,
+      user_id: context.base_user!.User!.user_id,
       workout_type: workout_type,
     },
     orderBy: {
@@ -211,35 +211,34 @@ export async function getActiveWorkouts(
 export async function getActiveWorkoutCount(
   context: AppContext,
   workout_type: WorkoutType,
-  user_id?:string
+  user_id?: string
 ) {
   const prisma = context.dataSources.prisma;
-  if(isUser(context)){
-  const workouts = await prisma.workout.findMany({
-    where: {
-      date_completed: null,
-      user_id: context.user.user_id,
-      workout_type: workout_type,
-    },
-    orderBy: {
-      order_index: "asc",
-    },
-  });
-  return workouts.length;
-}
-else{
-  const workouts = await prisma.workout.findMany({
-    where: {
-      date_completed: null,
-      user_id: parseInt(user_id!),
-      workout_type: workout_type,
-    },
-    orderBy: {
-      order_index: "asc",
-    },
-  });
-  return workouts.length;
-}
+  if (isUser(context)) {
+    const workouts = await prisma.workout.findMany({
+      where: {
+        date_completed: null,
+        user_id: context.base_user!.User!.user_id,
+        workout_type: workout_type,
+      },
+      orderBy: {
+        order_index: "asc",
+      },
+    });
+    return workouts.length;
+  } else {
+    const workouts = await prisma.workout.findMany({
+      where: {
+        date_completed: null,
+        user_id: parseInt(user_id!),
+        workout_type: workout_type,
+      },
+      orderBy: {
+        order_index: "asc",
+      },
+    });
+    return workouts.length;
+  }
 }
 
 /**
@@ -259,7 +258,7 @@ export async function checkExistsAndOwnership(
   if (targetWorkout == null) {
     throw new GraphQLError("The workout does not exist.");
   }
-  if (targetWorkout.user_id != context.user.user_id) {
+  if (targetWorkout.user_id != context.base_user!.User!.user_id) {
     throw new GraphQLError("You are not authorized to remove this object", {
       extensions: {
         code: "FORBIDDEN",
@@ -294,7 +293,7 @@ export async function getActiveProgram(context: AppContext, user_id: string) {
   return await prisma.program.findFirst({
     where: {
       user_id: parseInt(user_id),
-      coach_id: context.coach.coach_id,
+      coach_id: context.base_user!.coach!.coach_id!,
       is_active: true,
     },
     include: {
@@ -306,8 +305,6 @@ export async function getActiveProgram(context: AppContext, user_id: string) {
     },
   });
 }
-
-
 
 // This function resets the active state of the program and workouts,
 // 1. program is_active = false
@@ -323,7 +320,7 @@ export async function resetActiveProgramsForCoaches(
   const setInactive = await prisma.program.updateMany({
     where: {
       user_id: parseInt(user_id),
-      coach_id: context.coach.coach_id,
+      coach_id: context.base_user!.coach!.coach_id,
     },
     data: {
       is_active: false,
@@ -341,4 +338,3 @@ export async function resetActiveProgramsForCoaches(
     },
   });
 }
-
