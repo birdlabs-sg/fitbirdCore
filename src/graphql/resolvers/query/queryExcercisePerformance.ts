@@ -20,7 +20,7 @@ export const excercisePerformanceQueryResolver = async (
   const excerciseSetGroups = await prisma.excerciseSetGroup.findMany({
     where: {
       workout: {
-        user_id: context.user.user_id,
+        user_id: context.base_user.User!.user_id,
         date_completed: { not: null },
       },
       excercise_name: excercise_name,

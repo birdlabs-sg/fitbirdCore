@@ -65,10 +65,25 @@ export const authenticate = async (token: string) => {
         firebase_uid: fireBaseUser.uid,
       },
     });
+<<<<<<< Updated upstream
     return { authenticated: true, user: user, isAdmin: !!fireBaseUser.admin };
   } catch (e) {
     console.log("HAVE TOKEN BUT FAILED TO AUTHENTICATE", e);
     return { authenticated: false, user: null, isAdmin: null };
+=======
+    return {
+      authenticated: true,
+      base_user: base_user,
+      isAdmin: !!fireBaseUser.admin,
+    };
+  } catch (e) {
+    console.log("HAVE TOKEN BUT FAILED TO AUTHENTICATE", e);
+    return {
+      authenticated: false,
+      base_user: null,
+      isAdmin: null,
+    };
+>>>>>>> Stashed changes
   }
 };
 
@@ -84,7 +99,29 @@ export const onlyAdmin = (context: AppContext) => {
   }
 };
 
+<<<<<<< Updated upstream
 export const getFirebaseIdToken = async (uid: string) => {
+=======
+export const onlyCoach = (context: AppContext) => {
+  if (!context.base_user.coach || !context.authenticated) {
+    throw new GraphQLError("You are not authorized.", {
+      extensions: {
+        code: "FORBIDDEN",
+      },
+    });
+    //context.coach = { coach_id: 2, base_user_id: 37 }
+  }
+};
+export const isUser = (context: AppContext) => {
+  if (context.base_user.User) {
+    return true;
+  } else {
+    return false;
+  }
+};
+
+export async function getFirebaseIdToken(uid: string): Promise<Token> {
+>>>>>>> Stashed changes
   const customToken = await firebase.auth().createCustomToken(uid);
   const res = await axios({
     url: `https://www.googleapis.com/identitytoolkit/v3/relyingparty/verifyCustomToken?key=${process.env.GOOGLE_API_KEY}`,

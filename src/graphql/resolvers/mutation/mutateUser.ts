@@ -12,7 +12,7 @@ export const updateUser = async (
   const prisma = context.dataSources.prisma;
   const updatedUser = await prisma.user.update({
     where: {
-      user_id: context.user.user_id,
+      user_id: context.base_user?.User?.user_id,
     },
     data: args,
   });

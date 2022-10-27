@@ -26,7 +26,7 @@ export const workoutGenerator = async (
   context: AppContext
 ) => {
   const prisma = context.dataSources.prisma;
-  const user = context.user;
+  const user = context.base_user.User!;
 
   // guard clause
   if (numberOfWorkouts > 6) {
@@ -214,7 +214,7 @@ const excerciseSelector = async (
   generated_workout_list: WorkoutWithExerciseSets[]
 ) => {
   const prisma = context.dataSources.prisma;
-  const user = context.user;
+  const user = context.base_user.User!;
   let Rotation = [];
   let max = 0;
 
@@ -295,6 +295,7 @@ export async function generateNextWorkout(
     previousWorkout;
 
   var previousExerciseSetGroups = excercise_set_groups;
+<<<<<<< Updated upstream
 
   // Don't need progressive overload because it was NOT completed in previous workout (It was temporarily replaced or removed)
   const excercise_set_groups_without_progressive_overload: PrismaExerciseSetGroupCreateArgs[] =
@@ -305,8 +306,20 @@ export async function generateNextWorkout(
         x: PrismaExerciseSetGroupCreateArgs,
         y: PrismaExerciseSetGroupCreateArgs
       ) => x.excercise_name === y.excercise_name
+=======
+  if (
+    previousWorkout.life_span <= 0 &&
+    previousWorkout.workout_type == WorkoutType.AI_MANAGED
+  ) {
+    // Build a new workout using the same exercisegroups
+    const user_constaints = _.differenceWith(
+      Object.keys(Equipment),
+      context.base_user.User!.equipment_accessible,
+      _.isEqual
+>>>>>>> Stashed changes
     );
 
+<<<<<<< Updated upstream
   // Need progressive overload because it was completed in the previous workout
   const excercise_set_groups_to_progressive_overload: PrismaExerciseSetGroupCreateArgs[] =
     _.differenceWith(
@@ -323,6 +336,58 @@ export async function generateNextWorkout(
       excercise_set_groups_to_progressive_overload,
       context
     );
+=======
+      var differentExercises = await prisma.excercise.findMany({
+        where: {
+          target_regions: {
+            some: previousExercise?.target_regions[0],
+          },
+          NOT: {
+            excercise_name: previousExercise?.excercise_name,
+            equipment_required: {
+              hasSome: user_constaints,
+            },
+          },
+          body_weight: !(
+            context.base_user.User!.equipment_accessible.length > 0
+          ), // use body weight excercise if don't have accessible equipments
+          assisted: false,
+        },
+      });
+      var excercise = _.sample(differentExercises);
+      list_of_excercise_set_groups.push(
+        await formatAndGenerateExcerciseSets(excercise.excercise_name, context)
+      );
+
+      await prisma.workout.create({
+        data: {
+          workout_name: previousWorkout.workout_name,
+          order_index: await getActiveWorkoutCount(
+            context,
+            WorkoutType.AI_MANAGED
+          ),
+          user_id: context.base_user.User!.user_id,
+          life_span: context.base_user.User!.ai_managed_workouts_life_cycle,
+          excercise_set_groups: { create: list_of_excercise_set_groups },
+          workout_type: WorkoutType.AI_MANAGED,
+        },
+        include: {
+          excercise_set_groups: { include: { excercise_sets: true } },
+        },
+      });
+    }
+  } else {
+    // Don't need progressive overload because it was NOT completed in previous workout (It was temporarily replaced or removed)
+    const excercise_set_groups_without_progressive_overload: PrismaExerciseSetGroupCreateArgs[] =
+      _.differenceWith(
+        next_workout_excercise_set_groups,
+        previousExerciseSetGroups,
+        (
+          x: PrismaExerciseSetGroupCreateArgs,
+          y: PrismaExerciseSetGroupCreateArgs
+        ) => x.excercise_name === y.excercise_name
+      );
+>>>>>>> Stashed changes
 
   // Combine the excerciseSetGroups together and set them to back to normal operation
   const finalExcerciseSetGroups =
@@ -333,6 +398,7 @@ export async function generateNextWorkout(
         excercise_set_group_state: ExcerciseSetGroupState.NormalOperation,
       }));
 
+<<<<<<< Updated upstream
   // Create the workout and slot behind the rest of the queue.
   await prisma.workout.create({
     data: {
@@ -347,4 +413,58 @@ export async function generateNextWorkout(
       },
     },
   });
+=======
+    const progressively_overloaded_excercise_set_groups =
+      await progressivelyOverload(
+        excercise_set_groups_to_progressive_overload,
+        context
+      );
+
+    // Combine the excerciseSetGroups together and set them to back to normal operation
+    const finalExcerciseSetGroups =
+      excercise_set_groups_without_progressive_overload
+        .concat(progressively_overloaded_excercise_set_groups)
+        .map((e) => ({
+          ...e,
+          excercise_set_group_state: ExcerciseSetGroupState.NormalOperation,
+        }));
+    // Create the workout and slot behind the rest of the queue.
+    //coach management follows weeks
+    if (workout_type == WorkoutType.COACH_MANAGED) {
+      let date = new Date();
+      date.setDate(date.getDate() + 7); // set the date to the next week
+      await prisma.workout.create({
+        data: {
+          user_id: context.base_user.User!.user_id,
+          workout_name: workout_name!,
+          life_span: life_span! - 1,
+          date_scheduled: date,
+          order_index: await getActiveWorkoutCount(context, workout_type),
+          workout_type: workout_type,
+          programProgram_id: programProgram_id,
+          excercise_set_groups: {
+            create: formatExcerciseSetGroups(finalExcerciseSetGroups),
+          },
+        },
+      });
+    } else {
+      const util = require("util");
+
+      var formated = formatExcerciseSetGroups(finalExcerciseSetGroups);
+
+      await prisma.workout.create({
+        data: {
+          user_id: context.base_user.User!.user_id,
+          workout_name: workout_name!,
+          life_span: life_span, // Don't deduct life_span from SELF_MANAGED workouts
+          order_index: await getActiveWorkoutCount(context, workout_type),
+          workout_type: workout_type,
+          excercise_set_groups: {
+            create: formated,
+          },
+        },
+      });
+    }
+  }
+>>>>>>> Stashed changes
 }

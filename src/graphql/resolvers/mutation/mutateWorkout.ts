@@ -30,6 +30,11 @@ import {
   updateExcerciseMetadataWithCompletedWorkout,
 } from "../../../service/workout_manager/exercise_metadata_manager/exercise_metadata_manager";
 import { assert } from "console";
+<<<<<<< Updated upstream
+=======
+import { GraphQLError } from "graphql";
+import { report } from "../../../service/slack/slack_service";
+>>>>>>> Stashed changes
 
 /**
  * Generates @no_of_workouts number of workouts based on expert guidelines.
@@ -65,7 +70,7 @@ export const regenerateWorkouts = async (
 ) => {
   onlyAuthenticated(context);
   const prisma = context.dataSources.prisma;
-  const no_of_workouts = context.user.workout_frequency ?? 3;
+  const no_of_workouts = context.base_user.User!.workout_frequency ?? 3;
   assert(no_of_workouts > 0 && no_of_workouts <= 6);
 
   const activeWorkouts = await getActiveWorkouts(
@@ -123,7 +128,7 @@ export async function createWorkout(
 
   const workout = await prisma.workout.create({
     data: {
-      user_id: context.user.user_id,
+      user_id: context.base_user.User!.user_id,
       order_index: await getActiveWorkoutCount(context, workout_type),
       life_span: life_span,
       workout_name: workout_name,
@@ -221,6 +226,8 @@ export const completeWorkout = async (
     completedWorkout,
     next_workout_excercise_group_sets
   );
+
+  report(`${context.base_user?.displayName} completed a workout. ✅`);
 
   return {
     code: "200",

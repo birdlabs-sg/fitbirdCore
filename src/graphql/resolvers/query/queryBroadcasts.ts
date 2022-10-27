@@ -12,7 +12,7 @@ export const broadCastsQueryResolver = async (
     where: {
       users: {
         some: {
-          user_id: parseInt(context.user_id),
+          user_id: context.base_user.User!.user_id,
         },
       },
     },

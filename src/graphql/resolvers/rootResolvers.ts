@@ -110,7 +110,7 @@ export const resolvers: Resolvers = {
       return await prisma.excerciseMetadata.findUnique({
         where: {
           user_id_excercise_name: {
-            user_id: context.user.user_id,
+            user_id: context.base_user.User!.user_id,
             excercise_name: parent.excercise_name,
           },
         },
@@ -173,7 +173,7 @@ export const resolvers: Resolvers = {
       return await prisma.excerciseMetadata.findUnique({
         where: {
           user_id_excercise_name: {
-            user_id: context.user.user_id,
+            user_id: context.base_user.User!.user_id,
             excercise_name: parent.excercise_name,
           },
         },

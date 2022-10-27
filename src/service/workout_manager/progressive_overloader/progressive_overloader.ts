@@ -15,11 +15,16 @@ export const progressivelyOverload = async (
   onlyAuthenticated(context);
   const prisma = context.dataSources.prisma;
   // retrieve the rep ranges for different types of exercises
-  const compoundLowerBound = context.user.compound_movement_rep_lower_bound;
-  const compoundUpperBound = context.user.compound_movement_rep_upper_bound;
-  const isolatedLowerBound = context.user.isolated_movement_rep_lower_bound;
-  const isolatedUpperBound = context.user.isolated_movement_rep_upper_bound;
-  const bodyWeightLowerBound = context.user.body_weight_rep_lower_bound;
+  const compoundLowerBound =
+    context.base_user.User!.compound_movement_rep_lower_bound;
+  const compoundUpperBound =
+    context.base_user.User!.compound_movement_rep_upper_bound;
+  const isolatedLowerBound =
+    context.base_user.User!.isolated_movement_rep_lower_bound;
+  const isolatedUpperBound =
+    context.base_user.User!.isolated_movement_rep_upper_bound;
+  const bodyWeightLowerBound =
+    context.base_user.User!.body_weight_rep_lower_bound;
   const bodyWeightUpperBound = Infinity;
 
   for (let excercise_set_group of excercise_set_groups) {
@@ -96,7 +101,7 @@ export const progressivelyOverload = async (
         await prisma.excerciseMetadata.update({
           where: {
             user_id_excercise_name: {
-              user_id: context.user.user_id,
+              user_id: context.base_user.User!.user_id,
               excercise_name: excerciseData.excercise_name,
             },
           },

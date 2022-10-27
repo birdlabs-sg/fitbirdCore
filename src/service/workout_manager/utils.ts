@@ -22,7 +22,7 @@ export async function formatAndGenerateExcerciseSets(
 ) {
   await checkExerciseExists(context, excercise_name);
   const prisma = context.dataSources.prisma;
-  const user = context.user;
+  const user = context.base_user.User!;
 
   var excercise_sets_input: ExcerciseSetInput[] = [];
 
@@ -191,7 +191,7 @@ export async function getActiveWorkouts(
   return await prisma.workout.findMany({
     where: {
       date_completed: null,
-      user_id: context.user.user_id,
+      user_id: context.base_user.User!.user_id,
       workout_type: workout_type,
     },
     orderBy: {
@@ -208,6 +208,7 @@ export async function getActiveWorkouts(
  */
 export async function getActiveWorkoutCount(
   context: AppContext,
+<<<<<<< Updated upstream
   workout_type: WorkoutType
 ) {
   const prisma = context.dataSources.prisma;
@@ -222,6 +223,37 @@ export async function getActiveWorkoutCount(
     },
   });
   return workouts.length;
+=======
+  workout_type: WorkoutType,
+  user_id?: string
+) {
+  const prisma = context.dataSources.prisma;
+  if (isUser(context)) {
+    const workouts = await prisma.workout.findMany({
+      where: {
+        date_completed: null,
+        user_id: context.base_user.User!.user_id,
+        workout_type: workout_type,
+      },
+      orderBy: {
+        order_index: "asc",
+      },
+    });
+    return workouts.length;
+  } else {
+    const workouts = await prisma.workout.findMany({
+      where: {
+        date_completed: null,
+        user_id: parseInt(user_id!),
+        workout_type: workout_type,
+      },
+      orderBy: {
+        order_index: "asc",
+      },
+    });
+    return workouts.length;
+  }
+>>>>>>> Stashed changes
 }
 
 /**
@@ -241,10 +273,19 @@ export async function checkExistsAndOwnership(
   if (targetWorkout == null) {
     throw new Error("The workout does not exist.");
   }
+<<<<<<< Updated upstream
   if (targetWorkout.user_id != context.user.user_id) {
     throw new AuthenticationError(
       "You are not authorized to remove this object"
     );
+=======
+  if (targetWorkout.user_id != context.base_user.User!.user_id) {
+    throw new GraphQLError("You are not authorized to remove this object", {
+      extensions: {
+        code: "FORBIDDEN",
+      },
+    });
+>>>>>>> Stashed changes
   }
 }
 
@@ -266,3 +307,59 @@ export async function checkExerciseExists(
     throw new Error("No exercise found");
   }
 }
+<<<<<<< Updated upstream
+=======
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+/*COACH*/
+export async function getActiveProgram(context: AppContext, user_id: string) {
+  const prisma = context.dataSources.prisma;
+  return await prisma.program.findFirst({
+    where: {
+      user_id: parseInt(user_id),
+      coach_id: context.base_user.coach!.coach_id,
+      is_active: true,
+    },
+    include: {
+      workouts: {
+        orderBy: {
+          order_index: "asc",
+        },
+      },
+    },
+  });
+}
+
+// This function resets the active state of the program and workouts,
+// 1. program is_active = false
+export async function resetActiveProgramsForCoaches(
+  context: AppContext,
+  workout_type: WorkoutType,
+  user_id: string
+) {
+  const prisma = context.dataSources.prisma;
+  let date = new Date();
+  //set all active programs to be inactive
+
+  const setInactive = await prisma.program.updateMany({
+    where: {
+      user_id: parseInt(user_id),
+      coach_id: context.base_user.coach!.coach_id,
+    },
+    data: {
+      is_active: false,
+    },
+  });
+
+  const workouts = await prisma.workout.updateMany({
+    where: {
+      date_completed: null,
+      user_id: parseInt(user_id),
+      workout_type: workout_type,
+    },
+    data: {
+      date_completed: date,
+    },
+  });
+}
+>>>>>>> Stashed changes
