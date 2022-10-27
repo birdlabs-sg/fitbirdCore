@@ -16,7 +16,7 @@ export async function analyticsExerciseOneRepMaxResolver(
   // queries completed workouts that has at least 1 exercise set group that appear in the excercise_name_list
   var workouts = await prisma.workout.findMany({
     where: {
-      user_id: context.user.user_id,
+      user_id: context.base_user!.User!.user_id,
       NOT: {
         date_completed: null,
       },
@@ -82,7 +82,7 @@ export async function analyticsExerciseTotalVolumeResolver(
   // queries completed workouts that has at least 1 exercise set group that appear in the excercise_name_list
   var workouts = await prisma.workout.findMany({
     where: {
-      user_id: context.user.user_id,
+      user_id: context.base_user!.User!.user_id,
       NOT: {
         date_completed: null,
       },
@@ -141,7 +141,7 @@ export async function analyticsWorkoutAverageRPEResolver(
   // queries completed workouts that has at least 1 exercise set group that appear in the excercise_name_list
   var workouts = await prisma.workout.findMany({
     where: {
-      user_id: context.user.user_id,
+      user_id: context.base_user!.User!.user_id,
       NOT: {
         date_completed: null,
       },

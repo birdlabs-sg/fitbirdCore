@@ -22,7 +22,7 @@ export const updateBaseUserResolver = async (
         await prisma.fCMToken.create({
           data: {
             token: fcm_token!,
-            baseUserBase_user_id: context.user.base_user_id,
+            baseUserBase_user_id: context.base_user!.base_user_id,
           },
         });
       } else {
@@ -40,7 +40,7 @@ export const updateBaseUserResolver = async (
 
   updatedBaseUser = await prisma.baseUser.update({
     where: {
-      base_user_id: context.user.base_user_id,
+      base_user_id: context.base_user!.base_user_id,
     },
     data: restArgs,
   });

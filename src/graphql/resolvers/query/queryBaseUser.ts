@@ -10,7 +10,7 @@ export const baseUserQueryResolver = async (
   const prisma = context.dataSources.prisma;
   return await prisma.baseUser.findUnique({
     where: {
-      base_user_id: context.user.base_user_id ?? context.coach.base_user_id,
+      base_user_id: context.base_user?.base_user_id,
     },
     include: {
       coach: true,

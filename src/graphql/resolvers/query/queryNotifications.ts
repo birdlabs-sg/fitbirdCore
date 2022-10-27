@@ -9,6 +9,6 @@ export const notificationsQueryResolver = async (
   onlyAuthenticated(context);
   const prisma = context.dataSources.prisma;
   return await prisma.notification.findMany({
-    where: { user_id: context.user.user_id },
+    where: { user_id: context.base_user!.User!.user_id },
   });
 };
