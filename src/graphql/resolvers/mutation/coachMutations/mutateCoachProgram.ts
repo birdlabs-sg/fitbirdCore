@@ -28,7 +28,7 @@ export const createProgram = async (
   onlyCoach(context);
   const prisma = context.dataSources.prisma;
   // Ensure that there is a max of 7 workouts
-  
+
   if (workoutsInput!.length > 7) {
     throw Error("VALIDATE Must be no more than 7 workouts");
   } else {
@@ -50,8 +50,9 @@ export const createProgram = async (
         user_id
       );
 
-      let formattedExcerciseSetGroups =
-        formatExcerciseSetGroups(excercise_set_groups!);
+      let formattedExcerciseSetGroups = formatExcerciseSetGroups(
+        excercise_set_groups!
+      );
       var date = new Date();
       date.setDate(date.getDate() + i);
       let workout_input: any = {
@@ -75,7 +76,7 @@ export const createProgram = async (
     //3. Create the new program object with its corresponding workouts
     const workout = await prisma.program.create({
       data: {
-        coach: { connect: { coach_id: context.coach.coach_id } },
+        coach: { connect: { coach_id: context.base_user!.coach!.coach_id } },
         user: { connect: { user_id: parseInt(user_id) } },
         is_active: true,
         workouts: {

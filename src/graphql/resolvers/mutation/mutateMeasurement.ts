@@ -20,7 +20,7 @@ export const createMeasurement = async (
         connect: { muscle_region_id: parseInt(muscle_region_id) },
       },
       user: {
-        connect: { user_id: context.user.user_id },
+        connect: { user_id: context.base_user!.User!.user_id },
       },
     },
     include: {
@@ -52,7 +52,7 @@ export const updateMeasurement = async (
   });
   if (
     targetMeasurement != null &&
-    targetMeasurement.user_id !== context.user.user_id
+    targetMeasurement.user_id !== context.base_user!.User!.user_id
   ) {
     throw new GraphQLError("You are not authororized to mutate this object.");
   }
@@ -92,7 +92,7 @@ export const deleteMeasurement = async (
 
   if (
     targetMeasurement != null &&
-    targetMeasurement.user_id !== context.user.user_id
+    targetMeasurement.user_id !== context.base_user!.User!.user_id
   ) {
     throw new GraphQLError("You are not authororized to remove this object.");
   }

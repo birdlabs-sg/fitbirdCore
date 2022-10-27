@@ -1,11 +1,12 @@
 import { BaseContext } from "@apollo/server";
-import { Coach, PrismaClient, User } from "@prisma/client";
+import { BaseUser, Coach, PrismaClient, User } from "@prisma/client";
 
 interface AppContext {
   authenticated: boolean;
-  user: User;
-  user_id: string;
+  base_user?: BaseUser & {
+    coach: Coach | null;
+    User: User | null;
+  };
   isAdmin: boolean;
-  coach: Coach;
   dataSources: { prisma: PrismaClient };
 }

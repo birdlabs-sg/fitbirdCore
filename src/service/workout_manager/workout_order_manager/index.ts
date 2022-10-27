@@ -20,7 +20,7 @@ export async function reorderActiveWorkouts(
   const active_workouts = await prisma.workout.findMany({
     where: {
       date_completed: null,
-      user_id: context.user.user_id,
+      user_id: context.base_user!.User!.user_id,
       workout_type: workout_type,
     },
     orderBy: {
