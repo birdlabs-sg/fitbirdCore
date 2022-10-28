@@ -2,8 +2,8 @@ import { AppContext } from "../../../types/contextType";
 import { onlyAuthenticated } from "../../../service/firebase/firebase_service";
 
 export const broadCastsQueryResolver = async (
-  _: any,
-  __: any,
+  _: unknown,
+  __: unknown,
   context: AppContext
 ) => {
   onlyAuthenticated(context);

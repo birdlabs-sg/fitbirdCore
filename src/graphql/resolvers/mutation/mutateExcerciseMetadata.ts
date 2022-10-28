@@ -3,7 +3,7 @@ import { MutationUpdateExcerciseMetadataArgs } from "../../../types/graphql";
 import { onlyAuthenticated } from "../../../service/firebase/firebase_service";
 
 export const updateExcerciseMetadata = async (
-  _: any,
+  _: unknown,
   args: MutationUpdateExcerciseMetadataArgs,
   context: AppContext
 ) => {

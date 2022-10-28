@@ -2,7 +2,7 @@ import { MutationGenerateFirebaseIdTokenArgs } from "../../../types/graphql";
 import { getFirebaseIdToken } from "../../../service/firebase/firebase_service";
 
 export const generateFirebaseIdTokenResolver = async (
-  _: any,
+  _: unknown,
   { uid }: MutationGenerateFirebaseIdTokenArgs
 ) => {
   const token = await getFirebaseIdToken(uid);

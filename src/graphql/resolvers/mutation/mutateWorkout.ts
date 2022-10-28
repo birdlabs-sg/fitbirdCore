@@ -1,15 +1,15 @@
 import {
   isUser,
   onlyAuthenticated,
-  onlyCoach,
-} from "../../../service/firebase/firebase_service";
+  onlyCoach
+} from '../../../service/firebase/firebase_service';
 import {
   generateNextWorkout,
   workoutGenerator,
-  workoutGeneratorV2,
-} from "../../../service/workout_manager/workout_generator/workout_generator";
-import { WorkoutState, WorkoutType } from "@prisma/client";
-import { AppContext } from "../../../types/contextType";
+  workoutGeneratorV2
+} from '../../../service/workout_manager/workout_generator/workout_generator';
+import { Workout, WorkoutState, WorkoutType } from '@prisma/client';
+import { AppContext } from '../../../types/contextType';
 import {
   MutationUpdateWorkoutArgs,
   ExcerciseSetGroupInput,
@@ -17,38 +17,38 @@ import {
   MutationGenerateWorkoutsArgs,
   MutationUpdateWorkoutOrderArgs,
   MutationCompleteWorkoutArgs,
-  MutationDeleteWorkoutArgs,
-} from "../../../types/graphql";
-import { WorkoutWithExerciseSets } from "../../../types/Prisma";
+  MutationDeleteWorkoutArgs
+} from '../../../types/graphql';
+import { WorkoutWithExerciseSets } from '../../../types/Prisma';
 import {
   checkExistsAndOwnership,
   exerciseSetGroupStateSeperator,
   extractMetadatas,
   formatExcerciseSetGroups,
   getActiveWorkoutCount,
-  getActiveWorkouts,
-} from "../../../service/workout_manager/utils";
-import { reorderActiveWorkouts } from "../../../service/workout_manager/workout_order_manager";
+  getActiveWorkouts
+} from '../../../service/workout_manager/utils';
+import { reorderActiveWorkouts } from '../../../service/workout_manager/workout_order_manager';
 import {
   generateOrUpdateExcerciseMetadata,
-  updateExcerciseMetadataWithCompletedWorkout,
-} from "../../../service/workout_manager/exercise_metadata_manager/exercise_metadata_manager";
-import { assert } from "console";
-import { GraphQLError } from "graphql";
-import { report } from "../../../service/slack/slack_service";
+  updateExcerciseMetadataWithCompletedWorkout
+} from '../../../service/workout_manager/exercise_metadata_manager/exercise_metadata_manager';
+import { assert } from 'console';
+import { GraphQLError } from 'graphql';
+import { report } from '../../../service/slack/slack_service';
 
 /**
  * Generates @no_of_workouts number of workouts based on expert guidelines.
  * The generated workouts are of type: WorkoutType.AI_MANAGED
  */
 export const generateWorkouts = async (
-  _: any,
+  _: unknown,
   { no_of_workouts }: MutationGenerateWorkoutsArgs,
   context: AppContext
 ) => {
   onlyAuthenticated(context);
   assert(no_of_workouts > 0 && no_of_workouts <= 6);
-  var generatedWorkouts: WorkoutWithExerciseSets[];
+  let generatedWorkouts: WorkoutWithExerciseSets[];
   if (no_of_workouts >= 2) {
     generatedWorkouts = await workoutGeneratorV2(no_of_workouts, context);
   } else {
@@ -65,13 +65,13 @@ export const generateWorkouts = async (
  * 2. All existing active workouts of type: WorkoutType.AI_MANAGED are deleted
  */
 export const regenerateWorkouts = async (
-  _: any,
-  __: any,
+  _: unknown,
+  __: unknown,
   context: AppContext
 ) => {
   onlyAuthenticated(context);
   const prisma = context.dataSources.prisma;
-  const no_of_workouts = context.base_user!.User!.workout_frequency ?? 3;
+  const no_of_workouts = context.base_user?.User?.workout_frequency ?? 3;
   assert(no_of_workouts > 0 && no_of_workouts <= 6);
 
   const activeWorkouts = await getActiveWorkouts(
@@ -79,17 +79,17 @@ export const regenerateWorkouts = async (
     WorkoutType.AI_MANAGED
   );
   const activeWorkoutIDS = activeWorkouts.map(
-    (workout: any) => workout.workout_id
+    (workout: Workout) => workout.workout_id
   );
   await prisma.workout.deleteMany({
     where: {
       workout_id: {
-        in: activeWorkoutIDS,
+        in: activeWorkoutIDS
       },
-      workout_type: WorkoutType.AI_MANAGED,
-    },
+      workout_type: WorkoutType.AI_MANAGED
+    }
   });
-  var generatedWorkouts: WorkoutWithExerciseSets[];
+  let generatedWorkouts: WorkoutWithExerciseSets[];
   if (no_of_workouts >= 2) {
     generatedWorkouts = await workoutGeneratorV2(no_of_workouts, context);
   } else {
@@ -103,22 +103,22 @@ export const regenerateWorkouts = async (
  * Assumption: active_workouts always have order_index with no gaps when sorted. For eg: 0,1,2,3 and not 0,2,3,5
  */
 export async function createWorkout(
-  _: any,
+  _: unknown,
   {
     excercise_set_groups,
     life_span,
     workout_name,
-    workout_type,
+    workout_type
   }: MutationCreateWorkoutArgs,
   context: AppContext
 ) {
   onlyAuthenticated(context);
   // Ensure that there is a max of 7 workouts
   if ((await getActiveWorkoutCount(context, workout_type)) > 6) {
-    throw new GraphQLError("You can only have 6 active workouts.", {
+    throw new GraphQLError('You can only have 6 active workouts.', {
       extensions: {
-        code: "FORBIDDEN",
-      },
+        code: 'FORBIDDEN'
+      }
     });
   }
 
@@ -139,17 +139,17 @@ export async function createWorkout(
       workout_name: workout_name,
       workout_type: workout_type,
       excercise_set_groups: {
-        create: formattedExcerciseSetGroups,
-      },
-    },
+        create: formattedExcerciseSetGroups
+      }
+    }
   });
 
   await generateOrUpdateExcerciseMetadata(context, excerciseMetadatas);
   return {
-    code: "200",
+    code: '200',
     success: true,
-    message: "Successfully created a workout.",
-    workout: workout,
+    message: 'Successfully created a workout.',
+    workout: workout
   };
 }
 
@@ -157,16 +157,16 @@ export async function createWorkout(
  * Reorders the given @workout_type active workoust.
  */
 export const updateWorkoutOrder = async (
-  _: any,
+  _: unknown,
   { oldIndex, newIndex, workout_type }: MutationUpdateWorkoutOrderArgs,
   context: AppContext
 ) => {
   await reorderActiveWorkouts(context, oldIndex, newIndex, workout_type);
   return {
-    code: "200",
+    code: '200',
     success: true,
-    message: "Successfully updated your workout!",
-    workouts: await getActiveWorkouts(context, workout_type),
+    message: 'Successfully updated your workout!',
+    workouts: await getActiveWorkouts(context, workout_type)
   };
 };
 
@@ -178,7 +178,7 @@ export const updateWorkoutOrder = async (
  * 2. Active workouts returned will belong to the same type as the workout being completed.
  */
 export const completeWorkout = async (
-  _: any,
+  _: unknown,
   { workout_id, excercise_set_groups }: MutationCompleteWorkoutArgs,
   context: AppContext
 ) => {
@@ -191,26 +191,24 @@ export const completeWorkout = async (
   );
   const [
     current_workout_excercise_group_sets,
-    next_workout_excercise_group_sets,
+    next_workout_excercise_group_sets
   ] = exerciseSetGroupStateSeperator(excerciseSetGroups);
 
-  let completedWorkout: WorkoutWithExerciseSets;
-
-  completedWorkout = await prisma.workout.update({
+  const completedWorkout = await prisma.workout.update({
     where: {
-      workout_id: parseInt(workout_id),
+      workout_id: parseInt(workout_id)
     },
     data: {
       date_completed: new Date(),
       workout_state: WorkoutState.COMPLETED,
       excercise_set_groups: {
         deleteMany: {},
-        create: formatExcerciseSetGroups(current_workout_excercise_group_sets),
-      },
+        create: formatExcerciseSetGroups(current_workout_excercise_group_sets)
+      }
     },
     include: {
-      excercise_set_groups: { include: { excercise_sets: true } },
-    },
+      excercise_set_groups: { include: { excercise_sets: true } }
+    }
   });
 
   // in-case there is no associated excercise metadata
@@ -235,10 +233,10 @@ export const completeWorkout = async (
   report(`${context.base_user?.displayName} completed a workout. ✅`);
 
   return {
-    code: "200",
+    code: '200',
     success: true,
-    message: "Successfully updated your workout!",
-    workouts: await getActiveWorkouts(context, completedWorkout.workout_type),
+    message: 'Successfully updated your workout!',
+    workouts: await getActiveWorkouts(context, completedWorkout.workout_type)
   };
 };
 
@@ -247,7 +245,7 @@ export const completeWorkout = async (
  */
 // modified the update workout to fit both coaches and users
 export const updateWorkout = async (
-  _: any,
+  _: unknown,
   { workout_id, excercise_set_groups, ...otherArgs }: MutationUpdateWorkoutArgs,
   context: AppContext
 ) => {
@@ -260,7 +258,7 @@ export const updateWorkout = async (
     let formatedUpdatedData;
 
     if (excercise_set_groups != null) {
-      var [excerciseSetGroups, excercise_metadatas] = extractMetadatas(
+      const [excerciseSetGroups, excercise_metadatas] = extractMetadatas(
         excercise_set_groups as ExcerciseSetGroupInput[]
       );
       formatedUpdatedData = {
@@ -268,46 +266,46 @@ export const updateWorkout = async (
         ...{
           excercise_set_groups: {
             deleteMany: {},
-            create: formatExcerciseSetGroups(excerciseSetGroups),
-          },
-        },
+            create: formatExcerciseSetGroups(excerciseSetGroups)
+          }
+        }
       };
       await generateOrUpdateExcerciseMetadata(context, excercise_metadatas);
     } else {
       formatedUpdatedData = {
-        ...otherArgs,
+        ...otherArgs
       };
     }
 
     const updatedWorkout = await prisma.workout.update({
       where: {
-        workout_id: parseInt(workout_id),
+        workout_id: parseInt(workout_id)
       },
       data: formatedUpdatedData,
       include: {
-        excercise_set_groups: { include: { excercise_sets: true } },
-      },
+        excercise_set_groups: { include: { excercise_sets: true } }
+      }
     });
 
     return {
-      code: "200",
+      code: '200',
       success: true,
-      message: "Successfully updated your workout!",
-      workout: updatedWorkout,
+      message: 'Successfully updated your workout!',
+      workout: updatedWorkout
     };
   } else {
     onlyCoach(context);
     const prisma = context.dataSources.prisma;
     const retrieveUserId = await prisma.workout.findUnique({
       where: {
-        workout_id: parseInt(workout_id),
-      },
+        workout_id: parseInt(workout_id)
+      }
     });
 
     let formatedUpdatedData;
 
     if (excercise_set_groups != null) {
-      var [excerciseSetGroups, excercise_metadatas] = extractMetadatas(
+      const [excerciseSetGroups, excercise_metadatas] = extractMetadatas(
         excercise_set_groups as ExcerciseSetGroupInput[]
       );
       formatedUpdatedData = {
@@ -315,9 +313,9 @@ export const updateWorkout = async (
         ...{
           excercise_set_groups: {
             deleteMany: {},
-            create: formatExcerciseSetGroups(excerciseSetGroups),
-          },
-        },
+            create: formatExcerciseSetGroups(excerciseSetGroups)
+          }
+        }
       };
       if (retrieveUserId) {
         await generateOrUpdateExcerciseMetadata(
@@ -328,25 +326,25 @@ export const updateWorkout = async (
       }
     } else {
       formatedUpdatedData = {
-        ...otherArgs,
+        ...otherArgs
       };
     }
     // extract out metadatas
     const updatedWorkout = await prisma.workout.update({
       where: {
-        workout_id: parseInt(workout_id),
+        workout_id: parseInt(workout_id)
       },
       data: formatedUpdatedData,
       include: {
-        excercise_set_groups: { include: { excercise_sets: true } },
-      },
+        excercise_set_groups: { include: { excercise_sets: true } }
+      }
     });
 
     return {
-      code: "200",
+      code: '200',
       success: true,
-      message: "Successfully updated your workout!",
-      workout: updatedWorkout,
+      message: 'Successfully updated your workout!',
+      workout: updatedWorkout
     };
   }
 };
@@ -357,7 +355,7 @@ export const updateWorkout = async (
  * Returns the active workouts that belong to the same group as the workout being delted
  */
 export const deleteWorkout = async (
-  _: any,
+  _: unknown,
   { workout_id }: MutationDeleteWorkoutArgs,
   context: AppContext
 ) => {
@@ -366,10 +364,10 @@ export const deleteWorkout = async (
   // Get the workout of interest
   await checkExistsAndOwnership(context, workout_id);
   // delete the workout
-  var deletedWorkout = await prisma.workout.delete({
+  const deletedWorkout = await prisma.workout.delete({
     where: {
-      workout_id: parseInt(workout_id),
-    },
+      workout_id: parseInt(workout_id)
+    }
   });
 
   // reorder remaining workouts
@@ -380,10 +378,10 @@ export const deleteWorkout = async (
     deletedWorkout.workout_type
   );
   return {
-    code: "200",
+    code: '200',
     success: true,
-    message: "Successfully deleted your workout!",
-    workouts: await getActiveWorkouts(context, deletedWorkout.workout_type),
+    message: 'Successfully deleted your workout!',
+    workouts: await getActiveWorkouts(context, deletedWorkout.workout_type)
   };
 };
 

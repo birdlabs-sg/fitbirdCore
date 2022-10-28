@@ -14,10 +14,9 @@
         "allowUnreachableCode": false,
         "extendedDiagnostics": true,
         "importHelpers": true,
-        "strictNullChecks": true,
         "noUnusedLocals": true,
         "noUnusedParameters": true,
-        // "noUncheckedIndexedAccess": true,
+        "useUnknownInCatchVariables": false,
         "paths": {
             "*": [
                 "node_modules/*"

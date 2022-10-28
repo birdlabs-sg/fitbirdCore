@@ -1,9 +1,9 @@
-import { WorkoutState, WorkoutType } from "@prisma/client";
-import { QueryCoachWorkoutNameArgs } from "../../../../types/graphql";
-import { AppContext } from "../../../../types/contextType";
-import { onlyCoach } from "../../../../service/firebase/firebase_service";
+import { WorkoutState, WorkoutType } from '@prisma/client';
+import { QueryCoachWorkoutNameArgs } from '../../../../types/graphql';
+import { AppContext } from '../../../../types/contextType';
+import { onlyCoach } from '../../../../service/firebase/firebase_service';
 export async function coachWorkoutNameQueryResolver(
-  _: any,
+  _: unknown,
   { workout_name, user_id, programProgram_id }: QueryCoachWorkoutNameArgs,
   context: AppContext
 ) {
@@ -16,10 +16,10 @@ export async function coachWorkoutNameQueryResolver(
       workout_name: workout_name,
       workout_type: WorkoutType.COACH_MANAGED,
       workout_state: WorkoutState.COMPLETED,
-      programProgram_id: parseInt(programProgram_id),
+      programProgram_id: parseInt(programProgram_id)
     },
     include: {
-      excercise_set_groups: true,
-    },
+      excercise_set_groups: true
+    }
   });
 }

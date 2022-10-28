@@ -8,7 +8,7 @@ import {
 } from "../../../service/firebase/firebase_service";
 
 export const createMuscleRegion = async (
-  _: any,
+  _: unknown,
   args: MutationCreateMuscleRegionArgs,
   context: AppContext
 ) => {
@@ -28,7 +28,7 @@ export const createMuscleRegion = async (
 };
 
 export const updateMuscleRegion = async (
-  _: any,
+  _: unknown,
   args: MutationUpdateMuscleRegionArgs,
   context: AppContext
 ) => {
@@ -51,7 +51,7 @@ export const updateMuscleRegion = async (
 };
 
 export const deleteMuscleRegion = async (
-  _: any,
+  _: unknown,
   { muscle_region_id }: MutationDeleteMuscleRegionArgs,
   context: AppContext
 ) => {

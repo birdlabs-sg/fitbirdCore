@@ -1,13 +1,18 @@
 {
   "root": true,
   "parser": "@typescript-eslint/parser",
-  "plugins": ["@typescript-eslint"],
-  "eslint.lintTask.enable": true,
-  "include": ["src"],
+  "plugins": [
+    "@typescript-eslint"
+  ],
   "extends": [
     "eslint:recommended",
     "plugin:@typescript-eslint/eslint-recommended",
-    "plugin:@typescript-eslint/recommended"
+    "plugin:@typescript-eslint/recommended",
+    "prettier"
   ],
-  "exclude": ["node_modules","./node_modules/*"]
+  "rules": { 
+    "no-console": "warn", // Remember, this means error!
+    "@typescript-eslint/no-non-null-assertion": "off"
+  }
+  
 }

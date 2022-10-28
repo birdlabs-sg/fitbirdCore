@@ -6,7 +6,7 @@ import { onlyAuthenticated } from "../../../service/firebase/firebase_service";
 import { GraphQLError } from "graphql";
 
 export const createMeasurement = async (
-  _: any,
+  _: unknown,
   args: MutationCreateMeasurementArgs,
   context: AppContext
 ) => {
@@ -36,7 +36,7 @@ export const createMeasurement = async (
 };
 
 export const updateMeasurement = async (
-  _: any,
+  _: unknown,
   args: MutationUpdateMeasurementArgs,
   context: AppContext
 ) => {
@@ -75,7 +75,7 @@ export const updateMeasurement = async (
 };
 
 export const deleteMeasurement = async (
-  _: any,
+  _: unknown,
   args: MutationDeleteMeasurementArgs,
   context: AppContext
 ) => {
