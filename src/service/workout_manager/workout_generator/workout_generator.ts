@@ -322,14 +322,14 @@ export async function generateNextWorkout(
           target_regions: true,
         },
       });
-
+      if(previousExercise){
       var differentExercises = await prisma.excercise.findMany({
         where: {
           target_regions: {
-            some: previousExercise?.target_regions[0],
+            some: previousExercise.target_regions[0],
           },
           NOT: {
-            excercise_name: previousExercise?.excercise_name,
+            excercise_name: previousExercise.excercise_name,
             equipment_required: {
               hasSome: user_constaints,
             },
@@ -338,11 +338,12 @@ export async function generateNextWorkout(
           assisted: false,
         },
       });
+    
       var excercise = _.sample(differentExercises);
       list_of_excercise_set_groups.push(
         await formatAndGenerateExcerciseSets(excercise.excercise_name, context)
       );
-
+      }
       await prisma.workout.create({
         data: {
           workout_name: previousWorkout.workout_name,

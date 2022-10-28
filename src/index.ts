@@ -20,11 +20,11 @@ async function startApolloServer() {
     resolvers: resolvers,
     csrfPrevention: true,
     plugins: [
-      ApolloServerPluginUsageReporting({
+      /*ApolloServerPluginUsageReporting({
         // If you pass unmodified: true to the usage reporting
         // plugin, Apollo Studio receives ALL error details
         sendErrors: { unmodified: true },
-      }),
+      }),*/
     ],
   });
 

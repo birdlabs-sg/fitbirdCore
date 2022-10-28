@@ -9,7 +9,7 @@ import {
 
 import { generateExerciseMetadata } from "./exercise_metadata_manager/exercise_metadata_manager";
 import { Prisma, WorkoutState, WorkoutType } from "@prisma/client";
-import { isUser } from "../../service/firebase/firebase_service";
+import { isUser, onlyCoach } from "../../service/firebase/firebase_service";
 import { graphql, GraphQLError } from "graphql";
 const _ = require("lodash");
 
@@ -211,35 +211,21 @@ export async function getActiveWorkouts(
 export async function getActiveWorkoutCount(
   context: AppContext,
   workout_type: WorkoutType,
-  user_id?:string
+  user_id?: string
 ) {
   const prisma = context.dataSources.prisma;
-  if(isUser(context)){
-  const workouts = await prisma.workout.findMany({
-    where: {
-      date_completed: null,
-      user_id: context.user.user_id,
-      workout_type: workout_type,
-    },
-    orderBy: {
-      order_index: "asc",
-    },
-  });
-  return workouts.length;
-}
-else{
-  const workouts = await prisma.workout.findMany({
-    where: {
-      date_completed: null,
-      user_id: parseInt(user_id!),
-      workout_type: workout_type,
-    },
-    orderBy: {
-      order_index: "asc",
-    },
-  });
-  return workouts.length;
-}
+
+    const workouts = await prisma.workout.findMany({
+      where: {
+        date_completed: null,
+        user_id: parseInt(user_id!)?? context.user.user_id,
+        workout_type: workout_type,
+      },
+      orderBy: {
+        order_index: "asc",
+      },
+    });
+    return workouts.length;
 }
 
 /**
@@ -259,12 +245,37 @@ export async function checkExistsAndOwnership(
   if (targetWorkout == null) {
     throw new GraphQLError("The workout does not exist.");
   }
-  if (targetWorkout.user_id != context.user.user_id) {
-    throw new GraphQLError("You are not authorized to remove this object", {
-      extensions: {
-        code: "FORBIDDEN",
-      },
-    });
+
+  if (context.user) {
+    if (targetWorkout.user_id != context.user.user_id) {
+      throw new GraphQLError("You are not authorized to remove this object", {
+        extensions: {
+          code: "FORBIDDEN",
+        },
+      });
+    }
+  } else {
+    onlyCoach(context)
+    if (targetWorkout.programProgram_id) {
+      const targetProgram = await prisma.program.findUnique({
+        where: {
+          program_id: targetWorkout.programProgram_id,
+        },
+      });
+      
+      if (targetProgram?.coach_id != context.coach.coach_id) {
+        throw new GraphQLError("You are not authorized to remove this object", {
+          extensions: {
+            code: "FORBIDDEN",
+          },
+        });
+      }
+      else{
+        return targetProgram.user_id
+      }
+    } else {
+      throw new GraphQLError("Program does not exist");
+    }
   }
 }
 
@@ -307,8 +318,6 @@ export async function getActiveProgram(context: AppContext, user_id: string) {
   });
 }
 
-
-
 // This function resets the active state of the program and workouts,
 // 1. program is_active = false
 export async function resetActiveProgramsForCoaches(
@@ -341,4 +350,3 @@ export async function resetActiveProgramsForCoaches(
     },
   });
 }
-

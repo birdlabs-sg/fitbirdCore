@@ -50,7 +50,7 @@ export const mutateProgram = gql`
     "[PROTECTED] Creates a program object (ONLY COACH)."
     createProgram(
         user_id: ID!
-        workoutsInput: [workoutInput!]
+        workoutsInput: [workoutInput!]!
     ):mutateProgramResponse
   }
 `;

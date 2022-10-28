@@ -39,11 +39,10 @@ import { usersQueryResolver } from "./query/queryUsers";
 import { GraphQLScalarType } from "graphql";
 import { baseUsersQueryResolver } from "./query/queryBaseUsers";
 import { createProgram } from "./mutation/coachMutations/mutateCoachProgram";
-import { coachUsersNotRegisteredQueryResolver } from "./query/coachQueries/queryCoachUsersNotRegistered";
+import { coachAllUsersQueryResolver } from "./query/coachQueries/queryCoachAllUsers";
 import { coachWorkoutNameQueryResolver } from "./query/coachQueries/queryCoachWorkoutName";
 import { coachUsersQueryResolver } from "./query/coachQueries/queryCoachUsers";
-import { coachProgramQueryResolver } from "./query/coachQueries/queryCoachProgram";
-import { coachProgramsQueryResolver } from "./query/coachQueries/queryCoachPrograms";
+import { coachActiveProgramQueryResolver } from "./query/coachQueries/queryActiveCoachProgram";
 import {
   analyticsWorkoutAverageRPEResolver,
   analyticsExerciseOneRepMaxResolver,
@@ -94,9 +93,8 @@ export const resolvers: Resolvers = {
   Query: {
     baseUsers: baseUsersQueryResolver,
     coachUsers: coachUsersQueryResolver,
-    coachUsersNotRegistered: coachUsersNotRegisteredQueryResolver,
-    coachProgram: coachProgramQueryResolver,
-    coachPrograms: coachProgramsQueryResolver,
+    coachAllUsers: coachAllUsersQueryResolver,
+    coachActiveProgram: coachActiveProgramQueryResolver,
     coachWorkoutName: coachWorkoutNameQueryResolver,
     user: userQueryResolvers,
     workouts: workoutsQueryResolver,

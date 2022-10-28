@@ -141,7 +141,6 @@ export const onlyCoach = (context: AppContext) => {
         code: "FORBIDDEN",
       },
     });
-    //context.coach = { coach_id: 2, base_user_id: 37 }
   }
 };
 export const isUser=(context: AppContext) => {

@@ -1,8 +1,8 @@
 import { AppContext } from "../../../../types/contextType";
 import { onlyCoach } from "../../../../service/firebase/firebase_service";
 import { BaseUser } from "../../../../types/graphql";
-// find all users that are registered with the coach
-export const coachUsersNotRegisteredQueryResolver = async (
+// get all users
+export const coachAllUsersQueryResolver = async (
   _: any,
   __: any,
   context: AppContext

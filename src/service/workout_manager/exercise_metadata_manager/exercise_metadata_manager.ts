@@ -120,13 +120,13 @@ export async function generateOrUpdateExcerciseMetadata(
 ) {
 
   const prisma = context.dataSources.prisma;
-  if(isUser(context)){
+  
     for (var excercise_metadata of excercise_metadatas) {
       delete excercise_metadata["last_excecuted"];
       const excerciseMetadata = await prisma.excerciseMetadata.findUnique({
         where: {
           user_id_excercise_name: {
-            user_id: context.user.user_id,
+            user_id: parseInt(user_id!) ?? context.user.user_id,
             excercise_name: excercise_metadata.excercise_name,
           },
         },
@@ -136,7 +136,7 @@ export async function generateOrUpdateExcerciseMetadata(
         // create one with the excerciseMetadata provided
         await prisma.excerciseMetadata.create({
           data: {
-            user_id: context.user.user_id,
+            user_id: parseInt(user_id!) ?? context.user.user_id,
             ...excercise_metadata,
           },
         });
@@ -145,7 +145,7 @@ export async function generateOrUpdateExcerciseMetadata(
         await prisma.excerciseMetadata.update({
           where: {
             user_id_excercise_name: {
-              user_id: context.user.user_id,
+              user_id:parseInt(user_id!) ?? context.user.user_id,
               excercise_name: excercise_metadata.excercise_name,
             },
           },
@@ -157,45 +157,6 @@ export async function generateOrUpdateExcerciseMetadata(
       }
     }
     
-  }
-  else{
-    for (var excercise_metadata of excercise_metadatas) {
-      delete excercise_metadata["last_excecuted"];
-      const excerciseMetadata = await prisma.excerciseMetadata.findUnique({
-        where: {
-          user_id_excercise_name: {
-            user_id: parseInt(user_id!),
-            excercise_name: excercise_metadata.excercise_name,
-          },
-        },
-      });
-  
-      if (excerciseMetadata == null) {
-        // create one with the excerciseMetadata provided
-        await prisma.excerciseMetadata.create({
-          data: {
-            user_id: parseInt(user_id!),
-            ...excercise_metadata,
-          },
-        });
-      } else {
-        // update the excerciseMetadata with provided ones
-        await prisma.excerciseMetadata.update({
-          where: {
-            user_id_excercise_name: {
-              user_id: parseInt(user_id!),
-              excercise_name: excercise_metadata.excercise_name,
-            },
-          },
-          data: {
-            user_id: parseInt(user_id!),
-            ...excercise_metadata,
-          },
-        });
-      }
-    }
-  
-}
 }
 
 /**
