@@ -2,7 +2,7 @@ import { QueryGetExcerciseMetadatasArgs } from "../../../types/graphql";
 import { AppContext } from "../../../types/contextType";
 
 export const getExcerciseMetadatasQueryResolver = async (
-  parent: any,
+  _: any,
   args: QueryGetExcerciseMetadatasArgs,
   context: AppContext
 ) => {

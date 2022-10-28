@@ -1,10 +1,6 @@
 import { QueryWorkoutsArgs } from "../../../types/graphql";
 import { AppContext } from "../../../types/contextType";
-import {
-  isUser,
-  onlyAuthenticated,
-  onlyCoach,
-} from "../../../service/firebase/firebase_service";
+import { isUser } from "../../../service/firebase/firebase_service";
 import { WorkoutType } from "@prisma/client";
 export async function workoutsQueryResolver(
   _: any,

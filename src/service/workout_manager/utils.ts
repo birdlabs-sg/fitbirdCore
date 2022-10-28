@@ -8,9 +8,9 @@ import {
 } from "../../types/graphql";
 
 import { generateExerciseMetadata } from "./exercise_metadata_manager/exercise_metadata_manager";
-import { Prisma, WorkoutState, WorkoutType } from "@prisma/client";
+import { WorkoutType } from "@prisma/client";
 import { isUser } from "../../service/firebase/firebase_service";
-import { graphql, GraphQLError } from "graphql";
+import { GraphQLError } from "graphql";
 const _ = require("lodash");
 
 /**
@@ -317,7 +317,7 @@ export async function resetActiveProgramsForCoaches(
   let date = new Date();
   //set all active programs to be inactive
 
-  const setInactive = await prisma.program.updateMany({
+  await prisma.program.updateMany({
     where: {
       user_id: parseInt(user_id),
       coach_id: context.base_user!.coach!.coach_id,
@@ -327,7 +327,7 @@ export async function resetActiveProgramsForCoaches(
     },
   });
 
-  const workouts = await prisma.workout.updateMany({
+  await prisma.workout.updateMany({
     where: {
       date_completed: null,
       user_id: parseInt(user_id),
