@@ -4,7 +4,6 @@ import { ExcerciseMetadata } from '@prisma/client';
 import { ExcerciseMetaDataInput } from '../../../types/graphql';
 import { AppContext } from '../../../types/contextType';
 import { checkExerciseExists } from '../utils';
-import { isUser } from '../../../service/firebase/firebase_service';
 import { WorkoutWithExerciseSets } from '../../../types/Prisma';
 
 // If does not exists before hand, generate a new one and return that instead.
@@ -119,34 +118,34 @@ export async function generateOrUpdateExcerciseMetadata(
   user_id?: string
 ) {
   const prisma = context.dataSources.prisma;
-  if (isUser(context)) {
-    for (const excercise_metadata of excercise_metadatas) {
-      delete excercise_metadata['last_excecuted'];
+  
+    for (var excercise_metadata of excercise_metadatas) {
+      delete excercise_metadata["last_excecuted"];
       const excerciseMetadata = await prisma.excerciseMetadata.findUnique({
         where: {
           user_id_excercise_name: {
-            user_id: context.base_user!.User!.user_id,
-            excercise_name: excercise_metadata.excercise_name
-          }
-        }
+            user_id: parseInt(user_id!) ?? context.base_user!.User!.user_id,
+            excercise_name: excercise_metadata.excercise_name,
+          },
+        },
       });
 
       if (excerciseMetadata == null) {
         // create one with the excerciseMetadata provided
         await prisma.excerciseMetadata.create({
           data: {
-            user_id: context.base_user!.User!.user_id,
-            ...excercise_metadata
-          }
+            user_id: parseInt(user_id!) ?? context.base_user!.User!.user_id,
+            ...excercise_metadata,
+          },
         });
       } else {
         // update the excerciseMetadata with provided ones
         await prisma.excerciseMetadata.update({
           where: {
             user_id_excercise_name: {
-              user_id: context.base_user!.User!.user_id,
-              excercise_name: excercise_metadata.excercise_name
-            }
+              user_id:parseInt(user_id!) ?? context.base_user!.User!.user_id,
+              excercise_name: excercise_metadata.excercise_name,
+            },
           },
           data: {
             user_id: context.base_user!.User!.user_id,
@@ -155,43 +154,7 @@ export async function generateOrUpdateExcerciseMetadata(
         });
       }
     }
-  } else {
-    for (const excercise_metadata of excercise_metadatas) {
-      delete excercise_metadata['last_excecuted'];
-      const excerciseMetadata = await prisma.excerciseMetadata.findUnique({
-        where: {
-          user_id_excercise_name: {
-            user_id: parseInt(user_id!),
-            excercise_name: excercise_metadata.excercise_name
-          }
-        }
-      });
-
-      if (excerciseMetadata == null) {
-        // create one with the excerciseMetadata provided
-        await prisma.excerciseMetadata.create({
-          data: {
-            user_id: parseInt(user_id!),
-            ...excercise_metadata
-          }
-        });
-      } else {
-        // update the excerciseMetadata with provided ones
-        await prisma.excerciseMetadata.update({
-          where: {
-            user_id_excercise_name: {
-              user_id: parseInt(user_id!),
-              excercise_name: excercise_metadata.excercise_name
-            }
-          },
-          data: {
-            user_id: parseInt(user_id!),
-            ...excercise_metadata
-          }
-        });
-      }
-    }
-  }
+    
 }
 
 /**

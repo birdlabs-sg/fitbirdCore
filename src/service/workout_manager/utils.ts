@@ -9,7 +9,7 @@ import {
 
 import { generateExerciseMetadata } from './exercise_metadata_manager/exercise_metadata_manager';
 import { WorkoutType } from '@prisma/client';
-import { isUser } from '../../service/firebase/firebase_service';
+import { onlyCoach } from '../../service/firebase/firebase_service';
 import { GraphQLError } from 'graphql';
 import _ from 'lodash';
 
@@ -212,31 +212,18 @@ export async function getActiveWorkoutCount(
   user_id?: string
 ) {
   const prisma = context.dataSources.prisma;
-  if (isUser(context)) {
+
     const workouts = await prisma.workout.findMany({
       where: {
         date_completed: null,
-        user_id: context.base_user!.User!.user_id,
-        workout_type: workout_type
+        user_id: parseInt(user_id!)?? context.base_user!.User!.user_id,
+        workout_type: workout_type,
       },
       orderBy: {
-        order_index: 'asc'
-      }
-    });
-    return workouts.length;
-  } else {
-    const workouts = await prisma.workout.findMany({
-      where: {
-        date_completed: null,
-        user_id: parseInt(user_id!),
-        workout_type: workout_type
+        order_index: "asc",
       },
-      orderBy: {
-        order_index: 'asc'
-      }
     });
     return workouts.length;
-  }
 }
 
 /**
@@ -256,12 +243,37 @@ export async function checkExistsAndOwnership(
   if (targetWorkout == null) {
     throw new GraphQLError('The workout does not exist.');
   }
-  if (targetWorkout.user_id != context.base_user!.User!.user_id) {
-    throw new GraphQLError('You are not authorized to remove this object', {
-      extensions: {
-        code: 'FORBIDDEN'
+
+  if (context.base_user?.User) {
+    if (targetWorkout.user_id != context.base_user!.User!.user_id) {
+      throw new GraphQLError("You are not authorized to remove this object", {
+        extensions: {
+          code: "FORBIDDEN",
+        },
+      });
+    }
+  } else {
+    onlyCoach(context)
+    if (targetWorkout.programProgram_id) {
+      const targetProgram = await prisma.program.findUnique({
+        where: {
+          program_id: targetWorkout.programProgram_id,
+        },
+      });
+      
+      if (targetProgram?.coach_id != context.base_user!.coach!.coach_id) {
+        throw new GraphQLError("You are not authorized to remove this object", {
+          extensions: {
+            code: "FORBIDDEN",
+          },
+        });
       }
-    });
+      else{
+        return targetProgram.user_id
+      }
+    } else {
+      throw new GraphQLError("Program does not exist");
+    }
   }
 }
 

@@ -37,9 +37,8 @@ const queryTypeDef = gql`
   type Query {
     baseUsers: [BaseUser]
     coachUsers: [BaseUser]
-    coachUsersNotRegistered: [BaseUser]
-    coachProgram(program_id: ID!): Program
-    coachPrograms: [Program]
+    coachAllUsers: [BaseUser]
+    coachActiveProgram(user_id:ID!): Program
     coachWorkoutName(
       workout_name: ID!
       user_id: ID!
@@ -54,10 +53,10 @@ const queryTypeDef = gql`
     getExcercise(excercise_name: ID!): Excercise
     notifications: [Notification]
     analyticsExerciseOneRepMax(
-      excercise_names_list: [ID]!
+      excercise_names_list: [ID!]!
     ): [ExerciseOneRepMaxDataPoint]
     analyticsExerciseTotalVolume(
-      excercise_names_list: [ID]!
+      excercise_names_list: [ID!]!
     ): [ExerciseTotalVolumeDataPoint]
     analyticsWorkoutAverageRPE: [WorkoutAverageRPEDataPoint]
     workout_frequencies: [WorkoutFrequency]

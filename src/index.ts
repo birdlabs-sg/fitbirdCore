@@ -6,7 +6,7 @@ import {
 } from "./service/firebase/firebase_service";
 import { ApolloServer } from "@apollo/server";
 import { startStandaloneServer } from "@apollo/server/standalone";
-import { ApolloServerPluginUsageReporting } from "@apollo/server/plugin/usageReporting";
+//import { ApolloServerPluginUsageReporting } from "@apollo/server/plugin/usageReporting";
 
 import { PrismaClient } from "@prisma/client";
 
@@ -20,11 +20,11 @@ async function startApolloServer() {
     csrfPrevention: true,
     introspection: true,
     plugins: [
-      ApolloServerPluginUsageReporting({
+      /*ApolloServerPluginUsageReporting({
         // If you pass unmodified: true to the usage reporting
         // plugin, Apollo Studio receives ALL error details
         sendErrors: { unmodified: true },
-      }),
+      }),*/
     ],
   });
 

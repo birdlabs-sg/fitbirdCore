@@ -330,29 +330,29 @@ export async function generateNextWorkout(
           target_regions: true
         }
       });
-
-      const differentExercises = await prisma.excercise.findMany({
-        where: {
-          target_regions: {
-            some: previousExercise?.target_regions[0]
-          },
-          NOT: {
-            excercise_name: previousExercise?.excercise_name,
-            equipment_required: {
-              hasSome: user_constaints
-            }
-          },
-          body_weight: !(
-            context.base_user!.User!.equipment_accessible.length > 0
-          ), // use body weight excercise if don't have accessible equipments
-          assisted: false
+      if(previousExercise){
+        const differentExercises = await prisma.excercise.findMany({
+          where: {
+            target_regions: {
+              some: previousExercise.target_regions[0],
+            },
+            NOT: {
+              excercise_name: previousExercise.excercise_name,
+              equipment_required: {
+                hasSome: user_constaints
+              }
+            },
+            body_weight: !(
+              context.base_user!.User!.equipment_accessible.length > 0
+            ), // use body weight excercise if don't have accessible equipments
+            assisted: false
+          }
+        });
+        const excercise = _.sample(differentExercises)!;
+        list_of_excercise_set_groups.push(
+          await formatAndGenerateExcerciseSets(excercise.excercise_name, context)
+        );
         }
-      });
-      const excercise = _.sample(differentExercises)!;
-      list_of_excercise_set_groups.push(
-        await formatAndGenerateExcerciseSets(excercise.excercise_name, context)
-      );
-
       await prisma.workout.create({
         data: {
           workout_name: previousWorkout.workout_name,
