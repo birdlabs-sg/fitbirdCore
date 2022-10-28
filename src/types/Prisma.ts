@@ -1,9 +1,4 @@
-import {
-  ExcerciseSetGroupState,
-  FailureReason,
-  Prisma,
-  Workout,
-} from "@prisma/client";
+import { ExcerciseSetGroupState, FailureReason, Prisma } from "@prisma/client";
 import { ExcerciseSetInput, Maybe } from "./graphql";
 
 /**

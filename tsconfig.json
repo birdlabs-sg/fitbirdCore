@@ -8,6 +8,16 @@
         "sourceMap": true,
         "outDir": "dist",
         "baseUrl": "src",
+        "skipDefaultLibCheck": true,
+        "skipLibCheck": true,
+        "allowUnusedLabels": false,
+        "allowUnreachableCode": false,
+        "extendedDiagnostics": true,
+        "importHelpers": true,
+        "strictNullChecks": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
+        // "noUncheckedIndexedAccess": true,
         "paths": {
             "*": [
                 "node_modules/*"

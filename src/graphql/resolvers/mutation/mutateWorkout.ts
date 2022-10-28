@@ -42,7 +42,7 @@ import { report } from "../../../service/slack/slack_service";
  * The generated workouts are of type: WorkoutType.AI_MANAGED
  */
 export const generateWorkouts = async (
-  parent: any,
+  _: any,
   { no_of_workouts }: MutationGenerateWorkoutsArgs,
   context: AppContext
 ) => {
@@ -65,8 +65,8 @@ export const generateWorkouts = async (
  * 2. All existing active workouts of type: WorkoutType.AI_MANAGED are deleted
  */
 export const regenerateWorkouts = async (
-  parent: any,
-  args: any,
+  _: any,
+  __: any,
   context: AppContext
 ) => {
   onlyAuthenticated(context);
@@ -103,7 +103,7 @@ export const regenerateWorkouts = async (
  * Assumption: active_workouts always have order_index with no gaps when sorted. For eg: 0,1,2,3 and not 0,2,3,5
  */
 export async function createWorkout(
-  parent: any,
+  _: any,
   {
     excercise_set_groups,
     life_span,
@@ -157,7 +157,7 @@ export async function createWorkout(
  * Reorders the given @workout_type active workoust.
  */
 export const updateWorkoutOrder = async (
-  parent: any,
+  _: any,
   { oldIndex, newIndex, workout_type }: MutationUpdateWorkoutOrderArgs,
   context: AppContext
 ) => {
@@ -178,7 +178,7 @@ export const updateWorkoutOrder = async (
  * 2. Active workouts returned will belong to the same type as the workout being completed.
  */
 export const completeWorkout = async (
-  parent: any,
+  _: any,
   { workout_id, excercise_set_groups }: MutationCompleteWorkoutArgs,
   context: AppContext
 ) => {

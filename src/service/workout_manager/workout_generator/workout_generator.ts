@@ -15,11 +15,10 @@ import {
   getActiveWorkoutCount,
 } from "../utils";
 import { progressivelyOverload } from "../progressive_overloader/progressive_overloader";
-import { Equipment, WeightUnit, WorkoutType } from "@prisma/client";
+import { Equipment, WorkoutType } from "@prisma/client";
 const _ = require("lodash");
 import * as workoutSplit from "./rotations_types_general";
 import { GraphQLError } from "graphql";
-import { group } from "console";
 import { onlyAuthenticated } from "../../../service/firebase/firebase_service";
 /**
  * Generates a list of workouts (AKA a single rotation) based on requestors's equipment constraints.
@@ -163,7 +162,7 @@ export const workoutGeneratorV2 = async (
   context: AppContext
 ) => {
   onlyAuthenticated(context);
-  const prisma = context.dataSources.prisma;
+
   const user = context.base_user!.User!;
 
   // guard clause
@@ -421,8 +420,6 @@ export async function generateNextWorkout(
         },
       });
     } else {
-      const util = require("util");
-
       var formated = formatExcerciseSetGroups(finalExcerciseSetGroups);
 
       await prisma.workout.create({

@@ -1,8 +1,5 @@
 import { AppContext } from "../../../../types/contextType";
-import {
-  onlyAuthenticated,
-  onlyCoach,
-} from "../../../../service/firebase/firebase_service";
+import { onlyCoach } from "../../../../service/firebase/firebase_service";
 import {
   getActiveProgram,
   getActiveWorkoutCount,
@@ -14,7 +11,6 @@ import { generateOrUpdateExcerciseMetadata } from "../../../../service/workout_m
 import { ExcerciseSetGroupInput } from "../../../../types/graphql";
 import { WorkoutType } from "@prisma/client";
 import { resetActiveProgramsForCoaches } from "../../../../service/workout_manager/utils";
-import { GraphQLError } from "graphql";
 /*at any given time, there will only be one active program for the user,so
   //1. change all existing programs to is_active = false
   //2. set the new program to be active,
@@ -40,7 +36,7 @@ export const createProgram = async (
     for (let i = 0; i < workoutsInput!.length; i++) {
       let { life_span, workout_name, excercise_set_groups, workout_type } =
         workoutsInput![i];
-      const [excerciseSetGroups, excerciseMetadatas] = extractMetadatas(
+      const [_, excerciseMetadatas] = extractMetadatas(
         excercise_set_groups as ExcerciseSetGroupInput[]
       );
 
@@ -50,9 +46,6 @@ export const createProgram = async (
         user_id
       );
 
-      let formattedExcerciseSetGroups = formatExcerciseSetGroups(
-        excercise_set_groups!
-      );
       var date = new Date();
       date.setDate(date.getDate() + i);
       let workout_input: any = {
@@ -74,7 +67,7 @@ export const createProgram = async (
       workoutArray.push(workout_input);
     }
     //3. Create the new program object with its corresponding workouts
-    const workout = await prisma.program.create({
+    await prisma.program.create({
       data: {
         coach: { connect: { coach_id: context.base_user!.coach!.coach_id } },
         user: { connect: { user_id: parseInt(user_id) } },

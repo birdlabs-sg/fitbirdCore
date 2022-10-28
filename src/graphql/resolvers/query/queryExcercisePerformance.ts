@@ -3,7 +3,7 @@ import { AppContext } from "../../../types/contextType";
 import { onlyAuthenticated } from "../../../service/firebase/firebase_service";
 
 export const excercisePerformanceQueryResolver = async (
-  parent: any,
+  _: any,
   args: QueryGetExcercisePerformanceArgs,
   context: AppContext
 ) => {
