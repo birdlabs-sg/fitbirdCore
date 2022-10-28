@@ -20,6 +20,7 @@ const _ = require("lodash");
 import * as workoutSplit from "./rotations_types_general";
 import { GraphQLError } from "graphql";
 import { group } from "console";
+import { onlyAuthenticated } from "../../../service/firebase/firebase_service";
 /**
  * Generates a list of workouts (AKA a single rotation) based on requestors's equipment constraints.
  */
@@ -159,10 +160,11 @@ export const workoutGenerator = async (
  */
 export const workoutGeneratorV2 = async (
   numberOfWorkouts: Number,
-  context: any
+  context: AppContext
 ) => {
+  onlyAuthenticated(context);
   const prisma = context.dataSources.prisma;
-  const user = context.user;
+  const user = context.base_user!.User!;
 
   // guard clause
   if (numberOfWorkouts > 6) {
