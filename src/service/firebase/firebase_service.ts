@@ -96,7 +96,6 @@ export const authenticate = async (token: string) => {
       base_user: base_user!,
     };
   } catch (e) {
-    // eslint-disable-next-line no-console
     console.error("HAVE TOKEN BUT FAILED TO AUTHENTICATE", e);
     return { authenticated: false, base_user: null, isAdmin: null };
   }
