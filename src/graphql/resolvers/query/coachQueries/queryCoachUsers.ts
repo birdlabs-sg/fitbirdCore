@@ -2,8 +2,8 @@ import { AppContext } from "../../../../types/contextType";
 import { onlyCoach } from "../../../../service/firebase/firebase_service";
 // finds all users that have programs with coach
 export const coachUsersQueryResolver = async (
-  _: any,
-  __: any,
+  _: unknown,
+  __: unknown,
   context: AppContext
 ) => {
   onlyCoach(context);

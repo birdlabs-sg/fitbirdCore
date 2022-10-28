@@ -1,5 +1,4 @@
-import { BaseContext } from "@apollo/server";
-import { BaseUser, Coach, PrismaClient, User } from "@prisma/client";
+import { BaseUser, Coach, PrismaClient, User } from '@prisma/client';
 
 interface AppContext {
   authenticated: boolean;

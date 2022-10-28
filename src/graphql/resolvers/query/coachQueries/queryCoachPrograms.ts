@@ -3,8 +3,8 @@ import { onlyCoach } from "../../../../service/firebase/firebase_service";
 //find all programs associated with the coach
 // must be protected
 export const coachProgramsQueryResolver = async (
-  _: any,
-  __: any,
+  _: unknown,
+  __: unknown,
   context: AppContext
 ) => {
   onlyCoach(context);

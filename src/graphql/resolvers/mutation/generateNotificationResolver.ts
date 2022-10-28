@@ -7,7 +7,7 @@ import {
 } from "../../../service/notification/notification_service";
 
 export const generateNotificationResolver = async (
-  _: any,
+  _: unknown,
   args: MutationGenerateNotificationArgs,
   context: AppContext
 ) => {
@@ -22,8 +22,8 @@ export const generateNotificationResolver = async (
 };
 
 export const generateWorkoutReminderResolver = async (
-  _: any,
-  __: any,
+  _: unknown,
+  __: unknown,
   context: AppContext
 ) => {
   await generateWorkoutReminder(context);

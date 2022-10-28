@@ -1,10 +1,10 @@
-import { AppContext } from "../../../../types/contextType";
-import { onlyCoach } from "../../../../service/firebase/firebase_service";
+import { AppContext } from '../../../../types/contextType';
+import { onlyCoach } from '../../../../service/firebase/firebase_service';
 
 // find all users that are registered with the coach
 export const coachUsersNotRegisteredQueryResolver = async (
-  _: any,
-  __: any,
+  _: unknown,
+  __: unknown,
   context: AppContext
 ) => {
   onlyCoach(context);
@@ -12,8 +12,8 @@ export const coachUsersNotRegisteredQueryResolver = async (
 
   const baseusers = await prisma.baseUser.findMany({
     include: {
-      User: true,
-    },
+      User: true
+    }
   });
 
   return baseusers;

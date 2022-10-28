@@ -35,7 +35,7 @@ export async function reorderActiveWorkouts(
     const workout = active_workouts.splice(oldIndex, 1)[0];
     active_workouts.splice(newIndex, 0, workout);
   }
-  for (var i = 0; i < active_workouts.length; i++) {
+  for (let i = 0; i < active_workouts.length; i++) {
     const { workout_id } = active_workouts[i];
     await prisma.workout.update({
       where: {

@@ -1,42 +1,43 @@
 overwrite: true
-schema: "http://localhost:8080"
+schema: 'http://localhost:8080'
 documents: null
 generates:
   src/types/graphql.ts:
     plugins:
-      - "typescript"
-      - "typescript-resolvers"
-      - "typescript-operations"
+      - 'typescript'
+      - 'typescript-resolvers'
+      - 'typescript-operations'
     config:
       contextType: ./contextType#AppContext
-      mapperTypeSuffix: Models
+      mapperTypeSuffix: model
       mappers:
-        Token: "./tokenType#Token"
-        BaseUser: "@prisma/client#BaseUser"
-        Coach: "@prisma/client#Coach"
-        Program: "@prisma/client#Program"
-        User: "@prisma/client#User"
-        Workout: "@prisma/client#Workout"
-        ExcerciseMetadata: "@prisma/client#ExcerciseMetadata"
-        Measurement: "@prisma/client#Measurement"
-        ExcerciseSetGroup: "@prisma/client#ExcerciseSetGroup"
-        MuscleRegion: "@prisma/client#MuscleRegion"
-        Excercise: "@prisma/client#Excercise"
-        ExcerciseSet: "@prisma/client#ExcerciseSet"
-        BroadCast: "@prisma/client#BroadCast"
-        Notification: "@prisma/client#Notification"
+        Token: './tokenType#Token'
+        BaseUser: '@prisma/client#BaseUser'
+        Coach: '@prisma/client#Coach'
+        Program: '@prisma/client#Program'
+        User: '@prisma/client#User'
+        Workout: '@prisma/client#Workout'
+        ExcerciseMetadata: '@prisma/client#ExcerciseMetadata'
+        Measurement: '@prisma/client#Measurement'
+        ExcerciseSetGroup: '@prisma/client#ExcerciseSetGroup'
+        MuscleRegion: '@prisma/client#MuscleRegion'
+        Excercise: '@prisma/client#Excercise'
+        ExcerciseSet: '@prisma/client#ExcerciseSet'
+        BroadCast: '@prisma/client#BroadCast'
+        Notification: '@prisma/client#Notification'
       enum:
-        Gender: "@prisma/client#Gender"
-        LengthUnit: "@prisma/client#LengthUnit"
-        WeightUnit: "@prisma/client#WeightUnit"
-        Goal: "@prisma/client#Goal"
-        LevelOfExperience: "@prisma/client#LevelOfExperience"
-        ExcerciseMechanics: "@prisma/client#ExcerciseMechanics"
-        ExcerciseForce: "@prisma/client#ExcerciseForce"
-        ExcerciseUtility: "@prisma/client#ExcerciseUtility"
-        ExcerciseMetadataState: "@prisma/client#ExcerciseMetadataState"
-        Equipment: "@prisma/client#Equipment"
-        MuscleRegionType: "@prisma/client#MuscleRegionType"
-        ExcerciseSetGroupState: "@prisma/client#ExcerciseSetGroupState"
-        WorkoutState: "@prisma/client#WorkoutState"
-      inputMaybeValue: "undefined | T"
+        Gender: '@prisma/client#Gender'
+        LengthUnit: '@prisma/client#LengthUnit'
+        WeightUnit: '@prisma/client#WeightUnit'
+        Goal: '@prisma/client#Goal'
+        LevelOfExperience: '@prisma/client#LevelOfExperience'
+        ExcerciseMechanics: '@prisma/client#ExcerciseMechanics'
+        ExcerciseForce: '@prisma/client#ExcerciseForce'
+        ExcerciseUtility: '@prisma/client#ExcerciseUtility'
+        ExcerciseMetadataState: '@prisma/client#ExcerciseMetadataState'
+        Equipment: '@prisma/client#Equipment'
+        MuscleRegionType: '@prisma/client#MuscleRegionType'
+        ExcerciseSetGroupState: '@prisma/client#ExcerciseSetGroupState'
+        WorkoutState: '@prisma/client#WorkoutState'
+      inputMaybeValue: 'undefined | T'
+      enumsAsConst: true

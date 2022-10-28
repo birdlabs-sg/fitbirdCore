@@ -5,7 +5,7 @@ import { getActiveWorkouts } from "../../../service/workout_manager/utils";
 import { WorkoutType } from "@prisma/client";
 
 export const updateUser = async (
-  _: any,
+  _: unknown,
   {
     ai_managed_workouts_life_cycle,
     selected_exercise_for_analytics,
@@ -21,11 +21,11 @@ export const updateUser = async (
       context,
       WorkoutType.AI_MANAGED
     );
-    var max_life_span = Math.max(
+    const max_life_span = Math.max(
       ...ai_managed_active_workouts.map((workout) => workout.life_span)
     );
     if (ai_managed_workouts_life_cycle > max_life_span) {
-      for (var ai_managed_workout of ai_managed_active_workouts) {
+      for (const ai_managed_workout of ai_managed_active_workouts) {
         await prisma.workout.update({
           where: {
             workout_id: ai_managed_workout.workout_id,

@@ -3,7 +3,7 @@ import { AppContext } from "../../../types/contextType";
 import { isUser } from "../../../service/firebase/firebase_service";
 import { WorkoutType } from "@prisma/client";
 export async function workoutsQueryResolver(
-  _: any,
+  _: unknown,
   { filter, type, user_id }: QueryWorkoutsArgs,
   context: AppContext
 ) {
