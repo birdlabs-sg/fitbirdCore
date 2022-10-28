@@ -6,7 +6,7 @@
   "scripts": {
     "build": "tsc",
     "dev": "NODE_ENV=development tsc-watch --onSuccess \"node .\"",
-    "prod": "NODE_ENV=production node .",
+    "prod": "node .",
     "lint": "eslint . --ext .ts --fix",
     "test": "echo \"Error: no test specified\" && exit 1",
     "generate": "graphql-codegen --config codegen.yml"
