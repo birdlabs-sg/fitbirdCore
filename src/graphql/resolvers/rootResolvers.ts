@@ -51,7 +51,6 @@ import {
 } from "./query/queryAnalytics";
 import { updateBaseUserResolver } from "./mutation/mutateBaseUser";
 
-const _ = require("lodash");
 const dateScalar = new GraphQLScalarType({
   name: "Date",
   description: "Date custom scalar type",

@@ -1,8 +1,8 @@
-import { QueryGetExcerciseMetadatasArgs } from "../../../types/graphql";
-import { AppContext } from "../../../types/contextType";
+import { QueryGetExcerciseMetadatasArgs } from '../../../types/graphql';
+import { AppContext } from '../../../types/contextType';
 
 export const getExcerciseMetadatasQueryResolver = async (
-  parent: any,
+  _: unknown,
   args: QueryGetExcerciseMetadatasArgs,
   context: AppContext
 ) => {
@@ -10,10 +10,10 @@ export const getExcerciseMetadatasQueryResolver = async (
   const { excercise_names_list } = args;
   return await prisma.excerciseMetadata.findMany({
     where: {
-      user_id: context.base_user!.User!.user_id,
+      user_id: context.base_user?.User?.user_id,
       excercise_name: {
-        in: excercise_names_list[0],
-      },
-    },
+        in: excercise_names_list[0]
+      }
+    }
   });
 };

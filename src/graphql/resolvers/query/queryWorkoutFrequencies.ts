@@ -3,16 +3,16 @@ import { AppContext } from "../../../types/contextType";
 import { onlyAuthenticated } from "../../../service/firebase/firebase_service";
 
 export const workoutFrequencyQueryResolver = async (
-  _: any,
-  __: any,
+  _: unknown,
+  __: unknown,
   context: AppContext
 ) => {
   onlyAuthenticated(context);
   const prisma = context.dataSources.prisma;
 
   function getWeekRange(week = 1) {
-    var weekStart = moment().add(week, "weeks").startOf("week");
-    var weekEnd = moment().add(week, "weeks").endOf("week");
+    const weekStart = moment().add(week, "weeks").startOf("week");
+    const weekEnd = moment().add(week, "weeks").endOf("week");
     return { startDate: weekStart.toDate(), endDate: weekEnd.toDate() };
   }
   const workoutFrequencies = [];

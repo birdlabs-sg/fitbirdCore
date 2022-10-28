@@ -1,10 +1,10 @@
+import { Prisma } from '@prisma/client';
 import {
-  ExcerciseSetGroupState,
+  ExcerciseSetInput,
+  Maybe,
   FailureReason,
-  Prisma,
-  Workout,
-} from "@prisma/client";
-import { ExcerciseSetInput, Maybe } from "./graphql";
+  ExcerciseSetGroupState
+} from './graphql';
 
 /**
  * Type for ExerciseSetGroups with exercise_sets, without the exercise_metadata
@@ -28,7 +28,7 @@ export declare type PrismaFormattedExerciseSetGroupCreateArgs = {
 // This helps to add more fields into the generated types
 // 2: Define a type that only contains a subset of the scalar fields
 const WorkoutWithExerciseSets = Prisma.validator<Prisma.WorkoutArgs>()({
-  include: { excercise_set_groups: { include: { excercise_sets: true } } },
+  include: { excercise_set_groups: { include: { excercise_sets: true } } }
 });
 
 // 3: This type will include a user and all their posts

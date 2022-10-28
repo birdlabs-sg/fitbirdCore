@@ -7,23 +7,23 @@ import {
 
 // Averaged Brzycki formula: weight * (1+reps/30)
 export async function analyticsExerciseOneRepMaxResolver(
-  _: any,
+  _: unknown,
   { excercise_names_list }: QueryAnalyticsExerciseOneRepMaxArgs,
   context: AppContext
 ) {
-  console.log("here");
   onlyAuthenticated(context);
   const prisma = context.dataSources.prisma;
   // queries completed workouts that has at least 1 exercise set group that appear in the excercise_name_list
-  var workouts = await prisma.workout.findMany({
+  const workouts = await prisma.workout.findMany({
     where: {
-      user_id: context.base_user!.User!.user_id,
+      user_id: context.base_user?.User?.user_id,
       NOT: {
         date_completed: null,
       },
       excercise_set_groups: {
         some: {
           excercise_name: {
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             in: excercise_names_list!,
           },
         },
@@ -38,7 +38,7 @@ export async function analyticsExerciseOneRepMaxResolver(
     },
   });
 
-  var one_rep_max_data_points = workouts.flatMap((workout) => {
+  const one_rep_max_data_points = workouts.flatMap((workout) => {
     const exercise_set_groups_of_interest = workout.excercise_set_groups.filter(
       (esg) =>
         excercise_names_list.some(
@@ -47,14 +47,14 @@ export async function analyticsExerciseOneRepMaxResolver(
     );
 
     const data_points = exercise_set_groups_of_interest.map((esg) => {
-      var estimated_one_rep_max_value = esg.excercise_sets.reduce(function (
+      const estimated_one_rep_max_value = esg.excercise_sets.reduce(function (
         previousValue,
         currentSet
       ) {
-        var current_set_est_value =
+        const current_set_est_value =
           (currentSet?.actual_weight ?? 0) *
           (1 + (currentSet.actual_reps ?? 0) / 30);
-        var averaged_current_set_est_value =
+        const averaged_current_set_est_value =
           current_set_est_value / esg.excercise_sets.length;
         return previousValue + averaged_current_set_est_value;
       },
@@ -73,7 +73,7 @@ export async function analyticsExerciseOneRepMaxResolver(
 }
 
 export async function analyticsExerciseTotalVolumeResolver(
-  _: any,
+  _: unknown,
   { excercise_names_list }: QueryAnalyticsExerciseTotalVolumeArgs,
   context: AppContext
 ) {
@@ -81,9 +81,9 @@ export async function analyticsExerciseTotalVolumeResolver(
   const prisma = context.dataSources.prisma;
 
   // queries completed workouts that has at least 1 exercise set group that appear in the excercise_name_list
-  var workouts = await prisma.workout.findMany({
+  const workouts = await prisma.workout.findMany({
     where: {
-      user_id: context.base_user!.User!.user_id,
+      user_id: context.base_user?.User?.user_id,
       NOT: {
         date_completed: null,
       },
@@ -104,7 +104,7 @@ export async function analyticsExerciseTotalVolumeResolver(
     },
   });
 
-  var exercise_total_volume_data_points = workouts.flatMap((workout) => {
+  const exercise_total_volume_data_points = workouts.flatMap((workout) => {
     const exercise_set_groups_of_interest = workout.excercise_set_groups.filter(
       (esg) =>
         excercise_names_list.some(
@@ -112,7 +112,7 @@ export async function analyticsExerciseTotalVolumeResolver(
         )
     );
     const data_points = exercise_set_groups_of_interest.map((esg) => {
-      var exercise_total_volume = esg.excercise_sets.reduce(
+      const exercise_total_volume = esg.excercise_sets.reduce(
         (previousValue, currentSet) =>
           previousValue +
           (currentSet.actual_weight ?? 0) * (currentSet.actual_reps ?? 0),
@@ -132,26 +132,19 @@ export async function analyticsExerciseTotalVolumeResolver(
 }
 
 export async function analyticsWorkoutAverageRPEResolver(
-  _: any,
-  { excercise_names_list }: any,
+  _: unknown,
+  __: unknown,
   context: AppContext
 ) {
   onlyAuthenticated(context);
   const prisma = context.dataSources.prisma;
 
   // queries completed workouts that has at least 1 exercise set group that appear in the excercise_name_list
-  var workouts = await prisma.workout.findMany({
+  const workouts = await prisma.workout.findMany({
     where: {
-      user_id: context.base_user!.User!.user_id,
+      user_id: context.base_user?.User?.user_id,
       NOT: {
         date_completed: null,
-      },
-      excercise_set_groups: {
-        some: {
-          excercise_name: {
-            in: excercise_names_list,
-          },
-        },
       },
     },
     include: {
@@ -163,7 +156,7 @@ export async function analyticsWorkoutAverageRPEResolver(
     },
   });
 
-  var average_rpe_value_data_points = workouts.flatMap((workout) => {
+  const average_rpe_value_data_points = workouts.flatMap((workout) => {
     const average_rpe_value =
       workout.excercise_set_groups.reduce(
         (previousValue, currentESG) =>

@@ -6,9 +6,9 @@ import { GraphQLError } from "graphql";
 import { Token } from "../../types/graphql";
 
 const prisma = new PrismaClient();
-const dotenv = require("dotenv");
+import dotenv from "dotenv";
 dotenv.config();
-const axios = require("axios").default;
+import axios from "axios";
 
 // Initializes the firebaseAuth service
 const firebase = admin.initializeApp({
@@ -96,7 +96,8 @@ export const authenticate = async (token: string) => {
       base_user: base_user!,
     };
   } catch (e) {
-    console.log("HAVE TOKEN BUT FAILED TO AUTHENTICATE", e);
+    // eslint-disable-next-line no-console
+    console.error("HAVE TOKEN BUT FAILED TO AUTHENTICATE", e);
     return { authenticated: false, base_user: null, isAdmin: null };
   }
 };
@@ -142,13 +143,12 @@ export const isUser = (context: AppContext) => {
 export async function getFirebaseIdToken(uid: string): Promise<Token> {
   const customToken = await firebase.auth().createCustomToken(uid);
   const res = await axios({
-    url: `https://www.googleapis.com/identitytoolkit/v3/relyingparty/verifyCustomToken?key=${process.env.GOOGLE_API_KEY}`,
     method: "post",
+    url: `https://www.googleapis.com/identitytoolkit/v3/relyingparty/verifyCustomToken?key=${process.env.GOOGLE_API_KEY}`,
     data: {
       token: customToken,
       returnSecureToken: true,
     },
-    json: true,
   });
   return res.data;
 }

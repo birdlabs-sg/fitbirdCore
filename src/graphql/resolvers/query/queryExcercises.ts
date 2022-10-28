@@ -5,10 +5,10 @@ import {
   onlyCoach,
   onlyAuthenticated,
 } from "../../../service/firebase/firebase_service";
-const lodash = require("lodash");
+import lodash from "lodash";
 export const excercisesQueryResolver = async (
-  _: any,
-  __: any,
+  _: unknown,
+  __: unknown,
   context: AppContext
 ) => {
   onlyAuthenticated(context);
@@ -18,7 +18,7 @@ export const excercisesQueryResolver = async (
       Object.keys(Equipment),
       context.base_user!.User!.equipment_accessible,
       lodash.isEqual
-    );
+    ) as Equipment[];
     const filteredExcercises = await prisma.excercise.findMany({
       where: {
         NOT: {

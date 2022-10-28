@@ -2,7 +2,7 @@ import { QueryGetExcerciseArgs } from "../../../types/graphql";
 import { AppContext } from "../../../types/contextType";
 
 export const getExcerciseQueryResolver = async (
-  _: any,
+  _: unknown,
   args: QueryGetExcerciseArgs,
   context: AppContext
 ) => {
