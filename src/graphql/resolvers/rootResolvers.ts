@@ -137,6 +137,9 @@ export const resolvers: Resolvers = {
       const prisma = context.dataSources.prisma;
       return await prisma.program.findMany({
         where: { user_id: parent.user_id },
+        include: {
+          workouts: true,
+        },
       });
     },
   },
