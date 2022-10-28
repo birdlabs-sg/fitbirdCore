@@ -1,9 +1,9 @@
-import { AppContext } from '../../../types/contextType';
-import { onlyAuthenticated } from '../../../service/firebase/firebase_service';
+import { AppContext } from "../../../types/contextType";
+import { onlyAuthenticated } from "../../../service/firebase/firebase_service";
 import {
   QueryAnalyticsExerciseOneRepMaxArgs,
-  QueryAnalyticsExerciseTotalVolumeArgs
-} from '../../../types/graphql';
+  QueryAnalyticsExerciseTotalVolumeArgs,
+} from "../../../types/graphql";
 
 // Averaged Brzycki formula: weight * (1+reps/30)
 export async function analyticsExerciseOneRepMaxResolver(
@@ -18,24 +18,24 @@ export async function analyticsExerciseOneRepMaxResolver(
     where: {
       user_id: context.base_user?.User?.user_id,
       NOT: {
-        date_completed: null
+        date_completed: null,
       },
       excercise_set_groups: {
         some: {
           excercise_name: {
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            in: excercise_names_list!
-          }
-        }
-      }
+            in: excercise_names_list!,
+          },
+        },
+      },
     },
     include: {
       excercise_set_groups: {
         include: {
-          excercise_sets: true
-        }
-      }
-    }
+          excercise_sets: true,
+        },
+      },
+    },
   });
 
   const one_rep_max_data_points = workouts.flatMap((workout) => {
@@ -63,7 +63,7 @@ export async function analyticsExerciseOneRepMaxResolver(
       return {
         exercise_name: esg.excercise_name,
         estimated_one_rep_max_value: estimated_one_rep_max_value,
-        date_completed: workout.date_completed
+        date_completed: workout.date_completed,
       };
     });
 
@@ -85,23 +85,23 @@ export async function analyticsExerciseTotalVolumeResolver(
     where: {
       user_id: context.base_user?.User?.user_id,
       NOT: {
-        date_completed: null
+        date_completed: null,
       },
       excercise_set_groups: {
         some: {
           excercise_name: {
-            in: excercise_names_list
-          }
-        }
-      }
+            in: excercise_names_list,
+          },
+        },
+      },
     },
     include: {
       excercise_set_groups: {
         include: {
-          excercise_sets: true
-        }
-      }
-    }
+          excercise_sets: true,
+        },
+      },
+    },
   });
 
   const exercise_total_volume_data_points = workouts.flatMap((workout) => {
@@ -122,7 +122,7 @@ export async function analyticsExerciseTotalVolumeResolver(
       return {
         exercise_name: esg.excercise_name,
         exercise_total_volume: exercise_total_volume,
-        date_completed: workout.date_completed
+        date_completed: workout.date_completed,
       };
     });
 
@@ -144,16 +144,16 @@ export async function analyticsWorkoutAverageRPEResolver(
     where: {
       user_id: context.base_user?.User?.user_id,
       NOT: {
-        date_completed: null
-      }
+        date_completed: null,
+      },
     },
     include: {
       excercise_set_groups: {
         include: {
-          excercise_sets: true
-        }
-      }
-    }
+          excercise_sets: true,
+        },
+      },
+    },
   });
 
   const average_rpe_value_data_points = workouts.flatMap((workout) => {
@@ -172,7 +172,7 @@ export async function analyticsWorkoutAverageRPEResolver(
 
     return {
       average_rpe_value: average_rpe_value,
-      date_completed: workout.date_completed
+      date_completed: workout.date_completed,
     };
   });
   return average_rpe_value_data_points;

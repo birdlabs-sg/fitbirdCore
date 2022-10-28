@@ -54,10 +54,10 @@ const queryTypeDef = gql`
     getExcercise(excercise_name: ID!): Excercise
     notifications: [Notification]
     analyticsExerciseOneRepMax(
-      excercise_names_list: [ID!]!
+      excercise_names_list: [ID]!
     ): [ExerciseOneRepMaxDataPoint]
     analyticsExerciseTotalVolume(
-      excercise_names_list: [ID!]!
+      excercise_names_list: [ID]!
     ): [ExerciseTotalVolumeDataPoint]
     analyticsWorkoutAverageRPE: [WorkoutAverageRPEDataPoint]
     workout_frequencies: [WorkoutFrequency]
