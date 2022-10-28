@@ -110,7 +110,6 @@ export const resolvers: Resolvers = {
     analyticsExerciseTotalVolume: analyticsExerciseTotalVolumeResolver,
     analyticsWorkoutAverageRPE: analyticsWorkoutAverageRPEResolver,
   },
-
   // workout query
   Workout: {
     async excercise_set_groups(parent, _, context) {
@@ -132,6 +131,12 @@ export const resolvers: Resolvers = {
             },
           },
         },
+      });
+    },
+    async program(parent, _, context) {
+      const prisma = context.dataSources.prisma;
+      return await prisma.program.findMany({
+        where: { user_id: parent.user_id },
       });
     },
   },
