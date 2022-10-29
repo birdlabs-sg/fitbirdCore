@@ -50,13 +50,13 @@ export const createProgram = async (
       const [excerciseSetGroups, excerciseMetadatas] = extractMetadatas(
         excercise_set_groups as ExcerciseSetGroupInput[]
       );
-
+      
       await generateOrUpdateExcerciseMetadata(
         context,
         excerciseMetadatas,
         user_id
       );
-
+      
       let workout_input: any = {
         user: { connect: { user_id: parseInt(user_id) } },
         date_scheduled: date_scheduled,
@@ -87,7 +87,7 @@ export const createProgram = async (
       },
     });
   }
-
+ 
   return {
     code: "200",
     success: true,
