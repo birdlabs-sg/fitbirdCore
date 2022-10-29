@@ -148,9 +148,9 @@ export async function generateOrUpdateExcerciseMetadata(
             },
           },
           data: {
-            user_id: context.base_user!.User!.user_id,
-            ...excercise_metadata
-          }
+            user_id: parseInt(user_id!) ?? context.base_user!.User!.user_id,
+            ...excercise_metadata,
+          },
         });
       }
     }
