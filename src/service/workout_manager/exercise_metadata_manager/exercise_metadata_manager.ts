@@ -150,7 +150,7 @@ export async function generateOrUpdateExcerciseMetadata(
             },
           },
           data: {
-            user_id: context.user.user_id,
+            user_id: parseInt(user_id!) ?? context.user.user_id,
             ...excercise_metadata,
           },
         });
