@@ -45,17 +45,14 @@ export const createProgram = async (
       const [_, excerciseMetadatas] = extractMetadatas(
         excercise_set_groups as ExcerciseSetGroupInput[]
       );
-
+      
       await generateOrUpdateExcerciseMetadata(
         context,
         excerciseMetadatas,
         user_id
       );
-
-      const date = new Date();
-      date.setDate(date.getDate() + i);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const workout_input: any = {
+      
+      let workout_input: any = {
         user: { connect: { user_id: parseInt(user_id) } },
         date_scheduled: date_scheduled,
         life_span: life_span,
@@ -85,7 +82,7 @@ export const createProgram = async (
       },
     });
   }
-
+ 
   return {
     code: "200",
     success: true,

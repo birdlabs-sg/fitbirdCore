@@ -6,7 +6,7 @@ import {
 } from "./service/firebase/firebase_service";
 import { ApolloServer } from "@apollo/server";
 import { startStandaloneServer } from "@apollo/server/standalone";
-//import { ApolloServerPluginUsageReporting } from "@apollo/server/plugin/usageReporting";
+import { ApolloServerPluginUsageReporting } from "@apollo/server/plugin/usageReporting";
 
 import { PrismaClient } from "@prisma/client";
 
