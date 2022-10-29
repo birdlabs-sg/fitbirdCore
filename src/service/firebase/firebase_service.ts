@@ -1,14 +1,13 @@
 import * as admin from "firebase-admin";
 import { AppContext } from "../../types/contextType";
 import { Context } from "vm";
-import { PrismaClient } from "@prisma/client";
 import { GraphQLError } from "graphql";
 import { Token } from "../../types/graphql";
 
-const prisma = new PrismaClient();
 import dotenv from "dotenv";
 dotenv.config();
 import axios from "axios";
+import { PrismaClient } from "@prisma/client";
 
 // Initializes the firebaseAuth service
 const firebase = admin.initializeApp({
@@ -26,8 +25,10 @@ export const signupFirebase = async (
   email: string,
   password: string,
   displayName: string,
-  is_user: boolean
+  is_user: boolean,
+  context: AppContext
 ) => {
+  const prisma = context.dataSources.prisma;
   // Done in backend so as to create an instance within our database as well. -> to do
   const firebaseUser = await firebase.auth().createUser({
     email: email,
@@ -74,10 +75,11 @@ export const getAuthToken = (req: Context) => {
   }
 };
 
-export const authenticate = async (token: string) => {
+export const authenticate = async (token: string, prisma: PrismaClient) => {
   if (!token) {
     return { authenticated: false, base_user: null, isAdmin: null };
   }
+
   try {
     const fireBaseUser = await firebase.auth().verifyIdToken(token);
     const base_user = await prisma.baseUser.findUnique({
@@ -96,6 +98,7 @@ export const authenticate = async (token: string) => {
       base_user: base_user!,
     };
   } catch (e) {
+    // eslint-disable-next-line no-console
     console.error("HAVE TOKEN BUT FAILED TO AUTHENTICATE", e);
     return { authenticated: false, base_user: null, isAdmin: null };
   }
