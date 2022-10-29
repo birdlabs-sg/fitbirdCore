@@ -33,7 +33,7 @@ async function startApolloServer() {
       const token = getAuthToken(req);
       return {
         token,
-        ...(await authenticate(token)),
+        ...(await authenticate(token, prisma)),
         dataSources: {
           prisma: prisma,
         },
