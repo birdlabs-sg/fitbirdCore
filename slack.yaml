@@ -10,4 +10,4 @@ spec:
         secretRef: webhook-url
   secrets:
     - name: webhook-url
-      value: projects/$PROJECT_ID/secrets/slack-webhook-url/versions/latest
+      value: projects/fitbird-353419/secrets/slack-webhook-url/versions/latest
