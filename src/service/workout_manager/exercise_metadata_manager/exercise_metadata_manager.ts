@@ -125,6 +125,7 @@ export async function generateOrUpdateExcerciseMetadata(
       const excerciseMetadata = await prisma.excerciseMetadata.findUnique({
         where: {
           user_id_excercise_name: {
+            //There was some issue using this so I removed all of this =>(parseInt(user_id!) ?? context.base_user!.User!.user_id)
             user_id: user_id==undefined? context.base_user!.User!.user_id:parseInt(user_id),
             excercise_name: excercise_metadata.excercise_name,
           },
