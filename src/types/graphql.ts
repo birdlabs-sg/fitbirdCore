@@ -388,8 +388,8 @@ export type MutationCreateMuscleRegionArgs = {
 
 /** [PROTECTED] Mutation to update the requestor's user information */
 export type MutationCreateProgramArgs = {
-  user_id: Scalars["ID"];
-  workoutsInput?: InputMaybe<Array<WorkoutInput>>;
+  user_id: Scalars['ID'];
+  workoutsInput: Array<WorkoutInput>;
 };
 
 /** [PROTECTED] Mutation to update the requestor's user information */
@@ -561,10 +561,9 @@ export type Query = {
   >;
   analyticsWorkoutAverageRPE?: Maybe<Array<Maybe<WorkoutAverageRpeDataPoint>>>;
   baseUsers?: Maybe<Array<Maybe<BaseUser>>>;
-  coachProgram?: Maybe<Program>;
-  coachPrograms?: Maybe<Array<Maybe<Program>>>;
+  coachActiveProgram?: Maybe<Program>;
+  coachAllUsers?: Maybe<Array<Maybe<BaseUser>>>;
   coachUsers?: Maybe<Array<Maybe<BaseUser>>>;
-  coachUsersNotRegistered?: Maybe<Array<Maybe<BaseUser>>>;
   coachWorkoutName?: Maybe<Workout>;
   excercises?: Maybe<Array<Maybe<Excercise>>>;
   excludedExcercises?: Maybe<Array<Maybe<Excercise>>>;
@@ -591,8 +590,8 @@ export type QueryAnalyticsExerciseTotalVolumeArgs = {
 };
 
 /** This is the root query to resources. Require ADMIN permission to access all, otherwise resources are scoped to the user issuing the request. */
-export type QueryCoachProgramArgs = {
-  program_id: Scalars["ID"];
+export type QueryCoachActiveProgramArgs = {
+  user_id: Scalars['ID'];
 };
 
 /** This is the root query to resources. Require ADMIN permission to access all, otherwise resources are scoped to the user issuing the request. */
@@ -1581,161 +1580,29 @@ export type MutateUserResponseResolvers<
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
-export type MutationResolvers<
-  ContextType = AppContext,
-  ParentType extends ResolversParentTypes["Mutation"] = ResolversParentTypes["Mutation"]
-> = {
-  completeWorkout?: Resolver<
-    Maybe<ResolversTypes["mutateWorkoutsResponse"]>,
-    ParentType,
-    ContextType,
-    RequireFields<
-      MutationCompleteWorkoutArgs,
-      "excercise_set_groups" | "workout_id"
-    >
-  >;
-  createExcerciseMetadata?: Resolver<
-    Maybe<ResolversTypes["mutateExcerciseMetaDataResponse"]>,
-    ParentType,
-    ContextType,
-    RequireFields<
-      MutationCreateExcerciseMetadataArgs,
-      "excercise_name" | "rest_time_lower_bound" | "rest_time_upper_bound"
-    >
-  >;
-  createMeasurement?: Resolver<
-    Maybe<ResolversTypes["mutateMeasurementResponse"]>,
-    ParentType,
-    ContextType,
-    RequireFields<
-      MutationCreateMeasurementArgs,
-      "length_units" | "measured_at" | "measurement_value" | "muscle_region_id"
-    >
-  >;
-  createMuscleRegion?: Resolver<
-    Maybe<ResolversTypes["mutateMuscleRegionResponse"]>,
-    ParentType,
-    ContextType,
-    RequireFields<
-      MutationCreateMuscleRegionArgs,
-      "muscle_region_description" | "muscle_region_name" | "muscle_region_type"
-    >
-  >;
-  createProgram?: Resolver<
-    Maybe<ResolversTypes["mutateProgramResponse"]>,
-    ParentType,
-    ContextType,
-    RequireFields<MutationCreateProgramArgs, "user_id">
-  >;
-  createWorkout?: Resolver<
-    Maybe<ResolversTypes["mutateWorkoutResponse"]>,
-    ParentType,
-    ContextType,
-    RequireFields<
-      MutationCreateWorkoutArgs,
-      "excercise_set_groups" | "life_span" | "workout_name" | "workout_type"
-    >
-  >;
-  deleteMeasurement?: Resolver<
-    Maybe<ResolversTypes["mutateMeasurementResponse"]>,
-    ParentType,
-    ContextType,
-    RequireFields<MutationDeleteMeasurementArgs, "measurement_id">
-  >;
-  deleteMuscleRegion?: Resolver<
-    Maybe<ResolversTypes["mutateMuscleRegionResponse"]>,
-    ParentType,
-    ContextType,
-    RequireFields<MutationDeleteMuscleRegionArgs, "muscle_region_id">
-  >;
-  deleteWorkout?: Resolver<
-    Maybe<ResolversTypes["mutateWorkoutsResponse"]>,
-    ParentType,
-    ContextType,
-    RequireFields<MutationDeleteWorkoutArgs, "workout_id">
-  >;
-  generateFirebaseIdToken?: Resolver<
-    Maybe<ResolversTypes["GenerateIdTokenResponse"]>,
-    ParentType,
-    ContextType,
-    RequireFields<MutationGenerateFirebaseIdTokenArgs, "uid">
-  >;
-  generateNotification?: Resolver<
-    Maybe<ResolversTypes["NotificationResponse"]>,
-    ParentType,
-    ContextType,
-    RequireFields<MutationGenerateNotificationArgs, "body" | "title" | "token">
-  >;
-  generateWorkoutReminder?: Resolver<
-    Maybe<ResolversTypes["NotificationResponse"]>,
-    ParentType,
-    ContextType
-  >;
-  generateWorkouts?: Resolver<
-    Maybe<Array<ResolversTypes["Workout"]>>,
-    ParentType,
-    ContextType,
-    RequireFields<MutationGenerateWorkoutsArgs, "no_of_workouts">
-  >;
-  regenerateWorkouts?: Resolver<
-    Maybe<Array<ResolversTypes["Workout"]>>,
-    ParentType,
-    ContextType
-  >;
-  signup?: Resolver<
-    Maybe<ResolversTypes["SignupResponse"]>,
-    ParentType,
-    ContextType,
-    RequireFields<
-      MutationSignupArgs,
-      "displayName" | "email" | "is_user" | "password"
-    >
-  >;
-  updateBaseUser?: Resolver<
-    Maybe<ResolversTypes["MutateBaseUserResponse"]>,
-    ParentType,
-    ContextType,
-    Partial<MutationUpdateBaseUserArgs>
-  >;
-  updateExcerciseMetadata?: Resolver<
-    Maybe<ResolversTypes["mutateExcerciseMetaDataResponse"]>,
-    ParentType,
-    ContextType,
-    RequireFields<MutationUpdateExcerciseMetadataArgs, "excercise_name">
-  >;
-  updateMeasurement?: Resolver<
-    Maybe<ResolversTypes["mutateMeasurementResponse"]>,
-    ParentType,
-    ContextType,
-    RequireFields<MutationUpdateMeasurementArgs, "measurement_id">
-  >;
-  updateMuscleRegion?: Resolver<
-    Maybe<ResolversTypes["mutateMuscleRegionResponse"]>,
-    ParentType,
-    ContextType,
-    RequireFields<MutationUpdateMuscleRegionArgs, "muscle_region_id">
-  >;
-  updateUser?: Resolver<
-    Maybe<ResolversTypes["MutateUserResponse"]>,
-    ParentType,
-    ContextType,
-    Partial<MutationUpdateUserArgs>
-  >;
-  updateWorkout?: Resolver<
-    Maybe<ResolversTypes["mutateWorkoutResponse"]>,
-    ParentType,
-    ContextType,
-    RequireFields<MutationUpdateWorkoutArgs, "workout_id">
-  >;
-  updateWorkoutOrder?: Resolver<
-    Maybe<ResolversTypes["mutateWorkoutsResponse"]>,
-    ParentType,
-    ContextType,
-    RequireFields<
-      MutationUpdateWorkoutOrderArgs,
-      "newIndex" | "oldIndex" | "workout_type"
-    >
-  >;
+export type MutationResolvers<ContextType = AppContext, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
+  completeWorkout?: Resolver<Maybe<ResolversTypes['mutateWorkoutsResponse']>, ParentType, ContextType, RequireFields<MutationCompleteWorkoutArgs, 'excercise_set_groups' | 'workout_id'>>;
+  createExcerciseMetadata?: Resolver<Maybe<ResolversTypes['mutateExcerciseMetaDataResponse']>, ParentType, ContextType, RequireFields<MutationCreateExcerciseMetadataArgs, 'excercise_name' | 'rest_time_lower_bound' | 'rest_time_upper_bound'>>;
+  createMeasurement?: Resolver<Maybe<ResolversTypes['mutateMeasurementResponse']>, ParentType, ContextType, RequireFields<MutationCreateMeasurementArgs, 'length_units' | 'measured_at' | 'measurement_value' | 'muscle_region_id'>>;
+  createMuscleRegion?: Resolver<Maybe<ResolversTypes['mutateMuscleRegionResponse']>, ParentType, ContextType, RequireFields<MutationCreateMuscleRegionArgs, 'muscle_region_description' | 'muscle_region_name' | 'muscle_region_type'>>;
+  createProgram?: Resolver<Maybe<ResolversTypes['mutateProgramResponse']>, ParentType, ContextType, RequireFields<MutationCreateProgramArgs, 'user_id' | 'workoutsInput'>>;
+  createWorkout?: Resolver<Maybe<ResolversTypes['mutateWorkoutResponse']>, ParentType, ContextType, RequireFields<MutationCreateWorkoutArgs, 'excercise_set_groups' | 'life_span' | 'workout_name' | 'workout_type'>>;
+  deleteMeasurement?: Resolver<Maybe<ResolversTypes['mutateMeasurementResponse']>, ParentType, ContextType, RequireFields<MutationDeleteMeasurementArgs, 'measurement_id'>>;
+  deleteMuscleRegion?: Resolver<Maybe<ResolversTypes['mutateMuscleRegionResponse']>, ParentType, ContextType, RequireFields<MutationDeleteMuscleRegionArgs, 'muscle_region_id'>>;
+  deleteWorkout?: Resolver<Maybe<ResolversTypes['mutateWorkoutsResponse']>, ParentType, ContextType, RequireFields<MutationDeleteWorkoutArgs, 'workout_id'>>;
+  generateFirebaseIdToken?: Resolver<Maybe<ResolversTypes['GenerateIdTokenResponse']>, ParentType, ContextType, RequireFields<MutationGenerateFirebaseIdTokenArgs, 'uid'>>;
+  generateNotification?: Resolver<Maybe<ResolversTypes['NotificationResponse']>, ParentType, ContextType, RequireFields<MutationGenerateNotificationArgs, 'body' | 'title' | 'token'>>;
+  generateWorkoutReminder?: Resolver<Maybe<ResolversTypes['NotificationResponse']>, ParentType, ContextType>;
+  generateWorkouts?: Resolver<Maybe<Array<ResolversTypes['Workout']>>, ParentType, ContextType, RequireFields<MutationGenerateWorkoutsArgs, 'no_of_workouts'>>;
+  regenerateWorkouts?: Resolver<Maybe<Array<ResolversTypes['Workout']>>, ParentType, ContextType>;
+  signup?: Resolver<Maybe<ResolversTypes['SignupResponse']>, ParentType, ContextType, RequireFields<MutationSignupArgs, 'displayName' | 'email' | 'is_user' | 'password'>>;
+  updateBaseUser?: Resolver<Maybe<ResolversTypes['MutateBaseUserResponse']>, ParentType, ContextType, Partial<MutationUpdateBaseUserArgs>>;
+  updateExcerciseMetadata?: Resolver<Maybe<ResolversTypes['mutateExcerciseMetaDataResponse']>, ParentType, ContextType, RequireFields<MutationUpdateExcerciseMetadataArgs, 'excercise_name'>>;
+  updateMeasurement?: Resolver<Maybe<ResolversTypes['mutateMeasurementResponse']>, ParentType, ContextType, RequireFields<MutationUpdateMeasurementArgs, 'measurement_id'>>;
+  updateMuscleRegion?: Resolver<Maybe<ResolversTypes['mutateMuscleRegionResponse']>, ParentType, ContextType, RequireFields<MutationUpdateMuscleRegionArgs, 'muscle_region_id'>>;
+  updateUser?: Resolver<Maybe<ResolversTypes['MutateUserResponse']>, ParentType, ContextType, Partial<MutationUpdateUserArgs>>;
+  updateWorkout?: Resolver<Maybe<ResolversTypes['mutateWorkoutResponse']>, ParentType, ContextType, RequireFields<MutationUpdateWorkoutArgs, 'workout_id'>>;
+  updateWorkoutOrder?: Resolver<Maybe<ResolversTypes['mutateWorkoutsResponse']>, ParentType, ContextType, RequireFields<MutationUpdateWorkoutOrderArgs, 'newIndex' | 'oldIndex' | 'workout_type'>>;
 };
 
 export type MutationResponseResolvers<

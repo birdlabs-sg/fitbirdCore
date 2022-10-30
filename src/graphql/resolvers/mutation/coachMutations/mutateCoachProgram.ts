@@ -4,7 +4,10 @@ import {
   getActiveProgram,
   getActiveWorkoutCount,
 } from "../../../../service/workout_manager/utils";
-import { MutationCreateProgramArgs } from "../../../../types/graphql";
+import {
+  MutationCreateProgramArgs,
+  WorkoutInput,
+} from "../../../../types/graphql";
 import { formatExcerciseSetGroups } from "../../../../service/workout_manager/utils";
 import { extractMetadatas } from "../../../../service/workout_manager/utils";
 import { generateOrUpdateExcerciseMetadata } from "../../../../service/workout_manager/exercise_metadata_manager/exercise_metadata_manager";
@@ -20,7 +23,6 @@ export const createProgram = async (
   { user_id, workoutsInput }: MutationCreateProgramArgs,
   context: AppContext
 ) => {
-  //onlyAuthenticated(context);
   onlyCoach(context);
   const prisma = context.dataSources.prisma;
   // Ensure that there is a max of 7 workouts
@@ -33,26 +35,27 @@ export const createProgram = async (
     const workoutArray: Workout[] = [];
 
     //2.generate the list of workouts
-    for (let i = 0; i < workoutsInput!.length; i++) {
-      const { life_span, workout_name, excercise_set_groups, workout_type } =
-        workoutsInput![i];
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    for (let i = 0; i < workoutsInput.length; i++) {
+      let {
+        life_span,
+        workout_name,
+        excercise_set_groups,
+        workout_type,
+        date_scheduled,
+      } = workoutsInput[i];
       const [_, excerciseMetadatas] = extractMetadatas(
         excercise_set_groups as ExcerciseSetGroupInput[]
       );
-
+      
       await generateOrUpdateExcerciseMetadata(
         context,
         excerciseMetadatas,
         user_id
       );
-
-      const date = new Date();
-      date.setDate(date.getDate() + i);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const workout_input: any = {
+      
+      let workout_input: any = {
         user: { connect: { user_id: parseInt(user_id) } },
-        date_scheduled: date,
+        date_scheduled: date_scheduled,
         life_span: life_span,
         order_index: await getActiveWorkoutCount(
           context,
@@ -80,7 +83,7 @@ export const createProgram = async (
       },
     });
   }
-
+ 
   return {
     code: "200",
     success: true,

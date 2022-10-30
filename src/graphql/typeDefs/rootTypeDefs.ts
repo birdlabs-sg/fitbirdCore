@@ -37,9 +37,8 @@ const queryTypeDef = gql`
   type Query {
     baseUsers: [BaseUser]
     coachUsers: [BaseUser]
-    coachUsersNotRegistered: [BaseUser]
-    coachProgram(program_id: ID!): Program
-    coachPrograms: [Program]
+    coachAllUsers: [BaseUser]
+    coachActiveProgram(user_id:ID!): Program
     coachWorkoutName(
       workout_name: ID!
       user_id: ID!
