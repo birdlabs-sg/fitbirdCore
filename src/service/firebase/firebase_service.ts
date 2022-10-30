@@ -112,6 +112,7 @@ export const onlyAuthenticated = (context: AppContext) => {
       },
     });
   }
+  
 };
 
 export const onlyAdmin = (context: AppContext) => {
@@ -132,6 +133,7 @@ export const onlyCoach = (context: AppContext) => {
       },
     });
   }
+  
  
 };
 export const isUser = (context: AppContext) => {

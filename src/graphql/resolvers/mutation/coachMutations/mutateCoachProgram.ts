@@ -29,8 +29,7 @@ export const createProgram = async (
   if (workoutsInput!.length > 7) {
     throw Error("VALIDATE Must be no more than 7 workouts");
   } else {
-    //1. Set all existing programs and its corresponding workouts to be inactive
-    resetActiveProgramsForCoaches(context, WorkoutType.COACH_MANAGED, user_id);
+   
     const workoutArray: Workout[] = [];
 
     //2.generate the list of workouts
@@ -70,6 +69,8 @@ export const createProgram = async (
 
       workoutArray.push(workout_input);
     }
+    //2. Set all existing programs and its corresponding workouts to be inactive
+    resetActiveProgramsForCoaches(context, WorkoutType.COACH_MANAGED, user_id);
     //3. Create the new program object with its corresponding workouts
     await prisma.program.create({
       data: {
