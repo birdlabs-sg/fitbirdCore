@@ -255,7 +255,7 @@ export const updateWorkout = async (
   let formatedUpdatedData;
 
   if (excercise_set_groups != null) {
-    const [excerciseSetGroups, excercise_metadatas] = extractMetadatas(
+    var [excerciseSetGroups, excercise_metadatas] = extractMetadatas(
       excercise_set_groups as ExcerciseSetGroupInput[]
     );
     formatedUpdatedData = {
