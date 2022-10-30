@@ -31,7 +31,7 @@ export const createProgram = async (
   } else {
    
     const workoutArray: Workout[] = [];
-
+    
     //2.generate the list of workouts
     for (let i = 0; i < workoutsInput.length; i++) {
       const {
@@ -54,7 +54,7 @@ export const createProgram = async (
       let workout_input: any = {
         user: { connect: { user_id: parseInt(user_id) } },
         date_scheduled: date_scheduled,
-        life_span: life_span,
+        life_span: life_span!-1,
         order_index: await getActiveWorkoutCount(
           context,
           workout_type,
