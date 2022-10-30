@@ -240,11 +240,12 @@ export async function checkExistsAndOwnership(
       workout_id: parseInt(workout_id)
     }
   });
+  
   if (targetWorkout == null) {
     throw new GraphQLError('The workout does not exist.');
   }
-
-  if (context.base_user!.User) {
+  
+  if (context.base_user?.User) {
     if (targetWorkout.user_id != context.base_user!.User!.user_id) {
       throw new GraphQLError("You are not authorized to remove this object", {
         extensions: {
@@ -254,6 +255,7 @@ export async function checkExistsAndOwnership(
     }
   } else {
     onlyCoach(context)
+    
     if (targetWorkout.programProgram_id) {
       const targetProgram = await prisma.program.findUnique({
         where: {
@@ -261,7 +263,7 @@ export async function checkExistsAndOwnership(
         },
       });
       
-      if (targetProgram?.coach_id != context.base_user!.coach!.coach_id) {
+      if (targetProgram?.coach_id !== context.base_user!.coach!.coach_id) {
         throw new GraphQLError("You are not authorized to remove this object", {
           extensions: {
             code: "FORBIDDEN",
