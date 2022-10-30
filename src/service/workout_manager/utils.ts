@@ -216,7 +216,7 @@ export async function getActiveWorkoutCount(
     const workouts = await prisma.workout.findMany({
       where: {
         date_completed: null,
-        user_id: parseInt(user_id!)?? context.base_user!.User!.user_id,
+        user_id: user_id==undefined? context.base_user!.User!.user_id:parseInt(user_id),
         workout_type: workout_type,
       },
       orderBy: {

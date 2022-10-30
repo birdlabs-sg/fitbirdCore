@@ -211,8 +211,9 @@ export const completeWorkout = async (
   });
 
   // in-case there is no associated excercise metadata
+  
   await generateOrUpdateExcerciseMetadata(context, excerciseMetadatas);
-
+  
   await updateExcerciseMetadataWithCompletedWorkout(context, completedWorkout);
 
   // this is to reorder the rest before the workout is generated and inserted to the back

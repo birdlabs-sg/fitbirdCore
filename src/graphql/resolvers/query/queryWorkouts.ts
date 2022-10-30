@@ -15,7 +15,7 @@ export async function workoutsQueryResolver(
     case "ACTIVE":
       return await prisma.workout.findMany({
         where: {
-          user_id: parseInt(user_id!) ?? context.base_user!.User!.user_id,
+          user_id: user_id==undefined? context.base_user!.User!.user_id:parseInt(user_id),
           date_completed: null,
           workout_type: type ?? undefined,
         },
@@ -26,7 +26,7 @@ export async function workoutsQueryResolver(
     case "COMPLETED":
       return await prisma.workout.findMany({
         where: {
-          user_id: parseInt(user_id!) ?? context.base_user!.User!.user_id,
+          user_id: user_id==undefined? context.base_user!.User!.user_id:parseInt(user_id),
           date_completed: { not: null },
           workout_type: type ?? undefined,
         },
@@ -38,7 +38,7 @@ export async function workoutsQueryResolver(
     case "NONE":
       return await prisma.workout.findMany({
         where: {
-          user_id: parseInt(user_id!) ?? context.base_user!.User!.user_id,
+          user_id: user_id==undefined? context.base_user!.User!.user_id:parseInt(user_id),
           workout_type: type ?? undefined,
         },
       })
