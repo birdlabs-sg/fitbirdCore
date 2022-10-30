@@ -118,7 +118,6 @@ export async function generateOrUpdateExcerciseMetadata(
   user_id?: string
 ) {
   const prisma = context.dataSources.prisma;
-    console.log(excercise_metadatas)
     for (var excercise_metadata of excercise_metadatas) {
       delete excercise_metadata["last_excecuted"];
       
