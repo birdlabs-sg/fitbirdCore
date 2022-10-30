@@ -6,7 +6,6 @@ import {
 } from "../../../../service/workout_manager/utils";
 import {
   MutationCreateProgramArgs,
-  WorkoutInput,
 } from "../../../../types/graphql";
 import { formatExcerciseSetGroups } from "../../../../service/workout_manager/utils";
 import { extractMetadatas } from "../../../../service/workout_manager/utils";

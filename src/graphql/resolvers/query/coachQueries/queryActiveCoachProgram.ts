@@ -13,7 +13,7 @@ export const coachActiveProgramQueryResolver = async (
   const prisma = context.dataSources.prisma;
   const program = await prisma.program.findFirst({
     where: {
-      coach_id: context.coach.coach_id,
+      coach_id: context.base_user!.coach!.coach_id,
       user_id: parseInt(user_id),
       is_active: true,
     },

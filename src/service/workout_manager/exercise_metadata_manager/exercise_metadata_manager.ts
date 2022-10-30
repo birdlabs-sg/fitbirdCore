@@ -4,7 +4,6 @@ import { ExcerciseMetadata } from '@prisma/client';
 import { ExcerciseMetaDataInput } from '../../../types/graphql';
 import { AppContext } from '../../../types/contextType';
 import { checkExerciseExists } from '../utils';
-import { isUser } from '../../../service/firebase/firebase_service';
 import { WorkoutWithExerciseSets } from '../../../types/Prisma';
 
 // If does not exists before hand, generate a new one and return that instead.
@@ -125,7 +124,7 @@ export async function generateOrUpdateExcerciseMetadata(
       const excerciseMetadata = await prisma.excerciseMetadata.findUnique({
         where: {
           user_id_excercise_name: {
-            user_id: parseInt(user_id!) ?? context.user.user_id,
+            user_id: parseInt(user_id!) ?? context.base_user!.User!.user_id,
             excercise_name: excercise_metadata.excercise_name,
           },
         },
@@ -135,7 +134,7 @@ export async function generateOrUpdateExcerciseMetadata(
         // create one with the excerciseMetadata provided
         await prisma.excerciseMetadata.create({
           data: {
-            user_id: parseInt(user_id!) ?? context.user.user_id,
+            user_id: parseInt(user_id!) ?? context.base_user!.User!.user_id,
             ...excercise_metadata,
           },
         });
@@ -144,12 +143,12 @@ export async function generateOrUpdateExcerciseMetadata(
         await prisma.excerciseMetadata.update({
           where: {
             user_id_excercise_name: {
-              user_id:parseInt(user_id!) ?? context.user.user_id,
+              user_id:parseInt(user_id!) ?? context.base_user!.User!.user_id,
               excercise_name: excercise_metadata.excercise_name,
             },
           },
           data: {
-            user_id: parseInt(user_id!) ?? context.user.user_id,
+            user_id: parseInt(user_id!) ?? context.base_user!.User!.user_id,
             ...excercise_metadata,
           },
         });

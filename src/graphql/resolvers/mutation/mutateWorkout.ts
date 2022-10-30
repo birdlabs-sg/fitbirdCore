@@ -1,7 +1,6 @@
 import {
   isUser,
   onlyAuthenticated,
-  onlyCoach
 } from '../../../service/firebase/firebase_service';
 import {
   generateNextWorkout,
