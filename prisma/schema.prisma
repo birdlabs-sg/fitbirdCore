@@ -302,6 +302,7 @@ model Excercise {
   excerciseMetadata          ExcerciseMetadata[]
   User                       User[]
   userUser_id                Int?
+  video_url                  String?
 }
 
 model ExcerciseSet {

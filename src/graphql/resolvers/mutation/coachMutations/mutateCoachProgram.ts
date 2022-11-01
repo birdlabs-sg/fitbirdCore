@@ -69,9 +69,11 @@ export const createProgram = async (
 
       workoutArray.push(workout_input);
     }
+    
     //2. Set all existing programs and its corresponding workouts to be inactive
     resetActiveProgramsForCoaches(context, WorkoutType.COACH_MANAGED, user_id);
     //3. Create the new program object with its corresponding workouts
+   
     await prisma.program.create({
       data: {
         coach: { connect: { coach_id: context.base_user!.coach!.coach_id } },
@@ -82,8 +84,8 @@ export const createProgram = async (
         },
       },
     });
+   
   }
- 
   return {
     code: "200",
     success: true,
