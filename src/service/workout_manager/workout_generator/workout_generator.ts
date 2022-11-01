@@ -3,7 +3,6 @@ import {
   MuscleRegionType,
   Excercise,
   ExcerciseSetGroupState,
-  Equipment,
   WorkoutType
 } from '../../../types/graphql';
 import { rotations_type, workout_name_list } from './constants';
@@ -22,7 +21,7 @@ import {
   WorkoutWithExerciseSets
 } from '../../../types/Prisma';
 import { ExcerciseUtility } from '@prisma/client';
-
+import { Equipment } from '@prisma/client';
 /**
  * Generates a list of workouts (AKA a single rotation) based on requestors's equipment constraints.
  */
