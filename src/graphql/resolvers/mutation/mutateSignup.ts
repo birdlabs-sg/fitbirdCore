@@ -1,6 +1,7 @@
 import { MutationSignupArgs } from "../../../types/graphql";
 import { signupFirebase } from "../../../service/firebase/firebase_service";
 import { AppContext } from "../../../types/contextType";
+import { report } from "../../../service/slack/slack_service";
 
 export const mutateSignup = async (
   _: unknown,
@@ -14,6 +15,7 @@ export const mutateSignup = async (
     is_user,
     context
   );
+  report(`New signup: ${displayName}(${email}) 🎉`);
   return {
     code: "200",
     success: true,
