@@ -1,4 +1,4 @@
-import gql from 'graphql-tag';
+import gql from "graphql-tag";
 
 export const Enum = gql`
   "Gender type."
@@ -42,6 +42,11 @@ export const Enum = gql`
     IN_PROGRESS
     COMPLETED
     DRAFT
+  }
+
+  enum ContentBlockType {
+    FEATURE_GUIDE
+    FITNESS_CONTENT
   }
 
   enum Equipment {
