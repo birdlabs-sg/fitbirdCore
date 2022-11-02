@@ -30,6 +30,7 @@ import { ExcercisePerformance } from "./objectDef/excercisePerformance";
 import { mutateGenerateWorkouts } from "./mutationDef/mutateGenerateWorkouts";
 import { mutateNotification } from "./mutationDef/mutateNotification";
 import { mutateProgram } from "./mutationDef/mutateProgram";
+import { ContentBlock } from "./objectDef/contentBlock";
 
 const queryTypeDef = gql`
   scalar Date
@@ -54,10 +55,10 @@ const queryTypeDef = gql`
     getExcercise(excercise_name: ID!): Excercise
     notifications: [Notification]
     analyticsExerciseOneRepMax(
-      excercise_names_list: [ID]!
+      excercise_names_list: [ID!]!
     ): [ExerciseOneRepMaxDataPoint]
     analyticsExerciseTotalVolume(
-      excercise_names_list: [ID]!
+      excercise_names_list: [ID!]!
     ): [ExerciseTotalVolumeDataPoint]
     analyticsWorkoutAverageRPE: [WorkoutAverageRPEDataPoint]
     workout_frequencies: [WorkoutFrequency]
@@ -66,6 +67,7 @@ const queryTypeDef = gql`
       span: Int
     ): ExcercisePerformance
     getExcerciseMetadatas(excercise_names_list: [ID!]!): [ExcerciseMetadata]
+    getContentBlocks(content_block_type: ContentBlockType!): [ContentBlock]
     "This query is only available to administrators."
     users: [User]
   }
@@ -116,6 +118,7 @@ const objectTypeDefs = [
   Program,
   Review,
   Analytics,
+  ContentBlock,
 ];
 
 export const typeDefs = baseTypeDefs.concat.apply(

@@ -10,6 +10,11 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum ContentBlockType {
+  FEATURE_GUIDE
+  FITNESS_CONTENT
+}
+
 enum Gender {
   MALE
   FEMALE
@@ -283,6 +288,14 @@ model MuscleRegion {
   measurements               Measurement[]
 }
 
+model ContentBlock {
+  content_block_id   Int              @id @default(autoincrement())
+  content_block_type ContentBlockType
+  title              String
+  description        String
+  video_url          String?
+}
+
 model Excercise {
   excercise_name             String               @id
   excercise_preparation      String?
@@ -302,6 +315,7 @@ model Excercise {
   excerciseMetadata          ExcerciseMetadata[]
   User                       User[]
   userUser_id                Int?
+  video_url                  String?
 }
 
 model ExcerciseSet {

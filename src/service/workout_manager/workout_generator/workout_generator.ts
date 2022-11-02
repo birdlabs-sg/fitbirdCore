@@ -1,28 +1,27 @@
-import { AppContext } from '../../../types/contextType';
+import { AppContext } from "../../../types/contextType";
 import {
   MuscleRegionType,
   Excercise,
   ExcerciseSetGroupState,
-  Equipment,
-  WorkoutType
-} from '../../../types/graphql';
-import { rotations_type, workout_name_list } from './constants';
+  WorkoutType,
+} from "../../../types/graphql";
+import { rotations_type, workout_name_list } from "./constants";
 import {
   formatAndGenerateExcerciseSets,
   formatExcerciseSetGroups,
-  getActiveWorkoutCount
-} from '../utils';
-import { progressivelyOverload } from '../progressive_overloader/progressive_overloader';
-import _ from 'lodash';
-import * as workoutSplit from './rotations_types_general';
-import { GraphQLError } from 'graphql';
-import { onlyAuthenticated } from '../../../service/firebase/firebase_service';
+  getActiveWorkoutCount,
+} from "../utils";
+import { progressivelyOverload } from "../progressive_overloader/progressive_overloader";
+import _ from "lodash";
+import * as workoutSplit from "./rotations_types_general";
+import { GraphQLError } from "graphql";
+import { onlyAuthenticated } from "../../../service/firebase/firebase_service";
 import {
   PrismaExerciseSetGroupCreateArgs,
-  WorkoutWithExerciseSets
-} from '../../../types/Prisma';
-import { ExcerciseUtility } from '@prisma/client';
-
+  WorkoutWithExerciseSets,
+} from "../../../types/Prisma";
+import { ExcerciseUtility } from "@prisma/client";
+import { Equipment } from "@prisma/client";
 /**
  * Generates a list of workouts (AKA a single rotation) based on requestors's equipment constraints.
  */
@@ -35,7 +34,7 @@ export const workoutGenerator = async (
 
   // guard clause
   if (numberOfWorkouts > 6) {
-    throw new GraphQLError('Can only generate 6 workouts maximum.');
+    throw new GraphQLError("Can only generate 6 workouts maximum.");
   }
   const generated_workout_list: WorkoutWithExerciseSets[] = [];
 
@@ -69,19 +68,19 @@ export const workoutGenerator = async (
         const waist_excercise: Excercise[] = await prisma.excercise.findMany({
           where: {
             target_regions: {
-              some: { muscle_region_type: MuscleRegionType.Waist }
+              some: { muscle_region_type: MuscleRegionType.Waist },
             },
             NOT: {
               equipment_required: {
-                hasSome: user_constaints
-              }
+                hasSome: user_constaints,
+              },
             },
             excercise_utility: {
-              has: ExcerciseUtility.BASIC
+              has: ExcerciseUtility.BASIC,
             },
             body_weight: true,
-            assisted: false
-          }
+            assisted: false,
+          },
         });
         // Pick 2 waist excercises from the returned list at random with no repeats.
         const [excercise_1, excercise_2]: Excercise[] = _.sampleSize(
@@ -106,20 +105,20 @@ export const workoutGenerator = async (
           where: {
             target_regions: {
               some: {
-                muscle_region_type: random_rotation[excercise_pointer]
-              }
+                muscle_region_type: random_rotation[excercise_pointer],
+              },
             },
             NOT: {
               equipment_required: {
-                hasSome: user_constaints
-              }
+                hasSome: user_constaints,
+              },
             },
             excercise_utility: {
-              has: 'BASIC'
+              has: "BASIC",
             },
             body_weight: !(user.equipment_accessible.length > 0), // use body weight excercise if don't have accessible equipments
-            assisted: false
-          }
+            assisted: false,
+          },
         });
 
         if (excercises_in_category.length > 0) {
@@ -145,11 +144,11 @@ export const workoutGenerator = async (
         user_id: user.user_id,
         life_span: user.ai_managed_workouts_life_cycle,
         excercise_set_groups: { create: list_of_excercise_set_groups },
-        workout_type: WorkoutType.AiManaged
+        workout_type: WorkoutType.AiManaged,
       },
       include: {
-        excercise_set_groups: { include: { excercise_sets: true } }
-      }
+        excercise_set_groups: { include: { excercise_sets: true } },
+      },
     });
     // push the result ot the list
     generated_workout_list.push(createdWorkout);
@@ -170,10 +169,10 @@ export const workoutGeneratorV2 = async (
 
   // guard clause
   if (numberOfWorkouts > 6) {
-    throw new GraphQLError('Can only generate 6 workouts maximum per week.');
+    throw new GraphQLError("Can only generate 6 workouts maximum per week.");
   }
   if (numberOfWorkouts < 2) {
-    throw new GraphQLError('A minimum of 2 workouts per week.');
+    throw new GraphQLError("A minimum of 2 workouts per week.");
   }
 
   const generated_workout_list: WorkoutWithExerciseSets[] = [];
@@ -241,18 +240,18 @@ const excerciseSelector = async (
         where: {
           target_regions: {
             some: {
-              muscle_region_type: Rotation[excercise_index]
-            }
+              muscle_region_type: Rotation[excercise_index],
+            },
           },
           NOT: {
             equipment_required: {
-              hasSome: user_constaints
-            }
+              hasSome: user_constaints,
+            },
           },
 
           body_weight: !(user.equipment_accessible.length > 0), // use body weight excercise if don't have accessible equipments
-          assisted: false
-        }
+          assisted: false,
+        },
       });
       if (excercises_in_category.length > 0) {
         const randomSelectedExcercise: Excercise = _.sample(
@@ -276,15 +275,15 @@ const excerciseSelector = async (
         user_id: user.user_id,
         life_span: user.ai_managed_workouts_life_cycle,
         excercise_set_groups: { create: list_of_excercises },
-        workout_type: WorkoutType.AiManaged
+        workout_type: WorkoutType.AiManaged,
       },
       include: {
         excercise_set_groups: {
           include: {
-            excercise_sets: true
-          }
-        }
-      }
+            excercise_sets: true,
+          },
+        },
+      },
     });
     generated_workout_list.push(createdWorkout);
   }
@@ -307,7 +306,7 @@ export async function generateNextWorkout(
     workout_name,
     workout_type,
     excercise_set_groups,
-    programProgram_id
+    programProgram_id,
   } = previousWorkout;
   const previousExerciseSetGroups = excercise_set_groups;
   if (
@@ -324,29 +323,29 @@ export async function generateNextWorkout(
     for (const exerciseSetGroup of previousExerciseSetGroups) {
       const previousExercise = await prisma.excercise.findUnique({
         where: {
-          excercise_name: exerciseSetGroup.excercise_name
+          excercise_name: exerciseSetGroup.excercise_name,
         },
         include: {
-          target_regions: true
-        }
+          target_regions: true,
+        },
       });
 
       const differentExercises = await prisma.excercise.findMany({
         where: {
           target_regions: {
-            some: previousExercise?.target_regions[0]
+            some: previousExercise?.target_regions[0],
           },
           NOT: {
             excercise_name: previousExercise?.excercise_name,
             equipment_required: {
-              hasSome: user_constaints
-            }
+              hasSome: user_constaints,
+            },
           },
           body_weight: !(
             context.base_user!.User!.equipment_accessible.length > 0
           ), // use body weight excercise if don't have accessible equipments
-          assisted: false
-        }
+          assisted: false,
+        },
       });
       const excercise = _.sample(differentExercises)!;
       list_of_excercise_set_groups.push(
@@ -363,11 +362,11 @@ export async function generateNextWorkout(
           user_id: context.base_user!.User!.user_id,
           life_span: context.base_user!.User!.ai_managed_workouts_life_cycle,
           excercise_set_groups: { create: list_of_excercise_set_groups },
-          workout_type: WorkoutType.AiManaged
+          workout_type: WorkoutType.AiManaged,
         },
         include: {
-          excercise_set_groups: { include: { excercise_sets: true } }
-        }
+          excercise_set_groups: { include: { excercise_sets: true } },
+        },
       });
     }
   } else {
@@ -397,7 +396,7 @@ export async function generateNextWorkout(
         .concat(progressively_overloaded_excercise_set_groups)
         .map((e) => ({
           ...e,
-          excercise_set_group_state: ExcerciseSetGroupState.NormalOperation
+          excercise_set_group_state: ExcerciseSetGroupState.NormalOperation,
         }));
     // Create the workout and slot behind the rest of the queue.
     // coach management follows weeks
@@ -414,9 +413,9 @@ export async function generateNextWorkout(
           workout_type: workout_type,
           programProgram_id: programProgram_id,
           excercise_set_groups: {
-            create: formatExcerciseSetGroups(finalExcerciseSetGroups)
-          }
-        }
+            create: formatExcerciseSetGroups(finalExcerciseSetGroups),
+          },
+        },
       });
     } else {
       const formated = formatExcerciseSetGroups(finalExcerciseSetGroups);
@@ -428,9 +427,9 @@ export async function generateNextWorkout(
           order_index: await getActiveWorkoutCount(context, workout_type),
           workout_type: workout_type,
           excercise_set_groups: {
-            create: formated
-          }
-        }
+            create: formated,
+          },
+        },
       });
     }
   }
