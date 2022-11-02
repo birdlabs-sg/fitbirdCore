@@ -76,7 +76,6 @@ export const getAuthToken = (req: Context) => {
 };
 
 export const authenticate = async (token: string, prisma: PrismaClient) => {
-  console.log(token);
   if (!token) {
     return { authenticated: false, base_user: null, isAdmin: null };
   }

@@ -15,7 +15,7 @@ export const report = async (content: string, blocks?: block[]) => {
       url: process.env.SLACK_REPORT_WEBHOOK_URL,
       data: {
         text: content,
-        blocks: blocks,
+        ...(blocks != undefined && { blocks: blocks }),
       },
     });
   }
