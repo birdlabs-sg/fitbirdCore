@@ -6,6 +6,7 @@ export type block = {
 };
 
 export const report = async (content: string, blocks?: block[]) => {
+  console.log(process.env.NODE_ENV);
   if (
     process.env.NODE_ENV == "production" &&
     process.env.SLACK_REPORT_WEBHOOK_URL
