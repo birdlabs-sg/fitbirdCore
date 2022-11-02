@@ -18,5 +18,6 @@ export const Excercise = gql`
     body_weight: Boolean
     assisted: Boolean
     excercise_metadata: ExcerciseMetadata
+    video_url: String
   }
 `;
