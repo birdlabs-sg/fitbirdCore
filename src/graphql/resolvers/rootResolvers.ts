@@ -50,6 +50,7 @@ import {
   analyticsExerciseTotalVolumeResolver,
 } from "./query/queryAnalytics";
 import { updateBaseUserResolver } from "./mutation/mutateBaseUser";
+import { getContentBlocksResolver } from "./query/queryContentBlocks";
 
 const dateScalar = new GraphQLScalarType({
   name: "Date",
@@ -93,6 +94,7 @@ export const resolvers: Resolvers = {
   Query: {
     baseUsers: baseUsersQueryResolver,
     coachUsers: coachUsersQueryResolver,
+    getContentBlocks: getContentBlocksResolver,
     coachUsersNotRegistered: coachUsersNotRegisteredQueryResolver,
     coachProgram: coachProgramQueryResolver,
     coachPrograms: coachProgramsQueryResolver,
