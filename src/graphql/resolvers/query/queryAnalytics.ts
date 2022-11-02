@@ -8,7 +8,7 @@ import {
 // Averaged Brzycki formula: weight * (1+reps/30)
 export async function analyticsExerciseOneRepMaxResolver(
   _: unknown,
-  { excercise_names_list }: QueryAnalyticsExerciseOneRepMaxArgs,
+  { excercise_names_list,user_id }: QueryAnalyticsExerciseOneRepMaxArgs,
   context: AppContext
 ) {
   onlyAuthenticated(context);
@@ -16,7 +16,7 @@ export async function analyticsExerciseOneRepMaxResolver(
   // queries completed workouts that has at least 1 exercise set group that appear in the excercise_name_list
   const workouts = await prisma.workout.findMany({
     where: {
-      user_id: context.base_user?.User?.user_id,
+      user_id: user_id==undefined? context.base_user!.User!.user_id:parseInt(user_id),
       NOT: {
         date_completed: null,
       },
@@ -74,7 +74,7 @@ export async function analyticsExerciseOneRepMaxResolver(
 
 export async function analyticsExerciseTotalVolumeResolver(
   _: unknown,
-  { excercise_names_list }: QueryAnalyticsExerciseTotalVolumeArgs,
+  { excercise_names_list,user_id }: QueryAnalyticsExerciseTotalVolumeArgs,
   context: AppContext
 ) {
   onlyAuthenticated(context);
@@ -83,7 +83,7 @@ export async function analyticsExerciseTotalVolumeResolver(
   // queries completed workouts that has at least 1 exercise set group that appear in the excercise_name_list
   const workouts = await prisma.workout.findMany({
     where: {
-      user_id: context.base_user?.User?.user_id,
+      user_id: user_id==undefined? context.base_user!.User!.user_id:parseInt(user_id),
       NOT: {
         date_completed: null,
       },

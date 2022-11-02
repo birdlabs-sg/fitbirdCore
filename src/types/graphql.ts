@@ -569,12 +569,14 @@ export type Query = {
 /** This is the root query to resources. Require ADMIN permission to access all, otherwise resources are scoped to the user issuing the request. */
 export type QueryAnalyticsExerciseOneRepMaxArgs = {
   excercise_names_list: Array<Scalars['ID']>;
+  user_id?: InputMaybe<Scalars['ID']>;
 };
 
 
 /** This is the root query to resources. Require ADMIN permission to access all, otherwise resources are scoped to the user issuing the request. */
 export type QueryAnalyticsExerciseTotalVolumeArgs = {
   excercise_names_list: Array<Scalars['ID']>;
+  user_id?: InputMaybe<Scalars['ID']>;
 };
 
 
@@ -608,6 +610,7 @@ export type QueryGetExcerciseMetadatasArgs = {
 export type QueryGetExcercisePerformanceArgs = {
   excercise_name: Scalars['ID'];
   span?: InputMaybe<Scalars['Int']>;
+  user_id?: InputMaybe<Scalars['ID']>;
 };
 
 

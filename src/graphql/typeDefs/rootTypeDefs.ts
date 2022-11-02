@@ -54,15 +54,18 @@ const queryTypeDef = gql`
     notifications: [Notification]
     analyticsExerciseOneRepMax(
       excercise_names_list: [ID!]!
+      user_id:ID
     ): [ExerciseOneRepMaxDataPoint]
     analyticsExerciseTotalVolume(
       excercise_names_list: [ID!]!
+      user_id:ID
     ): [ExerciseTotalVolumeDataPoint]
     analyticsWorkoutAverageRPE: [WorkoutAverageRPEDataPoint]
     workout_frequencies: [WorkoutFrequency]
     getExcercisePerformance(
       excercise_name: ID!
       span: Int
+      user_id:ID
     ): ExcercisePerformance
     getExcerciseMetadatas(excercise_names_list: [ID!]!): [ExcerciseMetadata]
     "This query is only available to administrators."
