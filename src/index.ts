@@ -83,7 +83,7 @@ async function startApolloServer() {
   });
 
   // eslint-disable-next-line no-console
-  console.info(`🚀  Server readyyyy at ${url}`);
+  console.info(`🚀  Server ready at ${url}`);
 }
 
 startApolloServer();
