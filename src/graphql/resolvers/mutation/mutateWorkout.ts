@@ -1,7 +1,6 @@
 import {
   isUser,
   onlyAuthenticated,
-  onlyCoach
 } from '../../../service/firebase/firebase_service';
 import {
   generateNextWorkout,
@@ -212,8 +211,9 @@ export const completeWorkout = async (
   });
 
   // in-case there is no associated excercise metadata
+  
   await generateOrUpdateExcerciseMetadata(context, excerciseMetadatas);
-
+  
   await updateExcerciseMetadataWithCompletedWorkout(context, completedWorkout);
 
   // this is to reorder the rest before the workout is generated and inserted to the back
@@ -249,104 +249,56 @@ export const updateWorkout = async (
   { workout_id, excercise_set_groups, ...otherArgs }: MutationUpdateWorkoutArgs,
   context: AppContext
 ) => {
-  //onlyAuthenticated(context);
+  onlyAuthenticated(context);
+  let user_id = await checkExistsAndOwnership(context, workout_id);
+  const prisma = context.dataSources.prisma;
 
-  if (isUser(context)) {
-    const prisma = context.dataSources.prisma;
-    await checkExistsAndOwnership(context, workout_id);
+  let formatedUpdatedData;
 
-    let formatedUpdatedData;
-
-    if (excercise_set_groups != null) {
-      const [excerciseSetGroups, excercise_metadatas] = extractMetadatas(
-        excercise_set_groups as ExcerciseSetGroupInput[]
-      );
-      formatedUpdatedData = {
-        ...otherArgs,
-        ...{
-          excercise_set_groups: {
-            deleteMany: {},
-            create: formatExcerciseSetGroups(excerciseSetGroups)
-          }
-        }
-      };
-      await generateOrUpdateExcerciseMetadata(context, excercise_metadatas);
-    } else {
-      formatedUpdatedData = {
-        ...otherArgs
-      };
-    }
-
-    const updatedWorkout = await prisma.workout.update({
-      where: {
-        workout_id: parseInt(workout_id)
+  if (excercise_set_groups != null) {
+    var [excerciseSetGroups, excercise_metadatas] = extractMetadatas(
+      excercise_set_groups as ExcerciseSetGroupInput[]
+    );
+    formatedUpdatedData = {
+      ...otherArgs,
+      ...{
+        excercise_set_groups: {
+          deleteMany: {},
+          create: formatExcerciseSetGroups(excerciseSetGroups),
+        },
       },
-      data: formatedUpdatedData,
-      include: {
-        excercise_set_groups: { include: { excercise_sets: true } }
-      }
-    });
-
-    return {
-      code: '200',
-      success: true,
-      message: 'Successfully updated your workout!',
-      workout: updatedWorkout
     };
-  } else {
-    onlyCoach(context);
-    const prisma = context.dataSources.prisma;
-    const retrieveUserId = await prisma.workout.findUnique({
-      where: {
-        workout_id: parseInt(workout_id)
-      }
-    });
 
-    let formatedUpdatedData;
-
-    if (excercise_set_groups != null) {
-      const [excerciseSetGroups, excercise_metadatas] = extractMetadatas(
-        excercise_set_groups as ExcerciseSetGroupInput[]
-      );
-      formatedUpdatedData = {
-        ...otherArgs,
-        ...{
-          excercise_set_groups: {
-            deleteMany: {},
-            create: formatExcerciseSetGroups(excerciseSetGroups)
-          }
-        }
-      };
-      if (retrieveUserId) {
-        await generateOrUpdateExcerciseMetadata(
+    isUser(context)
+      ? await generateOrUpdateExcerciseMetadata(context, excercise_metadatas)
+      : await generateOrUpdateExcerciseMetadata(
           context,
           excercise_metadatas,
-          retrieveUserId.user_id.toString()
+          user_id?.toString()
         );
-      }
-    } else {
-      formatedUpdatedData = {
-        ...otherArgs
-      };
-    }
-    // extract out metadatas
-    const updatedWorkout = await prisma.workout.update({
-      where: {
-        workout_id: parseInt(workout_id)
-      },
-      data: formatedUpdatedData,
-      include: {
-        excercise_set_groups: { include: { excercise_sets: true } }
-      }
-    });
-
-    return {
-      code: '200',
-      success: true,
-      message: 'Successfully updated your workout!',
-      workout: updatedWorkout
+  } else {
+    formatedUpdatedData = {
+      ...otherArgs,
     };
   }
+
+  const updatedWorkout = await prisma.workout.update({
+    where: {
+      workout_id: parseInt(workout_id),
+    },
+    data: formatedUpdatedData,
+    include: {
+      excercise_set_groups: { include: { excercise_sets: true } },
+    },
+  });
+
+
+  return {
+    code: "200",
+    success: true,
+    message: "Successfully updated your workout!",
+    workout: updatedWorkout,
+  };
 };
 
 /**

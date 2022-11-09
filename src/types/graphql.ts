@@ -104,6 +104,7 @@ export type Excercise = {
   stabilizer_muscles?: Maybe<Array<MuscleRegion>>;
   synergist_muscles?: Maybe<Array<MuscleRegion>>;
   target_regions?: Maybe<Array<MuscleRegion>>;
+  video_url?: Maybe<Scalars['String']>;
 };
 
 export type ExcerciseInput = {
@@ -378,7 +379,7 @@ export type MutationCreateMuscleRegionArgs = {
 /** [PROTECTED] Mutation to update the requestor's user information */
 export type MutationCreateProgramArgs = {
   user_id: Scalars['ID'];
-  workoutsInput?: InputMaybe<Array<WorkoutInput>>;
+  workoutsInput: Array<WorkoutInput>;
 };
 
 
@@ -563,10 +564,9 @@ export type Query = {
   analyticsExerciseTotalVolume?: Maybe<Array<Maybe<ExerciseTotalVolumeDataPoint>>>;
   analyticsWorkoutAverageRPE?: Maybe<Array<Maybe<WorkoutAverageRpeDataPoint>>>;
   baseUsers?: Maybe<Array<Maybe<BaseUser>>>;
-  coachProgram?: Maybe<Program>;
-  coachPrograms?: Maybe<Array<Maybe<Program>>>;
+  coachActiveProgram?: Maybe<Program>;
+  coachAllUsers?: Maybe<Array<Maybe<BaseUser>>>;
   coachUsers?: Maybe<Array<Maybe<BaseUser>>>;
-  coachUsersNotRegistered?: Maybe<Array<Maybe<BaseUser>>>;
   coachWorkoutName?: Maybe<Workout>;
   excercises?: Maybe<Array<Maybe<Excercise>>>;
   excludedExcercises?: Maybe<Array<Maybe<Excercise>>>;
@@ -587,18 +587,20 @@ export type Query = {
 /** This is the root query to resources. Require ADMIN permission to access all, otherwise resources are scoped to the user issuing the request. */
 export type QueryAnalyticsExerciseOneRepMaxArgs = {
   excercise_names_list: Array<Scalars['ID']>;
+  user_id?: InputMaybe<Scalars['ID']>;
 };
 
 
 /** This is the root query to resources. Require ADMIN permission to access all, otherwise resources are scoped to the user issuing the request. */
 export type QueryAnalyticsExerciseTotalVolumeArgs = {
   excercise_names_list: Array<Scalars['ID']>;
+  user_id?: InputMaybe<Scalars['ID']>;
 };
 
 
 /** This is the root query to resources. Require ADMIN permission to access all, otherwise resources are scoped to the user issuing the request. */
-export type QueryCoachProgramArgs = {
-  program_id: Scalars['ID'];
+export type QueryCoachActiveProgramArgs = {
+  user_id: Scalars['ID'];
 };
 
 
@@ -632,6 +634,7 @@ export type QueryGetExcerciseMetadatasArgs = {
 export type QueryGetExcercisePerformanceArgs = {
   excercise_name: Scalars['ID'];
   span?: InputMaybe<Scalars['Int']>;
+  user_id?: InputMaybe<Scalars['ID']>;
 };
 
 
@@ -1101,6 +1104,7 @@ export type ExcerciseResolvers<ContextType = AppContext, ParentType extends Reso
   stabilizer_muscles?: Resolver<Maybe<Array<ResolversTypes['MuscleRegion']>>, ParentType, ContextType>;
   synergist_muscles?: Resolver<Maybe<Array<ResolversTypes['MuscleRegion']>>, ParentType, ContextType>;
   target_regions?: Resolver<Maybe<Array<ResolversTypes['MuscleRegion']>>, ParentType, ContextType>;
+  video_url?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -1218,7 +1222,7 @@ export type MutationResolvers<ContextType = AppContext, ParentType extends Resol
   createExcerciseMetadata?: Resolver<Maybe<ResolversTypes['mutateExcerciseMetaDataResponse']>, ParentType, ContextType, RequireFields<MutationCreateExcerciseMetadataArgs, 'excercise_name' | 'rest_time_lower_bound' | 'rest_time_upper_bound'>>;
   createMeasurement?: Resolver<Maybe<ResolversTypes['mutateMeasurementResponse']>, ParentType, ContextType, RequireFields<MutationCreateMeasurementArgs, 'length_units' | 'measured_at' | 'measurement_value' | 'muscle_region_id'>>;
   createMuscleRegion?: Resolver<Maybe<ResolversTypes['mutateMuscleRegionResponse']>, ParentType, ContextType, RequireFields<MutationCreateMuscleRegionArgs, 'muscle_region_description' | 'muscle_region_name' | 'muscle_region_type'>>;
-  createProgram?: Resolver<Maybe<ResolversTypes['mutateProgramResponse']>, ParentType, ContextType, RequireFields<MutationCreateProgramArgs, 'user_id'>>;
+  createProgram?: Resolver<Maybe<ResolversTypes['mutateProgramResponse']>, ParentType, ContextType, RequireFields<MutationCreateProgramArgs, 'user_id' | 'workoutsInput'>>;
   createWorkout?: Resolver<Maybe<ResolversTypes['mutateWorkoutResponse']>, ParentType, ContextType, RequireFields<MutationCreateWorkoutArgs, 'excercise_set_groups' | 'life_span' | 'workout_name' | 'workout_type'>>;
   deleteMeasurement?: Resolver<Maybe<ResolversTypes['mutateMeasurementResponse']>, ParentType, ContextType, RequireFields<MutationDeleteMeasurementArgs, 'measurement_id'>>;
   deleteMuscleRegion?: Resolver<Maybe<ResolversTypes['mutateMuscleRegionResponse']>, ParentType, ContextType, RequireFields<MutationDeleteMuscleRegionArgs, 'muscle_region_id'>>;
@@ -1273,10 +1277,9 @@ export type QueryResolvers<ContextType = AppContext, ParentType extends Resolver
   analyticsExerciseTotalVolume?: Resolver<Maybe<Array<Maybe<ResolversTypes['ExerciseTotalVolumeDataPoint']>>>, ParentType, ContextType, RequireFields<QueryAnalyticsExerciseTotalVolumeArgs, 'excercise_names_list'>>;
   analyticsWorkoutAverageRPE?: Resolver<Maybe<Array<Maybe<ResolversTypes['WorkoutAverageRPEDataPoint']>>>, ParentType, ContextType>;
   baseUsers?: Resolver<Maybe<Array<Maybe<ResolversTypes['BaseUser']>>>, ParentType, ContextType>;
-  coachProgram?: Resolver<Maybe<ResolversTypes['Program']>, ParentType, ContextType, RequireFields<QueryCoachProgramArgs, 'program_id'>>;
-  coachPrograms?: Resolver<Maybe<Array<Maybe<ResolversTypes['Program']>>>, ParentType, ContextType>;
+  coachActiveProgram?: Resolver<Maybe<ResolversTypes['Program']>, ParentType, ContextType, RequireFields<QueryCoachActiveProgramArgs, 'user_id'>>;
+  coachAllUsers?: Resolver<Maybe<Array<Maybe<ResolversTypes['BaseUser']>>>, ParentType, ContextType>;
   coachUsers?: Resolver<Maybe<Array<Maybe<ResolversTypes['BaseUser']>>>, ParentType, ContextType>;
-  coachUsersNotRegistered?: Resolver<Maybe<Array<Maybe<ResolversTypes['BaseUser']>>>, ParentType, ContextType>;
   coachWorkoutName?: Resolver<Maybe<ResolversTypes['Workout']>, ParentType, ContextType, RequireFields<QueryCoachWorkoutNameArgs, 'programProgram_id' | 'user_id' | 'workout_name'>>;
   excercises?: Resolver<Maybe<Array<Maybe<ResolversTypes['Excercise']>>>, ParentType, ContextType>;
   excludedExcercises?: Resolver<Maybe<Array<Maybe<ResolversTypes['Excercise']>>>, ParentType, ContextType>;

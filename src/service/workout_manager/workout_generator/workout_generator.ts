@@ -3,9 +3,9 @@ import {
   MuscleRegionType,
   Excercise,
   ExcerciseSetGroupState,
-  WorkoutType,
-} from "../../../types/graphql";
-import { rotations_type, workout_name_list } from "./constants";
+  WorkoutType
+} from '../../../types/graphql';
+import { rotations_type, workout_name_list } from './constants';
 import {
   formatAndGenerateExcerciseSets,
   formatExcerciseSetGroups,
@@ -18,10 +18,11 @@ import { GraphQLError } from "graphql";
 import { onlyAuthenticated } from "../../../service/firebase/firebase_service";
 import {
   PrismaExerciseSetGroupCreateArgs,
-  WorkoutWithExerciseSets,
-} from "../../../types/Prisma";
-import { ExcerciseUtility } from "@prisma/client";
-import { Equipment } from "@prisma/client";
+  WorkoutWithExerciseSets
+} from '../../../types/Prisma';
+import { ExcerciseUtility } from '@prisma/client';
+import { WorkoutState } from '@prisma/client';
+import { Equipment } from '@prisma/client';
 /**
  * Generates a list of workouts (AKA a single rotation) based on requestors's equipment constraints.
  */
@@ -329,29 +330,29 @@ export async function generateNextWorkout(
           target_regions: true,
         },
       });
-
-      const differentExercises = await prisma.excercise.findMany({
-        where: {
-          target_regions: {
-            some: previousExercise?.target_regions[0],
-          },
-          NOT: {
-            excercise_name: previousExercise?.excercise_name,
-            equipment_required: {
-              hasSome: user_constaints,
+      if(previousExercise){
+        const differentExercises = await prisma.excercise.findMany({
+          where: {
+            target_regions: {
+              some: previousExercise.target_regions[0],
             },
-          },
-          body_weight: !(
-            context.base_user!.User!.equipment_accessible.length > 0
-          ), // use body weight excercise if don't have accessible equipments
-          assisted: false,
-        },
-      });
-      const excercise = _.sample(differentExercises)!;
-      list_of_excercise_set_groups.push(
-        await formatAndGenerateExcerciseSets(excercise.excercise_name, context)
-      );
-
+            NOT: {
+              excercise_name: previousExercise.excercise_name,
+              equipment_required: {
+                hasSome: user_constaints
+              }
+            },
+            body_weight: !(
+              context.base_user!.User!.equipment_accessible.length > 0
+            ), // use body weight excercise if don't have accessible equipments
+            assisted: false
+          }
+        });
+        const excercise = _.sample(differentExercises)!;
+        list_of_excercise_set_groups.push(
+          await formatAndGenerateExcerciseSets(excercise.excercise_name, context)
+        );
+        }
       await prisma.workout.create({
         data: {
           workout_name: previousWorkout.workout_name,
@@ -401,22 +402,44 @@ export async function generateNextWorkout(
     // Create the workout and slot behind the rest of the queue.
     // coach management follows weeks
     if (workout_type == WorkoutType.CoachManaged) {
-      const date = new Date();
-      date.setDate(date.getDate() + 7); // set the date to the next week
-      await prisma.workout.create({
-        data: {
-          user_id: context.base_user!.User!.user_id,
-          workout_name: workout_name!,
-          life_span: life_span! - 1,
-          date_scheduled: date,
-          order_index: await getActiveWorkoutCount(context, workout_type),
-          workout_type: workout_type,
-          programProgram_id: programProgram_id,
-          excercise_set_groups: {
-            create: formatExcerciseSetGroups(finalExcerciseSetGroups),
-          },
-        },
-      });
+      if(life_span==0 && programProgram_id){
+        const workouts = await prisma.workout.findMany({
+          where:{
+            programProgram_id:programProgram_id,
+          }
+        })
+        // If the user has workouts that are all completed, then mark the program as inactive (completed)
+        const workoutcount = workouts.filter((workout) => workout.workout_state != WorkoutState.COMPLETED).length;
+        if(workoutcount==0 ){
+          await prisma.program.update({
+            where:{
+              program_id:programProgram_id
+            },
+            data:{
+              is_active:false
+            }
+          })
+        }
+      }
+      else if(life_span>0){
+        const date = new Date();
+        date.setDate(date.getDate() + 7); // set the date to the next week
+        await prisma.workout.create({
+          data: {
+            user_id: context.base_user!.User!.user_id,
+            workout_name: workout_name!,
+            life_span: life_span! - 1,
+            date_scheduled: date,
+            order_index: await getActiveWorkoutCount(context, workout_type),
+            workout_type: workout_type,
+            programProgram_id: programProgram_id,
+            excercise_set_groups: {
+              create: formatExcerciseSetGroups(finalExcerciseSetGroups)
+            }
+          }
+        });
+      }
+    
     } else {
       const formated = formatExcerciseSetGroups(finalExcerciseSetGroups);
       await prisma.workout.create({
