@@ -4,13 +4,51 @@ import {
   authenticate,
   getAuthToken,
 } from "./service/firebase/firebase_service";
-import { ApolloServer } from "@apollo/server";
+import { ApolloServer, ApolloServerPlugin } from "@apollo/server";
 import { startStandaloneServer } from "@apollo/server/standalone";
 import { ApolloServerPluginUsageReporting } from "@apollo/server/plugin/usageReporting";
 
 import { PrismaClient } from "@prisma/client";
+import { report } from "./service/slack/slack_service";
 
 const prisma = new PrismaClient();
+
+const reportErrorToSlackPlugin: ApolloServerPlugin = {
+  async requestDidStart() {
+    return {
+      async didEncounterErrors(requestContext) {
+        for (const error of requestContext.errors) {
+          const err = error.originalError || error;
+          if (err.message != "You are not authenticated.")
+            report("Error", [
+              {
+                type: "section",
+                text: {
+                  type: "mrkdwn",
+                  text: `Error: ${err.name}`,
+                },
+              },
+              {
+                type: "section",
+                text: {
+                  type: "mrkdwn",
+                  text: `Message: ${err.message}`,
+                },
+              },
+              {
+                type: "section",
+                text: {
+                  type: "mrkdwn",
+                  text: `Stack trace:\n\`\`\`${err.stack}\`\`\``,
+                },
+              },
+            ]);
+        }
+        return;
+      },
+    };
+  },
+};
 
 async function startApolloServer() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -20,10 +58,12 @@ async function startApolloServer() {
     csrfPrevention: true,
     introspection: true,
     plugins: [
+      reportErrorToSlackPlugin,
       ApolloServerPluginUsageReporting({
         // If you pass unmodified: true to the usage reporting
         // plugin, Apollo Studio receives ALL error details
         sendErrors: { unmodified: true },
+        sendTraces: true,
       }),
     ],
   });

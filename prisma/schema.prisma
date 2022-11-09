@@ -10,6 +10,11 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum ContentBlockType {
+  FEATURE_GUIDE
+  FITNESS_CONTENT
+}
+
 enum Gender {
   MALE
   FEMALE
@@ -281,6 +286,14 @@ model MuscleRegion {
   target_muscles             Excercise[]      @relation(name: "target")
   synergist_muscles          Excercise[]      @relation(name: "synergist")
   measurements               Measurement[]
+}
+
+model ContentBlock {
+  content_block_id   Int              @id @default(autoincrement())
+  content_block_type ContentBlockType
+  title              String
+  description        String
+  video_url          String?
 }
 
 model Excercise {

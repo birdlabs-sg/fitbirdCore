@@ -1,6 +1,6 @@
 import { GraphQLResolveInfo, GraphQLScalarType, GraphQLScalarTypeConfig } from 'graphql';
 import { Token as Tokenmodel } from './tokenType';
-import { BaseUser as BaseUsermodel, Coach as Coachmodel, Program as Programmodel, User as Usermodel, Workout as Workoutmodel, ExcerciseMetadata as ExcerciseMetadatamodel, Measurement as Measurementmodel, ExcerciseSetGroup as ExcerciseSetGroupmodel, MuscleRegion as MuscleRegionmodel, Excercise as Excercisemodel, ExcerciseSet as ExcerciseSetmodel, BroadCast as BroadCastmodel, Notification as Notificationmodel } from '@prisma/client';
+import { BaseUser as BaseUsermodel, ContentBlock as ContentBlockmodel, Coach as Coachmodel, Program as Programmodel, User as Usermodel, Workout as Workoutmodel, ExcerciseMetadata as ExcerciseMetadatamodel, Measurement as Measurementmodel, ExcerciseSetGroup as ExcerciseSetGroupmodel, MuscleRegion as MuscleRegionmodel, Excercise as Excercisemodel, ExcerciseSet as ExcerciseSetmodel, BroadCast as BroadCastmodel, Notification as Notificationmodel } from '@prisma/client';
 import { AppContext } from './contextType';
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = undefined | T;
@@ -50,6 +50,22 @@ export type Coach = {
   firebase_uid: Scalars['String'];
 };
 
+/** Represents broadcast message to selected users. */
+export type ContentBlock = {
+  __typename?: 'ContentBlock';
+  content_block_id: Scalars['ID'];
+  content_block_type: ContentBlockType;
+  description: Scalars['String'];
+  title: Scalars['String'];
+  video_url?: Maybe<Scalars['String']>;
+};
+
+export const ContentBlockType = {
+  FeatureGuide: 'FEATURE_GUIDE',
+  FitnessContent: 'FITNESS_CONTENT'
+} as const;
+
+export type ContentBlockType = typeof ContentBlockType[keyof typeof ContentBlockType];
 export const Equipment = {
   Barbell: 'BARBELL',
   Bench: 'BENCH',
@@ -88,6 +104,7 @@ export type Excercise = {
   stabilizer_muscles?: Maybe<Array<MuscleRegion>>;
   synergist_muscles?: Maybe<Array<MuscleRegion>>;
   target_regions?: Maybe<Array<MuscleRegion>>;
+  video_url?: Maybe<Scalars['String']>;
 };
 
 export type ExcerciseInput = {
@@ -553,6 +570,7 @@ export type Query = {
   coachWorkoutName?: Maybe<Workout>;
   excercises?: Maybe<Array<Maybe<Excercise>>>;
   excludedExcercises?: Maybe<Array<Maybe<Excercise>>>;
+  getContentBlocks?: Maybe<Array<Maybe<ContentBlock>>>;
   getExcercise?: Maybe<Excercise>;
   getExcerciseMetadatas?: Maybe<Array<Maybe<ExcerciseMetadata>>>;
   getExcercisePerformance?: Maybe<ExcercisePerformance>;
@@ -591,6 +609,12 @@ export type QueryCoachWorkoutNameArgs = {
   programProgram_id: Scalars['ID'];
   user_id: Scalars['ID'];
   workout_name: Scalars['ID'];
+};
+
+
+/** This is the root query to resources. Require ADMIN permission to access all, otherwise resources are scoped to the user issuing the request. */
+export type QueryGetContentBlocksArgs = {
+  content_block_type: ContentBlockType;
 };
 
 
@@ -911,6 +935,8 @@ export type ResolversTypes = {
   Boolean: ResolverTypeWrapper<Scalars['Boolean']>;
   BroadCast: ResolverTypeWrapper<BroadCastmodel>;
   Coach: ResolverTypeWrapper<Coachmodel>;
+  ContentBlock: ResolverTypeWrapper<ContentBlockmodel>;
+  ContentBlockType: ContentBlockType;
   Date: ResolverTypeWrapper<Scalars['Date']>;
   Equipment: Equipment;
   Excercise: ResolverTypeWrapper<Excercisemodel>;
@@ -975,6 +1001,7 @@ export type ResolversParentTypes = {
   Boolean: Scalars['Boolean'];
   BroadCast: BroadCastmodel;
   Coach: Coachmodel;
+  ContentBlock: ContentBlockmodel;
   Date: Scalars['Date'];
   Excercise: Excercisemodel;
   ExcerciseInput: ExcerciseInput;
@@ -1048,6 +1075,15 @@ export type CoachResolvers<ContextType = AppContext, ParentType extends Resolver
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type ContentBlockResolvers<ContextType = AppContext, ParentType extends ResolversParentTypes['ContentBlock'] = ResolversParentTypes['ContentBlock']> = {
+  content_block_id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  content_block_type?: Resolver<ResolversTypes['ContentBlockType'], ParentType, ContextType>;
+  description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  video_url?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export interface DateScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['Date'], any> {
   name: 'Date';
 }
@@ -1068,6 +1104,7 @@ export type ExcerciseResolvers<ContextType = AppContext, ParentType extends Reso
   stabilizer_muscles?: Resolver<Maybe<Array<ResolversTypes['MuscleRegion']>>, ParentType, ContextType>;
   synergist_muscles?: Resolver<Maybe<Array<ResolversTypes['MuscleRegion']>>, ParentType, ContextType>;
   target_regions?: Resolver<Maybe<Array<ResolversTypes['MuscleRegion']>>, ParentType, ContextType>;
+  video_url?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -1246,6 +1283,7 @@ export type QueryResolvers<ContextType = AppContext, ParentType extends Resolver
   coachWorkoutName?: Resolver<Maybe<ResolversTypes['Workout']>, ParentType, ContextType, RequireFields<QueryCoachWorkoutNameArgs, 'programProgram_id' | 'user_id' | 'workout_name'>>;
   excercises?: Resolver<Maybe<Array<Maybe<ResolversTypes['Excercise']>>>, ParentType, ContextType>;
   excludedExcercises?: Resolver<Maybe<Array<Maybe<ResolversTypes['Excercise']>>>, ParentType, ContextType>;
+  getContentBlocks?: Resolver<Maybe<Array<Maybe<ResolversTypes['ContentBlock']>>>, ParentType, ContextType, RequireFields<QueryGetContentBlocksArgs, 'content_block_type'>>;
   getExcercise?: Resolver<Maybe<ResolversTypes['Excercise']>, ParentType, ContextType, RequireFields<QueryGetExcerciseArgs, 'excercise_name'>>;
   getExcerciseMetadatas?: Resolver<Maybe<Array<Maybe<ResolversTypes['ExcerciseMetadata']>>>, ParentType, ContextType, RequireFields<QueryGetExcerciseMetadatasArgs, 'excercise_names_list'>>;
   getExcercisePerformance?: Resolver<Maybe<ResolversTypes['ExcercisePerformance']>, ParentType, ContextType, RequireFields<QueryGetExcercisePerformanceArgs, 'excercise_name'>>;
@@ -1390,6 +1428,7 @@ export type Resolvers<ContextType = AppContext> = {
   BaseUser?: BaseUserResolvers<ContextType>;
   BroadCast?: BroadCastResolvers<ContextType>;
   Coach?: CoachResolvers<ContextType>;
+  ContentBlock?: ContentBlockResolvers<ContextType>;
   Date?: GraphQLScalarType;
   Excercise?: ExcerciseResolvers<ContextType>;
   ExcerciseMetadata?: ExcerciseMetadataResolvers<ContextType>;

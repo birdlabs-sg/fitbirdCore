@@ -5,8 +5,8 @@
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc",
-    "dev": "tsc-watch --onSuccess \"node .\"",
-    "prod": "node .",
+    "dev": "NODE_ENV=development tsc-watch --onSuccess \"node .\"",
+    "prod": "NODE_ENV=production node .",
     "lint": "eslint . --ext .ts",
     "test": "echo \"Error: no test specified\" && exit 1",
     "generate": "graphql-codegen --config codegen.yml"

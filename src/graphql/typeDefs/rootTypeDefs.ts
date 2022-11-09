@@ -30,6 +30,7 @@ import { ExcercisePerformance } from "./objectDef/excercisePerformance";
 import { mutateGenerateWorkouts } from "./mutationDef/mutateGenerateWorkouts";
 import { mutateNotification } from "./mutationDef/mutateNotification";
 import { mutateProgram } from "./mutationDef/mutateProgram";
+import { ContentBlock } from "./objectDef/contentBlock";
 
 const queryTypeDef = gql`
   scalar Date
@@ -68,6 +69,7 @@ const queryTypeDef = gql`
       user_id:ID
     ): ExcercisePerformance
     getExcerciseMetadatas(excercise_names_list: [ID!]!): [ExcerciseMetadata]
+    getContentBlocks(content_block_type: ContentBlockType!): [ContentBlock]
     "This query is only available to administrators."
     users: [User]
   }
@@ -118,6 +120,7 @@ const objectTypeDefs = [
   Program,
   Review,
   Analytics,
+  ContentBlock,
 ];
 
 export const typeDefs = baseTypeDefs.concat.apply(
