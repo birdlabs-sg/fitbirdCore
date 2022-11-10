@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@apollo/server": "^4.0.0",
+    "@graphql-tools/schema": "^9.0.9",
     "@prisma/client": "^4.3.1",
     "axios": "^0.27.2",
     "dotenv": "^16.0.1",

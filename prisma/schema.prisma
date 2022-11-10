@@ -133,7 +133,15 @@ enum FailureReason {
   LOW_MOOD // (Means that user not enough motivation) No change
   INSUFFICIENT_SLEEP // (Means that user not enough sleep recently) No change
 }
-
+model PrivateMessage{
+  message_id           Int   @id @default(autoincrement())
+  date_issued          DateTime @default(now())
+  message_content      String
+  BaseUserSender       BaseUser @relation("BaseUserSender",fields: [sender_id], references: [base_user_id])
+  BaseUserReceiver     BaseUser @relation("BaseUserReceiver",fields: [receiver_id], references: [base_user_id])
+  sender_id            Int
+  receiver_id          Int 
+}
 // // TODO: Use polymorphism. But prisma does not currently support this.
 // // Contains the authentication information of the user.
 model FCMToken {
@@ -144,13 +152,15 @@ model FCMToken {
 }
 
 model BaseUser {
-  base_user_id Int        @id @default(autoincrement())
-  email        String     @unique
-  firebase_uid String     @unique
-  displayName  String
-  fcm_tokens   FCMToken[]
-  coach        Coach?
-  User         User?
+  base_user_id      Int        @id @default(autoincrement())
+  email             String     @unique
+  firebase_uid      String     @unique
+  displayName       String
+  fcm_tokens        FCMToken[]
+  coach             Coach?
+  User              User?
+  messages_sent     PrivateMessage[] @relation("BaseUserSender")
+  messages_received PrivateMessage[] @relation("BaseUserReceiver")
 }
 
 model Coach {

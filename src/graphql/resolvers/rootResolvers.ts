@@ -50,6 +50,8 @@ import {
 } from "./query/queryAnalytics";
 import { updateBaseUserResolver } from "./mutation/mutateBaseUser";
 import { getContentBlocksResolver } from "./query/queryContentBlocks";
+import { privateMessagesQueryResolver } from "./query/queryPrivateMessages";
+import { createPrivateMessage } from "./mutation/mutatePrivateMessage";
 
 const dateScalar = new GraphQLScalarType({
   name: "Date",
@@ -87,6 +89,7 @@ export const resolvers: Resolvers = {
     updateExcerciseMetadata: updateExcerciseMetadata,
     generateWorkouts: generateWorkouts,
     regenerateWorkouts: regenerateWorkouts,
+    createPrivateMessage: createPrivateMessage,
   },
 
   //Root Query: Top level querying logic here
@@ -110,6 +113,7 @@ export const resolvers: Resolvers = {
     analyticsExerciseOneRepMax: analyticsExerciseOneRepMaxResolver,
     analyticsExerciseTotalVolume: analyticsExerciseTotalVolumeResolver,
     analyticsWorkoutAverageRPE: analyticsWorkoutAverageRPEResolver,
+    getPrivateMessages: privateMessagesQueryResolver,
   },
   // workout query
   Workout: {
@@ -239,4 +243,19 @@ export const resolvers: Resolvers = {
       });
     },
   },
+  /*
+  Subscription: {
+    hello: {
+      // Example using an async generator
+      subscribe: async function* () {
+        for await (const word of ['Hello', 'Bonjour', 'Ciao']) {
+          yield { hello: word };
+        }
+      },
+    },
+    postCreated: {
+      // More on pubsub below
+      subscribe: () => pubsub.asyncIterator(['POST_CREATED']),
+    },
+  },*/
 };
