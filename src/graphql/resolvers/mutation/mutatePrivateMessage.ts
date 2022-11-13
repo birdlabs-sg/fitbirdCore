@@ -1,13 +1,13 @@
 import { MutationCreatePrivateMessageArgs } from '../../../types/graphql';
 import { onlyAuthenticated } from '../../../service/firebase/firebase_service';
 import { AppContext } from '../../../types/contextType';
-
 export const createPrivateMessage = async (
     _: unknown,
     args: MutationCreatePrivateMessageArgs,
     context: AppContext
   ) => {
     onlyAuthenticated(context);
+    
     const prisma = context.dataSources.prisma;
     const { receiver_id,message_content } = args;
     const newMessage = await prisma.privateMessage.create({
@@ -17,10 +17,33 @@ export const createPrivateMessage = async (
         message_content:message_content,
       }
     });
+
+
+
     return {
       code: "200",
       success: true,
       message: "Successfully sent a message",
       privateMessage: newMessage,
+    };
+  };
+
+  export const deletePrivateMessage = async (
+    _: unknown,
+    args: any,
+    context: AppContext
+  ) => {
+    onlyAuthenticated(context);
+    const prisma = context.dataSources.prisma;
+    const { message_id } = args;
+    await prisma.privateMessage.delete({
+     where:{
+      message_id:message_id,
+     }
+    });
+    return {
+      code: "200",
+      success: true,
+      message: "Successfully deleted a message!",
     };
   };

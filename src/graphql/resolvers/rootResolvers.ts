@@ -51,8 +51,7 @@ import {
 import { updateBaseUserResolver } from "./mutation/mutateBaseUser";
 import { getContentBlocksResolver } from "./query/queryContentBlocks";
 import { privateMessagesQueryResolver } from "./query/queryPrivateMessages";
-import { createPrivateMessage } from "./mutation/mutatePrivateMessage";
-
+import { createPrivateMessage, deletePrivateMessage } from "./mutation/mutatePrivateMessage";
 const dateScalar = new GraphQLScalarType({
   name: "Date",
   description: "Date custom scalar type",
@@ -90,6 +89,7 @@ export const resolvers: Resolvers = {
     generateWorkouts: generateWorkouts,
     regenerateWorkouts: regenerateWorkouts,
     createPrivateMessage: createPrivateMessage,
+    deletePrivateMessage:deletePrivateMessage,
   },
 
   //Root Query: Top level querying logic here
@@ -114,6 +114,7 @@ export const resolvers: Resolvers = {
     analyticsExerciseTotalVolume: analyticsExerciseTotalVolumeResolver,
     analyticsWorkoutAverageRPE: analyticsWorkoutAverageRPEResolver,
     getPrivateMessages: privateMessagesQueryResolver,
+    
   },
   // workout query
   Workout: {

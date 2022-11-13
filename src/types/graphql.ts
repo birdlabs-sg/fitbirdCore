@@ -331,6 +331,8 @@ export type Mutation = {
   deleteMeasurement?: Maybe<MutateMeasurementResponse>;
   /** [PROTECTED] Deletes a muscle region object. */
   deleteMuscleRegion?: Maybe<MutateMuscleRegionResponse>;
+  /** [PROTECTED] Deletes a PrivateMessage Object. */
+  deletePrivateMessage?: Maybe<MutationResponse>;
   /** [PROTECTED] Deletes a workout object (Must belong to the requestor). */
   deleteWorkout?: Maybe<MutateWorkoutsResponse>;
   generateFirebaseIdToken?: Maybe<GenerateIdTokenResponse>;
@@ -419,6 +421,12 @@ export type MutationDeleteMeasurementArgs = {
 /** [PROTECTED] Mutation to update the requestor's user information */
 export type MutationDeleteMuscleRegionArgs = {
   muscle_region_id: Scalars['ID'];
+};
+
+
+/** [PROTECTED] Mutation to update the requestor's user information */
+export type MutationDeletePrivateMessageArgs = {
+  message_id: Scalars['ID'];
 };
 
 
@@ -1274,6 +1282,7 @@ export type MutationResolvers<ContextType = AppContext, ParentType extends Resol
   createWorkout?: Resolver<Maybe<ResolversTypes['mutateWorkoutResponse']>, ParentType, ContextType, RequireFields<MutationCreateWorkoutArgs, 'excercise_set_groups' | 'life_span' | 'workout_name' | 'workout_type'>>;
   deleteMeasurement?: Resolver<Maybe<ResolversTypes['mutateMeasurementResponse']>, ParentType, ContextType, RequireFields<MutationDeleteMeasurementArgs, 'measurement_id'>>;
   deleteMuscleRegion?: Resolver<Maybe<ResolversTypes['mutateMuscleRegionResponse']>, ParentType, ContextType, RequireFields<MutationDeleteMuscleRegionArgs, 'muscle_region_id'>>;
+  deletePrivateMessage?: Resolver<Maybe<ResolversTypes['MutationResponse']>, ParentType, ContextType, RequireFields<MutationDeletePrivateMessageArgs, 'message_id'>>;
   deleteWorkout?: Resolver<Maybe<ResolversTypes['mutateWorkoutsResponse']>, ParentType, ContextType, RequireFields<MutationDeleteWorkoutArgs, 'workout_id'>>;
   generateFirebaseIdToken?: Resolver<Maybe<ResolversTypes['GenerateIdTokenResponse']>, ParentType, ContextType, RequireFields<MutationGenerateFirebaseIdTokenArgs, 'uid'>>;
   generateNotification?: Resolver<Maybe<ResolversTypes['NotificationResponse']>, ParentType, ContextType, RequireFields<MutationGenerateNotificationArgs, 'body' | 'title' | 'token'>>;

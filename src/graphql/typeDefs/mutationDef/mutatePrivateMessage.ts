@@ -1,6 +1,4 @@
 import gql from "graphql-tag";
-
-
 export const mutatePrivateMessage = gql`
 "Response if a PrivateMessage event is successful"
   type MutatePrivateMessageResponse implements MutationResponse {
@@ -15,7 +13,10 @@ export const mutatePrivateMessage = gql`
         message_content:String!
         receiver_id:ID!
     ):MutatePrivateMessageResponse
+    
+    "[PROTECTED] Deletes a PrivateMessage Object."
+    deletePrivateMessage(
+        message_id:ID!
+    ):MutationResponse
   }
-
-
 `

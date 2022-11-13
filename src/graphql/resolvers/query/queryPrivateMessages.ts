@@ -22,7 +22,11 @@ export const privateMessagesQueryResolver = async (
                         sender_id:context.base_user.base_user_id 
                     },
                 ],
-            }
+            },
+        orderBy : {
+            date_issued : 'asc'
+              
+              },
     })
 
     
