@@ -4,7 +4,9 @@ import {
   getActiveProgram,
   getActiveWorkoutCount,
 } from "../../../../service/workout_manager/utils";
-import { MutationCreateProgramArgs } from "../../../../types/graphql";
+import {
+  MutationCreateProgramArgs,
+} from "../../../../types/graphql";
 import { formatExcerciseSetGroups } from "../../../../service/workout_manager/utils";
 import { extractMetadatas } from "../../../../service/workout_manager/utils";
 import { generateOrUpdateExcerciseMetadata } from "../../../../service/workout_manager/exercise_metadata_manager/exercise_metadata_manager";
@@ -20,7 +22,6 @@ export const createProgram = async (
   { user_id, workoutsInput }: MutationCreateProgramArgs,
   context: AppContext
 ) => {
-  //onlyAuthenticated(context);
   onlyCoach(context);
   const prisma = context.dataSources.prisma;
   // Ensure that there is a max of 7 workouts
@@ -28,32 +29,32 @@ export const createProgram = async (
   if (workoutsInput!.length > 7) {
     throw Error("VALIDATE Must be no more than 7 workouts");
   } else {
-    //1. Set all existing programs and its corresponding workouts to be inactive
-    resetActiveProgramsForCoaches(context, WorkoutType.COACH_MANAGED, user_id);
+   
     const workoutArray: Workout[] = [];
-
+    
     //2.generate the list of workouts
-    for (let i = 0; i < workoutsInput!.length; i++) {
-      const { life_span, workout_name, excercise_set_groups, workout_type } =
-        workoutsInput![i];
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    for (let i = 0; i < workoutsInput.length; i++) {
+      const {
+        life_span,
+        workout_name,
+        excercise_set_groups,
+        workout_type,
+        date_scheduled,
+      } = workoutsInput[i];
       const [_, excerciseMetadatas] = extractMetadatas(
         excercise_set_groups as ExcerciseSetGroupInput[]
       );
-
+      
       await generateOrUpdateExcerciseMetadata(
         context,
         excerciseMetadatas,
         user_id
       );
-
-      const date = new Date();
-      date.setDate(date.getDate() + i);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const workout_input: any = {
+      
+      let workout_input: any = {
         user: { connect: { user_id: parseInt(user_id) } },
-        date_scheduled: date,
-        life_span: life_span,
+        date_scheduled: date_scheduled,
+        life_span: life_span!-1,
         order_index: await getActiveWorkoutCount(
           context,
           workout_type,
@@ -68,7 +69,11 @@ export const createProgram = async (
 
       workoutArray.push(workout_input);
     }
+    
+    //2. Set all existing programs and its corresponding workouts to be inactive
+    resetActiveProgramsForCoaches(context, WorkoutType.COACH_MANAGED, user_id);
     //3. Create the new program object with its corresponding workouts
+   
     await prisma.program.create({
       data: {
         coach: { connect: { coach_id: context.base_user!.coach!.coach_id } },
@@ -79,8 +84,8 @@ export const createProgram = async (
         },
       },
     });
+   
   }
-
   return {
     code: "200",
     success: true,

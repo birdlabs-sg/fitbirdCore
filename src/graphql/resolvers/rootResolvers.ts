@@ -39,11 +39,10 @@ import { usersQueryResolver } from "./query/queryUsers";
 import { GraphQLScalarType } from "graphql";
 import { baseUsersQueryResolver } from "./query/queryBaseUsers";
 import { createProgram } from "./mutation/coachMutations/mutateCoachProgram";
-import { coachUsersNotRegisteredQueryResolver } from "./query/coachQueries/queryCoachUsersNotRegistered";
+import { coachAllUsersQueryResolver } from "./query/coachQueries/queryCoachAllUsers";
 import { coachWorkoutNameQueryResolver } from "./query/coachQueries/queryCoachWorkoutName";
 import { coachUsersQueryResolver } from "./query/coachQueries/queryCoachUsers";
-import { coachProgramQueryResolver } from "./query/coachQueries/queryCoachProgram";
-import { coachProgramsQueryResolver } from "./query/coachQueries/queryCoachPrograms";
+import { coachActiveProgramQueryResolver } from "./query/coachQueries/queryActiveCoachProgram";
 import {
   analyticsWorkoutAverageRPEResolver,
   analyticsExerciseOneRepMaxResolver,
@@ -95,9 +94,8 @@ export const resolvers: Resolvers = {
     baseUsers: baseUsersQueryResolver,
     coachUsers: coachUsersQueryResolver,
     getContentBlocks: getContentBlocksResolver,
-    coachUsersNotRegistered: coachUsersNotRegisteredQueryResolver,
-    coachProgram: coachProgramQueryResolver,
-    coachPrograms: coachProgramsQueryResolver,
+    coachAllUsers: coachAllUsersQueryResolver,
+    coachActiveProgram: coachActiveProgramQueryResolver,
     coachWorkoutName: coachWorkoutNameQueryResolver,
     user: userQueryResolvers,
     workouts: workoutsQueryResolver,
@@ -113,7 +111,6 @@ export const resolvers: Resolvers = {
     analyticsExerciseTotalVolume: analyticsExerciseTotalVolumeResolver,
     analyticsWorkoutAverageRPE: analyticsWorkoutAverageRPEResolver,
   },
-
   // workout query
   Workout: {
     async excercise_set_groups(parent, _, context) {
@@ -134,6 +131,15 @@ export const resolvers: Resolvers = {
               user_id: parent.user_id,
             },
           },
+        },
+      });
+    },
+    async program(parent, _, context) {
+      const prisma = context.dataSources.prisma;
+      return await prisma.program.findMany({
+        where: { user_id: parent.user_id },
+        include: {
+          workouts: true,
         },
       });
     },
