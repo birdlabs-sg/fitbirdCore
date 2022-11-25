@@ -33,6 +33,11 @@ import { mutateProgram } from "./mutationDef/mutateProgram";
 import { ContentBlock } from "./objectDef/contentBlock";
 import { privateMessage } from "./objectDef/privateMessage";
 import { mutatePrivateMessage } from "./mutationDef/mutatePrivateMessage";
+import { mutateChallenge } from "./mutationDef/mutateChallenge";
+import { mutatePreset } from "./mutationDef/mutatePresets";
+import { Challenge } from "./objectDef/challenge";
+import { ChallengePreset } from "./objectDef/challengePreset";
+
 
 const queryTypeDef = gql`
   scalar Date
@@ -103,7 +108,9 @@ const mutationTypeDefs = [
   mutateNotification,
   mutateProgram,
   mutateBaseUser,
-  mutatePrivateMessage
+  mutatePrivateMessage,
+  mutateChallenge,
+  mutatePreset,
 ];
 
 const objectTypeDefs = [
@@ -126,7 +133,9 @@ const objectTypeDefs = [
   Review,
   Analytics,
   ContentBlock,
-  privateMessage
+  privateMessage,
+ Challenge,
+ ChallengePreset
 ];
 
 export const typeDefs = baseTypeDefs.concat.apply(

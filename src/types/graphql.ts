@@ -807,7 +807,8 @@ export type WorkoutState = typeof WorkoutState[keyof typeof WorkoutState];
 export const WorkoutType = {
   AiManaged: 'AI_MANAGED',
   CoachManaged: 'COACH_MANAGED',
-  SelfManaged: 'SELF_MANAGED'
+  SelfManaged: 'SELF_MANAGED',
+  Challenge:'CHALLENGE'
 } as const;
 
 export type WorkoutType = typeof WorkoutType[keyof typeof WorkoutType];

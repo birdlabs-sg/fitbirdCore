@@ -7,7 +7,6 @@ import {
 import { ApolloServer, ApolloServerPlugin } from "@apollo/server";
 import { startStandaloneServer } from "@apollo/server/standalone";
 import { ApolloServerPluginUsageReporting } from "@apollo/server/plugin/usageReporting";
-
 import { PrismaClient } from "@prisma/client";
 import { report } from "./service/slack/slack_service";
 
