@@ -223,13 +223,13 @@ export const completeWorkout = async (
     undefined,
     completedWorkout.workout_type
   );
-
-  await generateNextWorkout(
-    context,
-    completedWorkout,
-    next_workout_excercise_group_sets
-  );
-
+  if(completedWorkout.workout_type!==WorkoutType.CHALLENGE){
+    await generateNextWorkout(
+      context,
+      completedWorkout,
+      next_workout_excercise_group_sets
+    );
+  }
   report(`${context.base_user?.displayName} completed a workout. ✅`);
 
   return {

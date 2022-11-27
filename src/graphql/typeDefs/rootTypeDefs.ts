@@ -31,6 +31,13 @@ import { mutateGenerateWorkouts } from "./mutationDef/mutateGenerateWorkouts";
 import { mutateNotification } from "./mutationDef/mutateNotification";
 import { mutateProgram } from "./mutationDef/mutateProgram";
 import { ContentBlock } from "./objectDef/contentBlock";
+import { privateMessage } from "./objectDef/privateMessage";
+import { mutatePrivateMessage } from "./mutationDef/mutatePrivateMessage";
+import { mutateChallenge } from "./mutationDef/mutateChallenge";
+import { mutatePreset } from "./mutationDef/mutatePresets";
+import { Challenge } from "./objectDef/challenge";
+import { ChallengePreset } from "./objectDef/challengePreset";
+
 
 const queryTypeDef = gql`
   scalar Date
@@ -70,8 +77,10 @@ const queryTypeDef = gql`
     ): ExcercisePerformance
     getExcerciseMetadatas(excercise_names_list: [ID!]!): [ExcerciseMetadata]
     getContentBlocks(content_block_type: ContentBlockType!): [ContentBlock]
+    getPrivateMessages(pair_id:ID!):[PrivateMessage]
     "This query is only available to administrators."
     users: [User]
+    
   }
 `;
 
@@ -99,6 +108,9 @@ const mutationTypeDefs = [
   mutateNotification,
   mutateProgram,
   mutateBaseUser,
+  mutatePrivateMessage,
+  mutateChallenge,
+  mutatePreset,
 ];
 
 const objectTypeDefs = [
@@ -121,6 +133,9 @@ const objectTypeDefs = [
   Review,
   Analytics,
   ContentBlock,
+  privateMessage,
+ Challenge,
+ ChallengePreset
 ];
 
 export const typeDefs = baseTypeDefs.concat.apply(
