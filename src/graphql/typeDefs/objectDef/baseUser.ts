@@ -10,6 +10,7 @@ export const BaseUser = gql`
   type BaseUser {
     base_user_id: ID!
     email: String
+    firebase_uid: String
     displayName: String
     coach: Coach
     User: User

@@ -28,6 +28,7 @@ export type BaseUser = {
   displayName?: Maybe<Scalars['String']>;
   email?: Maybe<Scalars['String']>;
   fcm_tokens?: Maybe<Array<FcmToken>>;
+  firebase_uid?: Maybe<Scalars['String']>;
 };
 
 /** Represents broadcast message to selected users. */
@@ -1054,6 +1055,7 @@ export type BaseUserResolvers<ContextType = AppContext, ParentType extends Resol
   displayName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   email?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   fcm_tokens?: Resolver<Maybe<Array<ResolversTypes['FCMToken']>>, ParentType, ContextType>;
+  firebase_uid?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
