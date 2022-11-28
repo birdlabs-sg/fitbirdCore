@@ -6,7 +6,6 @@ export const mutatePreset = gql`
     code: String!
     success: Boolean!
     message: String!
-    user: ChallengePreset
   }
   input PresetWorkoutInput{
     preset_excercise_set_groups:[PresetExcerciseSetGroupInput!]!
@@ -19,6 +18,7 @@ export const mutatePreset = gql`
   input PresetExcerciseSetInput{
     target_reps:Int
     target_weight:Float
+    weight_unit:WeightUnit
   }
 
   "[PROTECTED] Mutation to create a challengePreset"

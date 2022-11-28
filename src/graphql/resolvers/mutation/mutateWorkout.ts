@@ -184,7 +184,6 @@ export const completeWorkout = async (
   onlyAuthenticated(context);
   const prisma = context.dataSources.prisma;
   await checkExistsAndOwnership(context, workout_id);
-
   const [excerciseSetGroups, excerciseMetadatas] = extractMetadatas(
     excercise_set_groups as ExcerciseSetGroupInput[]
   );
@@ -223,6 +222,7 @@ export const completeWorkout = async (
     undefined,
     completedWorkout.workout_type
   );
+  // only change to this file for the challenge update (if clause): generate the workouts only if it is not challenge
   if(completedWorkout.workout_type!==WorkoutType.CHALLENGE){
     await generateNextWorkout(
       context,

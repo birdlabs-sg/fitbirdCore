@@ -37,6 +37,8 @@ import { mutateChallenge } from "./mutationDef/mutateChallenge";
 import { mutatePreset } from "./mutationDef/mutatePresets";
 import { Challenge } from "./objectDef/challenge";
 import { ChallengePreset } from "./objectDef/challengePreset";
+import { PresetExcerciseSet } from "./objectDef/presetExcerciseSet";
+import { PresetWorkout } from "./objectDef/presetWorkout";
 
 
 const queryTypeDef = gql`
@@ -53,6 +55,8 @@ const queryTypeDef = gql`
       programProgram_id: ID!
     ): Workout
     user: User
+    challengePresets:[ChallengePreset]
+    challengePreset(preset_id:ID):ChallengePreset
     workouts(filter: WorkoutFilter!, type: WorkoutType, user_id: ID): [Workout]
     # TODO: Implement these to fit the description on linear
     getWorkout(workout_id: ID!): Workout
@@ -134,8 +138,10 @@ const objectTypeDefs = [
   Analytics,
   ContentBlock,
   privateMessage,
- Challenge,
- ChallengePreset
+  Challenge,
+  ChallengePreset,
+  PresetExcerciseSet,
+  PresetWorkout
 ];
 
 export const typeDefs = baseTypeDefs.concat.apply(

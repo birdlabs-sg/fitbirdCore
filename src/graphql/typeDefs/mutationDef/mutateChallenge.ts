@@ -6,7 +6,6 @@ export const mutateChallenge = gql`
     code: String!
     success: Boolean!
     message: String!
-    user: Challenge
   }
 
   "[PROTECTED] [USER] Mutation to create a challengePreset"
