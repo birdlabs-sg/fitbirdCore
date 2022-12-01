@@ -10,6 +10,11 @@ export const coachAllUsersQueryResolver = async (
   const prisma = context.dataSources.prisma;
 
   const baseusers = await prisma.baseUser.findMany({
+    where:{
+      NOT:{
+        User:null
+      }
+    },
     include: {
       User: true
     }

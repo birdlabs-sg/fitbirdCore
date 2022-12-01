@@ -911,6 +911,7 @@ export type WorkoutFrequency = {
 };
 
 export const WorkoutState = {
+  Cancelled: 'CANCELLED',
   Completed: 'COMPLETED',
   Draft: 'DRAFT',
   InProgress: 'IN_PROGRESS',
