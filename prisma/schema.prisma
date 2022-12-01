@@ -121,8 +121,14 @@ enum WorkoutType {
   AI_MANAGED
   SELF_MANAGED
   COACH_MANAGED
+  CHALLENGE
 }
-
+enum PresetDifficulty {
+  EASY
+  NORMAL
+  HARD
+  VERY_HARD
+}
 // FOR SETS ONLY (Affects their next workout sets, does not affect the current workout's sets)
 // any set that fail will cause the rest time to increase by 1.25x for the next set. 
 // This is effect temporary, will reset back to lower limit in the next workout
@@ -133,7 +139,15 @@ enum FailureReason {
   LOW_MOOD // (Means that user not enough motivation) No change
   INSUFFICIENT_SLEEP // (Means that user not enough sleep recently) No change
 }
-
+model PrivateMessage{
+  message_id           Int   @id @default(autoincrement())
+  date_issued          DateTime @default(now())
+  message_content      String
+  BaseUserSender       BaseUser @relation("BaseUserSender",fields: [sender_id], references: [base_user_id])
+  BaseUserReceiver     BaseUser @relation("BaseUserReceiver",fields: [receiver_id], references: [base_user_id])
+  sender_id            Int
+  receiver_id          Int 
+}
 // // TODO: Use polymorphism. But prisma does not currently support this.
 // // Contains the authentication information of the user.
 model FCMToken {
@@ -144,13 +158,15 @@ model FCMToken {
 }
 
 model BaseUser {
-  base_user_id Int        @id @default(autoincrement())
-  email        String     @unique
-  firebase_uid String     @unique
-  displayName  String
-  fcm_tokens   FCMToken[]
-  coach        Coach?
-  User         User?
+  base_user_id      Int        @id @default(autoincrement())
+  email             String     @unique
+  firebase_uid      String     @unique
+  displayName       String
+  fcm_tokens        FCMToken[]
+  coach             Coach?
+  User              User?
+  messages_sent     PrivateMessage[] @relation("BaseUserSender")
+  messages_received PrivateMessage[] @relation("BaseUserReceiver")
 }
 
 model Coach {
@@ -178,6 +194,53 @@ model Program {
   coach_id   Int
   user_id    Int
   is_active  Boolean   @default(true)
+}
+model Challenge {
+  challenge_id          Int               @id @default(autoincrement()) // user will able to view their challenges via challenge id
+  user                  User              @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
+  challengePreset       ChallengePreset   @relation(fields: [presetPreset_id], references: [challengePreset_id], onDelete: Cascade)
+  workouts              Workout[]         
+  user_id               Int
+  is_active             Boolean           @default(true)
+  presetPreset_id       Int
+  completion_status     Boolean           @default(false)
+  completion_date       DateTime?        
+}
+// a preset for the challenges to be loaded into the challenges
+model ChallengePreset {
+  challengePreset_id   Int               @id @default(autoincrement()) // user will be able to select from the list of challenges
+  challenges           Challenge[]
+  preset_workouts      PresetWorkouts[]
+  preset_name          String
+  duration             Int               // days
+  preset_difficulty    PresetDifficulty  // enum to describe difficulty
+  image_url            String?           // poster
+}
+
+model PresetWorkouts {
+  preset_workout_id                      Int                 @id @default(autoincrement())
+  challengePreset                        ChallengePreset     @relation(fields: [challengePreset_id], references: [challengePreset_id], onDelete: Cascade)
+  challengePreset_id                     Int  
+  preset_excercise_set_groups            PresetExcerciseSetGroup[]
+  rest_day                               Boolean             @default(false)
+}
+
+model PresetExcerciseSetGroup { 
+  preset_excercise_set_group_id    Int                    @id @default(autoincrement())
+  presetWorkouts                   PresetWorkouts         @relation(fields: [preset_workout_id], references: [preset_workout_id], onDelete: Cascade)
+  preset_workout_id                Int
+  excercise                        Excercise              @relation(fields: [excercise_name], references: [excercise_name], onDelete: Cascade)
+  excercise_name                   String
+  preset_excercise_sets            PresetExcerciseSet[]
+
+}
+model PresetExcerciseSet {
+  preset_excercise_set_id           Int               @id @default(autoincrement())  
+  presetExerciseSetGroup            PresetExcerciseSetGroup @relation(fields: [preset_excercise_set_group_id], references: [preset_excercise_set_group_id], onDelete: Cascade)
+  preset_excercise_set_group_id     Int   
+  target_reps                       Int
+  target_weight                     Float
+  weight_unit                       WeightUnit @default(KG)
 }
 
 model User {
@@ -214,6 +277,7 @@ model User {
   broadcasts                        BroadCast[]
   excerciseMetadata                 ExcerciseMetadata[]
   Program                           Program[]
+  Challenge                         Challenge[]
   selected_exercise_for_analytics   Excercise[]
 }
 
@@ -249,20 +313,22 @@ model Measurement {
 }
 
 model Workout {
-  workout_id           Int                 @id @default(autoincrement())
-  workout_name         String
-  user                 User                @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
-  life_span            Int
-  order_index          Int // Keeps track of the order of workout
-  date_scheduled       DateTime?
-  date_completed       DateTime?
-  performance_rating   Float?
-  user_id              Int
-  workout_state        WorkoutState        @default(UNATTEMPTED)
-  workout_type         WorkoutType         @default(SELF_MANAGED)
-  excercise_set_groups ExcerciseSetGroup[]
-  Program              Program?            @relation(fields: [programProgram_id], references: [program_id], onDelete: Cascade) // Will only have a value if this is coach-managed. No choice because polymorphism not supported yet by prisma.
-  programProgram_id    Int?
+  workout_id              Int                 @id @default(autoincrement())
+  workout_name            String
+  user                    User                @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
+  life_span               Int
+  order_index             Int // Keeps track of the order of workout
+  date_scheduled          DateTime?
+  date_completed          DateTime?
+  performance_rating      Float?
+  user_id                 Int
+  workout_state           WorkoutState        @default(UNATTEMPTED)
+  workout_type            WorkoutType         @default(SELF_MANAGED)
+  excercise_set_groups    ExcerciseSetGroup[]
+  Program                 Program?            @relation(fields: [programProgram_id], references: [program_id], onDelete: Cascade) // Will only have a value if this is coach-managed. No choice because polymorphism not supported yet by prisma.
+  Challenge               Challenge?          @relation(fields: [challengeChallenge_id], references: [challenge_id], onDelete: Cascade) //Will only have a value if this is challenge 
+  programProgram_id       Int?
+  challengeChallenge_id   Int?
 }
 
 model ExcerciseSetGroup {
@@ -311,6 +377,7 @@ model Excercise {
   equipment_required         Equipment[]
   body_weight                Boolean
   assisted                   Boolean
+  preset_excercise_set_group PresetExcerciseSetGroup[]
   excercise_set_groups       ExcerciseSetGroup[]
   excerciseMetadata          ExcerciseMetadata[]
   User                       User[]

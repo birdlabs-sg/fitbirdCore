@@ -1,17 +1,21 @@
-import { PrismaExerciseSetGroupCreateArgs } from '../../types/Prisma';
-import { AppContext } from '../../types/contextType';
+import { PrismaExerciseSetGroupCreateArgs } from "../../types/Prisma";
+import { AppContext } from "../../types/contextType";
 import {
   ExcerciseMetaDataInput,
   ExcerciseSetGroupInput,
   ExcerciseSetGroupState,
-  ExcerciseSetInput
-} from '../../types/graphql';
+  ExcerciseSetInput,
+  PresetExcerciseSetInput,
+  PresetWorkoutInput,
+  PresetExcerciseSetGroup,
+} from "../../types/graphql";
 
-import { generateExerciseMetadata } from './exercise_metadata_manager/exercise_metadata_manager';
-import { WorkoutType } from '@prisma/client';
-import { onlyCoach } from '../../service/firebase/firebase_service';
-import { GraphQLError } from 'graphql';
-import _ from 'lodash';
+import { generateExerciseMetadata } from "./exercise_metadata_manager/exercise_metadata_manager";
+import { WorkoutType } from "@prisma/client";
+import { PresetExcerciseSetGroupInput } from "../../types/graphql";
+import { onlyCoach } from "../../service/firebase/firebase_service";
+import { GraphQLError } from "graphql";
+import _ from "lodash";
 
 /**
  * Generates exercise sets and formats them to be used in Prisma
@@ -34,12 +38,12 @@ export async function formatAndGenerateExcerciseSets(
       excercise_name: excercise_name,
       workout: {
         user_id: user.user_id,
-        date_completed: { not: null }
-      }
+        date_completed: { not: null },
+      },
     },
     include: {
-      excercise_sets: true
-    }
+      excercise_sets: true,
+    },
   });
 
   // this function will generate excercise metadata if there is no previous metadata => when the user does it for the first time
@@ -49,8 +53,8 @@ export async function formatAndGenerateExcerciseSets(
     previousExcerciseSetGroup.excercise_sets.forEach((prev_set) => {
       const excercise_set_input = _.omit(
         prev_set,
-        'excercise_set_group_id',
-        'excercise_set_id'
+        "excercise_set_group_id",
+        "excercise_set_id"
       ) as ExcerciseSetInput;
       // Swapping of the "target" vs "actual" roles as now the target of new was actual of the previous
       excercise_set_input.target_reps = prev_set.actual_reps ?? 0;
@@ -64,16 +68,16 @@ export async function formatAndGenerateExcerciseSets(
     // No previous data
     excercise_sets_input = new Array(5).fill({
       target_weight: 0,
-      weight_unit: 'KG',
+      weight_unit: "KG",
       target_reps: 0,
       actual_weight: undefined,
-      actual_reps: undefined
+      actual_reps: undefined,
     });
   }
   return {
     excercise: { connect: { excercise_name: excercise_name } },
     excercise_set_group_state: ExcerciseSetGroupState.NormalOperation,
-    excercise_sets: { create: excercise_sets_input }
+    excercise_sets: { create: excercise_sets_input },
   };
 }
 
@@ -88,20 +92,20 @@ export function formatExcerciseSetGroups(
       excercise_sets,
       excercise_name,
       excercise_set_group_state,
-      failure_reason
+      failure_reason,
     } = excerciseSetGroup;
     return {
       failure_reason,
       excercise: {
         connect: {
-          excercise_name: excercise_name
-        }
+          excercise_name: excercise_name,
+        },
       },
       excercise_set_group_state:
         excercise_set_group_state as ExcerciseSetGroupState,
       excercise_sets: {
-        create: excercise_sets as ExcerciseSetInput[]
-      }
+        create: excercise_sets as ExcerciseSetInput[],
+      },
     };
   });
   return formattedData;
@@ -192,11 +196,11 @@ export async function getActiveWorkouts(
     where: {
       date_completed: null,
       user_id: context.base_user!.User!.user_id,
-      workout_type: workout_type
+      workout_type: workout_type,
     },
     orderBy: {
-      order_index: 'asc'
-    }
+      order_index: "asc",
+    },
   });
 }
 
@@ -213,17 +217,20 @@ export async function getActiveWorkoutCount(
 ) {
   const prisma = context.dataSources.prisma;
 
-    const workouts = await prisma.workout.findMany({
-      where: {
-        date_completed: null,
-        user_id: user_id==undefined? context.base_user!.User!.user_id:parseInt(user_id),
-        workout_type: workout_type,
-      },
-      orderBy: {
-        order_index: "asc",
-      },
-    });
-    return workouts.length;
+  const workouts = await prisma.workout.findMany({
+    where: {
+      date_completed: null,
+      user_id:
+        user_id == undefined
+          ? context.base_user!.User!.user_id
+          : parseInt(user_id),
+      workout_type: workout_type,
+    },
+    orderBy: {
+      order_index: "asc",
+    },
+  });
+  return workouts.length;
 }
 
 /**
@@ -237,11 +244,11 @@ export async function checkExistsAndOwnership(
   const prisma = context.dataSources.prisma;
   const targetWorkout = await prisma.workout.findUnique({
     where: {
-      workout_id: parseInt(workout_id)
-    }
+      workout_id: parseInt(workout_id),
+    },
   });
   if (targetWorkout == null) {
-    throw new GraphQLError('The workout does not exist.');
+    throw new GraphQLError("The workout does not exist.");
   }
 
   if (context.base_user?.User) {
@@ -253,23 +260,22 @@ export async function checkExistsAndOwnership(
       });
     }
   } else {
-    onlyCoach(context)
+    onlyCoach(context);
     if (targetWorkout.programProgram_id) {
       const targetProgram = await prisma.program.findUnique({
         where: {
           program_id: targetWorkout.programProgram_id,
         },
       });
-      
+
       if (targetProgram?.coach_id != context.base_user!.coach!.coach_id) {
         throw new GraphQLError("You are not authorized to remove this object", {
           extensions: {
             code: "FORBIDDEN",
           },
         });
-      }
-      else{
-        return targetProgram.user_id
+      } else {
+        return targetProgram.user_id;
       }
     } else {
       throw new GraphQLError("Program does not exist");
@@ -288,11 +294,11 @@ export async function checkExerciseExists(
   const prisma = context.dataSources.prisma;
   const exercise = await prisma.excercise.findUnique({
     where: {
-      excercise_name: exercise_name
-    }
+      excercise_name: exercise_name,
+    },
   });
   if (exercise == null) {
-    throw new GraphQLError('No exercise found');
+    throw new GraphQLError("No exercise found");
   }
 }
 
@@ -304,15 +310,15 @@ export async function getActiveProgram(context: AppContext, user_id: string) {
     where: {
       user_id: parseInt(user_id),
       coach_id: context.base_user!.coach!.coach_id!,
-      is_active: true
+      is_active: true,
     },
     include: {
       workouts: {
         orderBy: {
-          order_index: 'asc'
-        }
-      }
-    }
+          order_index: "asc",
+        },
+      },
+    },
   });
 }
 
@@ -330,21 +336,93 @@ export async function resetActiveProgramsForCoaches(
   await prisma.program.updateMany({
     where: {
       user_id: parseInt(user_id),
-      coach_id: context.base_user!.coach!.coach_id
+      coach_id: context.base_user!.coach!.coach_id,
     },
     data: {
-      is_active: false
-    }
+      is_active: false,
+    },
   });
 
   await prisma.workout.updateMany({
     where: {
       date_completed: null,
       user_id: parseInt(user_id),
-      workout_type: workout_type
+      workout_type: workout_type,
     },
     data: {
-      date_completed: date
-    }
+      date_completed: date,
+    },
   });
+}
+
+
+
+
+/////presets 
+export function formatPresetExcerciseSetGroupsIntoPresetMutationReq(
+  presetExcerciseSetGroups: PresetExcerciseSetGroupInput[]
+) {
+  const formattedData = presetExcerciseSetGroups.map(function (
+    excerciseSetGroup
+  ) {
+    const { preset_excercise_sets, excercise_name } = excerciseSetGroup;
+    return {
+      excercise: {
+        connect: {
+          excercise_name: excercise_name,
+        },
+      },
+      preset_excercise_sets: {
+        create: preset_excercise_sets as PresetExcerciseSetInput[],
+      },
+    };
+  });
+  return formattedData;
+}
+
+export function formatPresetWorkoutsIntoPresetMutationReq(
+  presetWorkouts: PresetWorkoutInput[]
+) {
+  const formattedData = presetWorkouts.map(function (workoutGroup) {
+    const { rest_day, preset_excercise_set_groups } = workoutGroup;
+    return {
+      rest_day,
+      preset_excercise_set_groups: {
+        create: formatPresetExcerciseSetGroupsIntoPresetMutationReq(
+          preset_excercise_set_groups
+        ),
+      },
+    };
+  });
+  return formattedData;
+}
+
+export function convertPresetIntoExcerciseSetGroups(
+  presetExcerciseSetGroups: PresetExcerciseSetGroup[]
+) {
+  const formattedData = presetExcerciseSetGroups.map(function (
+    excerciseSetGroup
+  ) {
+    const { preset_excercise_sets, excercise_name } = excerciseSetGroup;
+    return {
+      excercise: {
+        connect: {
+          excercise_name: excercise_name,
+        },
+      },
+      excercise_set_group_state: ExcerciseSetGroupState.NormalOperation,
+      // this field only works because preset excercise sets works as an interface for excerciseSetInput <--- might want to look at a better solution here
+      excercise_sets: {
+        create: preset_excercise_sets.map(function (excerciseSet) {
+          const { target_reps, target_weight, weight_unit } = excerciseSet;
+          return {
+            target_reps: target_reps,
+            target_weight: target_weight,
+            weight_unit: weight_unit,
+          };
+        }),
+      },
+    };
+  });
+  return formattedData;
 }

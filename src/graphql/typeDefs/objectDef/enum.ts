@@ -26,8 +26,14 @@ export const Enum = gql`
     AI_MANAGED
     SELF_MANAGED
     COACH_MANAGED
+    CHALLENGE
   }
-
+  enum PresetDifficulty {
+    EASY
+    NORMAL
+    HARD
+    VERY_HARD
+  }
   "Used in overloading algorithm to determine what to do with that set."
   enum ExcerciseSetGroupState {
     DELETED_TEMPORARILY

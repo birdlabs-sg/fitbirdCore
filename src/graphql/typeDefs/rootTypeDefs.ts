@@ -31,6 +31,15 @@ import { mutateGenerateWorkouts } from "./mutationDef/mutateGenerateWorkouts";
 import { mutateNotification } from "./mutationDef/mutateNotification";
 import { mutateProgram } from "./mutationDef/mutateProgram";
 import { ContentBlock } from "./objectDef/contentBlock";
+import { privateMessage } from "./objectDef/privateMessage";
+import { mutatePrivateMessage } from "./mutationDef/mutatePrivateMessage";
+import { mutateChallenge } from "./mutationDef/mutateChallenge";
+import { mutatePreset } from "./mutationDef/mutatePresets";
+import { Challenge } from "./objectDef/challenge";
+import { ChallengePreset } from "./objectDef/challengePreset";
+import { PresetExcerciseSet } from "./objectDef/presetExcerciseSet";
+import { PresetWorkout } from "./objectDef/presetWorkout";
+
 
 const queryTypeDef = gql`
   scalar Date
@@ -46,6 +55,8 @@ const queryTypeDef = gql`
       programProgram_id: ID!
     ): Workout
     user: User
+    challengePresets:[ChallengePreset]
+    challengePreset(preset_id:ID):ChallengePreset
     workouts(filter: WorkoutFilter!, type: WorkoutType, user_id: ID): [Workout]
     # TODO: Implement these to fit the description on linear
     getWorkout(workout_id: ID!): Workout
@@ -70,8 +81,10 @@ const queryTypeDef = gql`
     ): ExcercisePerformance
     getExcerciseMetadatas(excercise_names_list: [ID!]!): [ExcerciseMetadata]
     getContentBlocks(content_block_type: ContentBlockType!): [ContentBlock]
+    getPrivateMessages(pair_id:ID!):[PrivateMessage]
     "This query is only available to administrators."
     users: [User]
+    
   }
 `;
 
@@ -99,6 +112,9 @@ const mutationTypeDefs = [
   mutateNotification,
   mutateProgram,
   mutateBaseUser,
+  mutatePrivateMessage,
+  mutateChallenge,
+  mutatePreset,
 ];
 
 const objectTypeDefs = [
@@ -121,6 +137,11 @@ const objectTypeDefs = [
   Review,
   Analytics,
   ContentBlock,
+  privateMessage,
+  Challenge,
+  ChallengePreset,
+  PresetExcerciseSet,
+  PresetWorkout
 ];
 
 export const typeDefs = baseTypeDefs.concat.apply(
