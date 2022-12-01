@@ -115,6 +115,7 @@ enum WorkoutState {
   IN_PROGRESS
   COMPLETED
   DRAFT
+  CANCELLED
 }
 
 enum WorkoutType {

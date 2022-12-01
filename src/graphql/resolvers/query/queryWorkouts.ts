@@ -3,7 +3,6 @@ import { AppContext } from "../../../types/contextType";
 import {
   onlyAuthenticated,
 } from "../../../service/firebase/firebase_service";
-import { WorkoutState } from "@prisma/client";
 export async function workoutsQueryResolver(
   _: unknown,
   { filter, type, user_id }: QueryWorkoutsArgs,
@@ -18,7 +17,6 @@ export async function workoutsQueryResolver(
         where: {
           user_id: user_id==undefined? context.base_user!.User!.user_id:parseInt(user_id),
           date_completed: null,
-          workout_state:WorkoutState.UNATTEMPTED,
           workout_type: type ?? undefined,
         },
         orderBy: {

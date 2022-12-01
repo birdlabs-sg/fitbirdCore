@@ -48,6 +48,7 @@ export const Enum = gql`
     IN_PROGRESS
     COMPLETED
     DRAFT
+    CANCELLED
   }
 
   enum ContentBlockType {

@@ -11,7 +11,7 @@ import {
 } from "../../types/graphql";
 
 import { generateExerciseMetadata } from "./exercise_metadata_manager/exercise_metadata_manager";
-import { WorkoutType } from "@prisma/client";
+import { WorkoutState, WorkoutType } from "@prisma/client";
 import { PresetExcerciseSetGroupInput } from "../../types/graphql";
 import { onlyCoach } from "../../service/firebase/firebase_service";
 import { GraphQLError } from "graphql";
@@ -351,6 +351,7 @@ export async function resetActiveProgramsForCoaches(
     },
     data: {
       date_completed: date,
+      workout_state: WorkoutState.CANCELLED
     },
   });
 }
