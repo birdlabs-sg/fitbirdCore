@@ -7,6 +7,7 @@ import {
 } from '../../../types/graphql';
 import { rotations_type, workout_name_list } from './constants';
 import {
+  dateOffSet,
   formatAndGenerateExcerciseSets,
   formatExcerciseSetGroups,
   getActiveWorkoutCount,
@@ -422,14 +423,15 @@ export async function generateNextWorkout(
         }
       }
       else if(life_span>0){
-        const date = new Date();
-        date.setDate(date.getDate() + 7); // set the date to the next week
+        let newDate = new Date();
+        newDate.setDate(newDate.getDate() + 7); // set the date to the next week
+        newDate = dateOffSet(newDate)
         await prisma.workout.create({
           data: {
             user_id: context.base_user!.User!.user_id,
             workout_name: workout_name!,
             life_span: life_span! - 1,
-            date_scheduled: date,
+            date_scheduled: newDate,
             order_index: await getActiveWorkoutCount(context, workout_type),
             workout_type: workout_type,
             programProgram_id: programProgram_id,

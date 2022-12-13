@@ -427,3 +427,13 @@ export function convertPresetIntoExcerciseSetGroups(
   });
   return formattedData;
 }
+export function dateOffSet (utcTime: Date | undefined){
+  if (utcTime === undefined) {
+    const localDate = new Date();
+    return localDate;
+  } else {
+    const tzoffset = utcTime.getTimezoneOffset() * 60000;
+    const localTime = new Date(utcTime.getTime() - tzoffset);
+    return localTime;
+  }
+};
