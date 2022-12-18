@@ -124,4 +124,9 @@ export const Enum = gql`
     LOW_MOOD
     INSUFFICIENT_SLEEP
   }
+
+  enum coachUserFilter{
+    ACTIVE
+    NONE
+  }
 `;

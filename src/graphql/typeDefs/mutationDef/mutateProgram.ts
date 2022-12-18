@@ -52,5 +52,10 @@ export const mutateProgram = gql`
         user_id: ID!
         workoutsInput: [workoutInput!]!
     ):mutateProgramResponse
+    "[PROTECTED] ends an active program object (ONLY COACH)."
+    endActiveProgram(
+        user_id: ID!
+    ):mutateProgramResponse
   }
+  
 `;
