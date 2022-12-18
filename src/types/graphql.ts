@@ -379,7 +379,7 @@ export type Mutation = {
   /** [PROTECTED] Deletes a workout object (Must belong to the requestor). */
   deleteWorkout?: Maybe<MutateWorkoutsResponse>;
   /** [PROTECTED] ends an active program object (ONLY COACH). */
-  endActiveProgram?: Maybe<MutationResponse>;
+  endActiveProgram?: Maybe<MutateProgramResponse>;
   generateFirebaseIdToken?: Maybe<GenerateIdTokenResponse>;
   generateNotification?: Maybe<NotificationResponse>;
   generateWorkoutReminder?: Maybe<NotificationResponse>;
@@ -1481,7 +1481,7 @@ export type MutationResolvers<ContextType = AppContext, ParentType extends Resol
   deleteMuscleRegion?: Resolver<Maybe<ResolversTypes['mutateMuscleRegionResponse']>, ParentType, ContextType, RequireFields<MutationDeleteMuscleRegionArgs, 'muscle_region_id'>>;
   deletePrivateMessage?: Resolver<Maybe<ResolversTypes['MutationResponse']>, ParentType, ContextType, RequireFields<MutationDeletePrivateMessageArgs, 'message_id'>>;
   deleteWorkout?: Resolver<Maybe<ResolversTypes['mutateWorkoutsResponse']>, ParentType, ContextType, RequireFields<MutationDeleteWorkoutArgs, 'workout_id'>>;
-  endActiveProgram?: Resolver<Maybe<ResolversTypes['MutationResponse']>, ParentType, ContextType, RequireFields<MutationEndActiveProgramArgs, 'user_id'>>;
+  endActiveProgram?: Resolver<Maybe<ResolversTypes['mutateProgramResponse']>, ParentType, ContextType, RequireFields<MutationEndActiveProgramArgs, 'user_id'>>;
   generateFirebaseIdToken?: Resolver<Maybe<ResolversTypes['GenerateIdTokenResponse']>, ParentType, ContextType, RequireFields<MutationGenerateFirebaseIdTokenArgs, 'uid'>>;
   generateNotification?: Resolver<Maybe<ResolversTypes['NotificationResponse']>, ParentType, ContextType, RequireFields<MutationGenerateNotificationArgs, 'body' | 'title' | 'token'>>;
   generateWorkoutReminder?: Resolver<Maybe<ResolversTypes['NotificationResponse']>, ParentType, ContextType>;
