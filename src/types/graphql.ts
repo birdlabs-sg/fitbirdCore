@@ -378,6 +378,8 @@ export type Mutation = {
   deletePrivateMessage?: Maybe<MutationResponse>;
   /** [PROTECTED] Deletes a workout object (Must belong to the requestor). */
   deleteWorkout?: Maybe<MutateWorkoutsResponse>;
+  /** [PROTECTED] ends an active program object (ONLY COACH). */
+  endActiveProgram?: Maybe<MutationResponse>;
   generateFirebaseIdToken?: Maybe<GenerateIdTokenResponse>;
   generateNotification?: Maybe<NotificationResponse>;
   generateWorkoutReminder?: Maybe<NotificationResponse>;
@@ -492,6 +494,12 @@ export type MutationDeletePrivateMessageArgs = {
 /** [PROTECTED] Mutation to create a challengePreset */
 export type MutationDeleteWorkoutArgs = {
   workout_id: Scalars['ID'];
+};
+
+
+/** [PROTECTED] Mutation to create a challengePreset */
+export type MutationEndActiveProgramArgs = {
+  user_id: Scalars['ID'];
 };
 
 
@@ -710,7 +718,7 @@ export type Query = {
   challengePresets?: Maybe<Array<Maybe<ChallengePreset>>>;
   coachActiveProgram?: Maybe<Program>;
   coachAllUsers?: Maybe<Array<Maybe<BaseUser>>>;
-  coachUsers?: Maybe<Array<Maybe<BaseUser>>>;
+  coachRegisteredUsers?: Maybe<Array<Maybe<BaseUser>>>;
   coachWorkoutName?: Maybe<Workout>;
   excercises?: Maybe<Array<Maybe<Excercise>>>;
   excludedExcercises?: Maybe<Array<Maybe<Excercise>>>;
@@ -752,6 +760,12 @@ export type QueryChallengePresetArgs = {
 /** This is the root query to resources. Require ADMIN permission to access all, otherwise resources are scoped to the user issuing the request. */
 export type QueryCoachActiveProgramArgs = {
   user_id: Scalars['ID'];
+};
+
+
+/** This is the root query to resources. Require ADMIN permission to access all, otherwise resources are scoped to the user issuing the request. */
+export type QueryCoachRegisteredUsersArgs = {
+  filter: CoachUserFilter;
 };
 
 
@@ -927,6 +941,12 @@ export const WorkoutType = {
 } as const;
 
 export type WorkoutType = typeof WorkoutType[keyof typeof WorkoutType];
+export const CoachUserFilter = {
+  Active: 'ACTIVE',
+  None: 'NONE'
+} as const;
+
+export type CoachUserFilter = typeof CoachUserFilter[keyof typeof CoachUserFilter];
 export type ExcerciseMetaDataInput = {
   best_rep?: InputMaybe<Scalars['Int']>;
   best_weight?: InputMaybe<Scalars['Float']>;
@@ -1155,6 +1175,7 @@ export type ResolversTypes = {
   WorkoutFrequency: ResolverTypeWrapper<WorkoutFrequency>;
   WorkoutState: WorkoutState;
   WorkoutType: WorkoutType;
+  coachUserFilter: CoachUserFilter;
   excerciseMetaDataInput: ExcerciseMetaDataInput;
   excerciseSetGroupInput: ExcerciseSetGroupInput;
   excerciseSetInput: ExcerciseSetInput;
@@ -1460,6 +1481,7 @@ export type MutationResolvers<ContextType = AppContext, ParentType extends Resol
   deleteMuscleRegion?: Resolver<Maybe<ResolversTypes['mutateMuscleRegionResponse']>, ParentType, ContextType, RequireFields<MutationDeleteMuscleRegionArgs, 'muscle_region_id'>>;
   deletePrivateMessage?: Resolver<Maybe<ResolversTypes['MutationResponse']>, ParentType, ContextType, RequireFields<MutationDeletePrivateMessageArgs, 'message_id'>>;
   deleteWorkout?: Resolver<Maybe<ResolversTypes['mutateWorkoutsResponse']>, ParentType, ContextType, RequireFields<MutationDeleteWorkoutArgs, 'workout_id'>>;
+  endActiveProgram?: Resolver<Maybe<ResolversTypes['MutationResponse']>, ParentType, ContextType, RequireFields<MutationEndActiveProgramArgs, 'user_id'>>;
   generateFirebaseIdToken?: Resolver<Maybe<ResolversTypes['GenerateIdTokenResponse']>, ParentType, ContextType, RequireFields<MutationGenerateFirebaseIdTokenArgs, 'uid'>>;
   generateNotification?: Resolver<Maybe<ResolversTypes['NotificationResponse']>, ParentType, ContextType, RequireFields<MutationGenerateNotificationArgs, 'body' | 'title' | 'token'>>;
   generateWorkoutReminder?: Resolver<Maybe<ResolversTypes['NotificationResponse']>, ParentType, ContextType>;
@@ -1545,7 +1567,7 @@ export type QueryResolvers<ContextType = AppContext, ParentType extends Resolver
   challengePresets?: Resolver<Maybe<Array<Maybe<ResolversTypes['ChallengePreset']>>>, ParentType, ContextType>;
   coachActiveProgram?: Resolver<Maybe<ResolversTypes['Program']>, ParentType, ContextType, RequireFields<QueryCoachActiveProgramArgs, 'user_id'>>;
   coachAllUsers?: Resolver<Maybe<Array<Maybe<ResolversTypes['BaseUser']>>>, ParentType, ContextType>;
-  coachUsers?: Resolver<Maybe<Array<Maybe<ResolversTypes['BaseUser']>>>, ParentType, ContextType>;
+  coachRegisteredUsers?: Resolver<Maybe<Array<Maybe<ResolversTypes['BaseUser']>>>, ParentType, ContextType, RequireFields<QueryCoachRegisteredUsersArgs, 'filter'>>;
   coachWorkoutName?: Resolver<Maybe<ResolversTypes['Workout']>, ParentType, ContextType, RequireFields<QueryCoachWorkoutNameArgs, 'programProgram_id' | 'user_id' | 'workout_name'>>;
   excercises?: Resolver<Maybe<Array<Maybe<ResolversTypes['Excercise']>>>, ParentType, ContextType>;
   excludedExcercises?: Resolver<Maybe<Array<Maybe<ResolversTypes['Excercise']>>>, ParentType, ContextType>;

@@ -330,7 +330,8 @@ export async function resetActiveProgramsForCoaches(
   user_id: string
 ) {
   const prisma = context.dataSources.prisma;
-  const date = new Date();
+  let newDate = new Date();
+  newDate = dateOffSet(newDate)
   //set all active programs to be inactive
 
   await prisma.program.updateMany({
@@ -350,7 +351,7 @@ export async function resetActiveProgramsForCoaches(
       workout_type: workout_type,
     },
     data: {
-      date_completed: date,
+      date_completed: newDate,
       workout_state: WorkoutState.CANCELLED
     },
   });
