@@ -14,7 +14,6 @@ import { Program } from "./objectDef/program";
 import { Review } from "./objectDef/review";
 import { BaseUser } from "./objectDef/baseUser";
 import { Analytics } from "./objectDef/analytics";
-
 // Imports for mutations
 import { mutateSignup } from "./mutationDef/mutateSignup";
 import { mutatateGenerateIdToken } from "./mutationDef/mutateGenerateIdToken";
@@ -46,7 +45,7 @@ const queryTypeDef = gql`
   "This is the root query to resources. Require ADMIN permission to access all, otherwise resources are scoped to the user issuing the request."
   type Query {
     baseUsers: [BaseUser]
-    coachUsers: [BaseUser]
+    coachRegisteredUsers(filter: coachUserFilter!): [BaseUser]
     coachAllUsers: [BaseUser]
     coachActiveProgram(user_id:ID!): Program
     coachWorkoutName(

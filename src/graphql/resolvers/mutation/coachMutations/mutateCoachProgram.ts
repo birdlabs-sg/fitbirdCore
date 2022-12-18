@@ -93,3 +93,19 @@ export const createProgram = async (
     program: await getActiveProgram(context, user_id),
   };
 };
+
+export const endActiveProgram = async(
+  _: unknown,
+  args:any,
+  context:AppContext
+)=>{
+  onlyCoach(context)
+  const {user_id}=args;
+  resetActiveProgramsForCoaches(context, WorkoutType.COACH_MANAGED, user_id);
+  return {
+    code: "200",
+    success: true,
+    message: "Successfully ended active program!",
+    program: await getActiveProgram(context, user_id),
+  };
+}
