@@ -56,6 +56,12 @@ export const mutateProgram = gql`
     endActiveProgram(
         user_id: ID!
     ):mutateProgramResponse
+    "[PROTECTED] loads an active program preset object into program (ONLY COACH)."
+    loadProgramFromPreset(
+        user_id: ID!
+        programPreset_id:ID!
+        start_date:Date!
+    ):mutateProgramResponse
   }
   
 `;

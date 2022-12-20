@@ -38,7 +38,7 @@ import { Resolvers } from "../../types/graphql";
 import { usersQueryResolver } from "./query/queryUsers";
 import { GraphQLScalarType } from "graphql";
 import { baseUsersQueryResolver } from "./query/queryBaseUsers";
-import { createProgram,endActiveProgram } from "./mutation/coachMutations/mutateCoachProgram";
+import { createProgram,endActiveProgram, loadProgramFromPreset } from "./mutation/coachMutations/mutateCoachProgram";
 import { coachAllUsersQueryResolver } from "./query/coachQueries/queryCoachAllUsers";
 import { coachWorkoutNameQueryResolver } from "./query/coachQueries/queryCoachWorkoutName";
 import { coachRegisteredUsersQueryResolver } from "./query/coachQueries/queryCoachRegisteredUsers";
@@ -52,10 +52,9 @@ import { updateBaseUserResolver } from "./mutation/mutateBaseUser";
 import { getContentBlocksResolver } from "./query/queryContentBlocks";
 import { privateMessagesQueryResolver } from "./query/queryPrivateMessages";
 import { createPrivateMessage, deletePrivateMessage } from "./mutation/mutatePrivateMessage";
-import { createChallenge } from "./mutation/mutateChallenge";
-import { createChallengePreset } from "./mutation/mutatePresets";
-import { presetQueryResolver } from "./query/queryPreset";
-import { presetsQueryResolver } from "./query/queryPresets";
+import { createProgramPreset, deleteProgramPreset } from "./mutation/mutatePresets";
+import { coachPresetQueryResolver } from "./query/coachQueries/queryCoachPreset";
+import { coachPresetsQueryResolver } from "./query/coachQueries/queryCoachPresets";
 const dateScalar = new GraphQLScalarType({
   name: "Date",
   description: "Date custom scalar type",
@@ -94,9 +93,10 @@ export const resolvers: Resolvers = {
     regenerateWorkouts: regenerateWorkouts,
     createPrivateMessage: createPrivateMessage,
     deletePrivateMessage:deletePrivateMessage,
-    createChallenge: createChallenge,
-    createChallengePreset:createChallengePreset,
     endActiveProgram: endActiveProgram,
+    loadProgramFromPreset:loadProgramFromPreset,
+    createProgramPreset:createProgramPreset,
+    deleteProgramPreset:deleteProgramPreset
   },
 
   //Root Query: Top level querying logic here
@@ -107,6 +107,8 @@ export const resolvers: Resolvers = {
     coachAllUsers: coachAllUsersQueryResolver,
     coachActiveProgram: coachActiveProgramQueryResolver,
     coachWorkoutName: coachWorkoutNameQueryResolver,
+    coachPreset:coachPresetQueryResolver,
+    coachPresets:coachPresetsQueryResolver,
     user: userQueryResolvers,
     workouts: workoutsQueryResolver,
     getWorkout: workoutQueryResolver,
@@ -121,8 +123,7 @@ export const resolvers: Resolvers = {
     analyticsExerciseTotalVolume: analyticsExerciseTotalVolumeResolver,
     analyticsWorkoutAverageRPE: analyticsWorkoutAverageRPEResolver,
     getPrivateMessages: privateMessagesQueryResolver,
-    challengePreset: presetQueryResolver,
-    challengePresets: presetsQueryResolver
+   
   },
   // workout query
   Workout: {

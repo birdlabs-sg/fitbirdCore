@@ -223,13 +223,13 @@ export const completeWorkout = async (
     completedWorkout.workout_type
   );
   // only change to this file for the challenge update (if clause): generate the workouts only if it is not challenge
-  if(completedWorkout.workout_type!==WorkoutType.CHALLENGE){
+ 
     await generateNextWorkout(
       context,
       completedWorkout,
       next_workout_excercise_group_sets
     );
-  }
+
   report(`${context.base_user?.displayName} completed a workout. ✅`);
 
   return {
