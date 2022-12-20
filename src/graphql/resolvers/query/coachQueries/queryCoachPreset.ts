@@ -12,7 +12,7 @@ export const coachPresetQueryResolver = async (
 
   return await prisma.programPreset.findUnique({
     where: {
-      programPreset_id: parseInt(args.preset_id),
+      programPreset_id: parseInt(args.programPreset_id),
     },
     include:{
       preset_workouts:{

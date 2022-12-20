@@ -51,7 +51,7 @@ const queryTypeDef = gql`
       user_id: ID!
       programProgram_id: ID!
     ): Workout
-    coachPreset(preset_id:ID!): programPreset
+    coachPreset(programPreset_id:ID!): programPreset
     coachPresets: [programPreset]
     user: User
     workouts(filter: WorkoutFilter!, type: WorkoutType, user_id: ID): [Workout]

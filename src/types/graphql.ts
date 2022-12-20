@@ -733,7 +733,7 @@ export type QueryCoachActiveProgramArgs = {
 
 /** This is the root query to resources. Require ADMIN permission to access all, otherwise resources are scoped to the user issuing the request. */
 export type QueryCoachPresetArgs = {
-  preset_id: Scalars['ID'];
+  programPreset_id: Scalars['ID'];
 };
 
 
@@ -1523,7 +1523,7 @@ export type QueryResolvers<ContextType = AppContext, ParentType extends Resolver
   baseUsers?: Resolver<Maybe<Array<Maybe<ResolversTypes['BaseUser']>>>, ParentType, ContextType>;
   coachActiveProgram?: Resolver<Maybe<ResolversTypes['Program']>, ParentType, ContextType, RequireFields<QueryCoachActiveProgramArgs, 'user_id'>>;
   coachAllUsers?: Resolver<Maybe<Array<Maybe<ResolversTypes['BaseUser']>>>, ParentType, ContextType>;
-  coachPreset?: Resolver<Maybe<ResolversTypes['programPreset']>, ParentType, ContextType, RequireFields<QueryCoachPresetArgs, 'preset_id'>>;
+  coachPreset?: Resolver<Maybe<ResolversTypes['programPreset']>, ParentType, ContextType, RequireFields<QueryCoachPresetArgs, 'programPreset_id'>>;
   coachPresets?: Resolver<Maybe<Array<Maybe<ResolversTypes['programPreset']>>>, ParentType, ContextType>;
   coachRegisteredUsers?: Resolver<Maybe<Array<Maybe<ResolversTypes['BaseUser']>>>, ParentType, ContextType, RequireFields<QueryCoachRegisteredUsersArgs, 'filter'>>;
   coachWorkoutName?: Resolver<Maybe<ResolversTypes['Workout']>, ParentType, ContextType, RequireFields<QueryCoachWorkoutNameArgs, 'programProgram_id' | 'user_id' | 'workout_name'>>;
