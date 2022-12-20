@@ -7,6 +7,7 @@ export const PresetExcerciseSet = gql`
     target_reps:Int
     target_weight:Float
     weight_unit:WeightUnit
+    preset_excercise_set_group_id: Int
   }
   
   `

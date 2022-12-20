@@ -1,15 +1,15 @@
 import gql from "graphql-tag";
 
-export const ChallengePreset = gql`
+export const programPreset = gql`
   "Represents a challenge Preset."
-  type ChallengePreset {
-    challengePreset_id: Int!
-    challenges: [Challenge!]
+  type programPreset {
+    programPreset_id: Int!
     preset_workouts: [PresetWorkout!]
     preset_name: String
-    duration: Int
+    life_span: Int
     preset_difficulty: PresetDifficulty
     image_url: String
+    coach_id: Int
   }
  
 `;
