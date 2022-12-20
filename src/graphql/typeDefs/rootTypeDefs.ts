@@ -32,10 +32,8 @@ import { mutateProgram } from "./mutationDef/mutateProgram";
 import { ContentBlock } from "./objectDef/contentBlock";
 import { privateMessage } from "./objectDef/privateMessage";
 import { mutatePrivateMessage } from "./mutationDef/mutatePrivateMessage";
-import { mutateChallenge } from "./mutationDef/mutateChallenge";
 import { mutatePreset } from "./mutationDef/mutatePresets";
-import { Challenge } from "./objectDef/challenge";
-import { ChallengePreset } from "./objectDef/challengePreset";
+import {programPreset } from "./objectDef/programPreset";
 import { PresetExcerciseSet } from "./objectDef/presetExcerciseSet";
 import { PresetWorkout } from "./objectDef/presetWorkout";
 
@@ -53,9 +51,9 @@ const queryTypeDef = gql`
       user_id: ID!
       programProgram_id: ID!
     ): Workout
+    coachPreset(programPreset_id:ID!): programPreset
+    coachPresets: [programPreset]
     user: User
-    challengePresets:[ChallengePreset]
-    challengePreset(preset_id:ID):ChallengePreset
     workouts(filter: WorkoutFilter!, type: WorkoutType, user_id: ID): [Workout]
     # TODO: Implement these to fit the description on linear
     getWorkout(workout_id: ID!): Workout
@@ -112,7 +110,6 @@ const mutationTypeDefs = [
   mutateProgram,
   mutateBaseUser,
   mutatePrivateMessage,
-  mutateChallenge,
   mutatePreset,
 ];
 
@@ -137,8 +134,7 @@ const objectTypeDefs = [
   Analytics,
   ContentBlock,
   privateMessage,
-  Challenge,
-  ChallengePreset,
+ programPreset,
   PresetExcerciseSet,
   PresetWorkout
 ];

@@ -124,6 +124,7 @@ enum WorkoutType {
   COACH_MANAGED
   CHALLENGE
 }
+
 enum PresetDifficulty {
   EASY
   NORMAL
@@ -177,6 +178,7 @@ model Coach {
   base_user_id Int       @unique
   Review       Review[]
   Program      Program[]
+  ProgramPreset ProgramPreset[]
 }
 
 model Review {
@@ -188,40 +190,32 @@ model Review {
 }
 
 model Program {
-  program_id Int       @id @default(autoincrement())
-  coach      Coach     @relation(fields: [coach_id], references: [coach_id], onDelete: Cascade)
-  user       User      @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
+  program_id Int        @id @default(autoincrement())
+  coach      Coach      @relation(fields: [coach_id], references: [coach_id], onDelete: Cascade)
+  user       User       @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
   workouts   Workout[]
   coach_id   Int
   user_id    Int
-  is_active  Boolean   @default(true)
+  is_active  Boolean    @default(true)
+  program_preset_id Int?
 }
-model Challenge {
-  challenge_id          Int               @id @default(autoincrement()) // user will able to view their challenges via challenge id
-  user                  User              @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
-  challengePreset       ChallengePreset   @relation(fields: [presetPreset_id], references: [challengePreset_id], onDelete: Cascade)
-  workouts              Workout[]         
-  user_id               Int
-  is_active             Boolean           @default(true)
-  presetPreset_id       Int
-  completion_status     Boolean           @default(false)
-  completion_date       DateTime?        
-}
-// a preset for the challenges to be loaded into the challenges
-model ChallengePreset {
-  challengePreset_id   Int               @id @default(autoincrement()) // user will be able to select from the list of challenges
-  challenges           Challenge[]
-  preset_workouts      PresetWorkouts[]
+
+// a preset for the programs to be loaded into the programs
+model ProgramPreset {
+  programPreset_id     Int                  @id @default(autoincrement()) // user will be able to select from the list of challenges
+  preset_workouts      PresetWorkouts[]    // up to a maximum of 7 workouts
   preset_name          String
-  duration             Int               // days
+  life_span            Int               // days
   preset_difficulty    PresetDifficulty  // enum to describe difficulty
   image_url            String?           // poster
+  coach                Coach      @relation(fields: [coach_id], references: [coach_id], onDelete: Cascade)
+  coach_id             Int
 }
 
 model PresetWorkouts {
   preset_workout_id                      Int                 @id @default(autoincrement())
-  challengePreset                        ChallengePreset     @relation(fields: [challengePreset_id], references: [challengePreset_id], onDelete: Cascade)
-  challengePreset_id                     Int  
+  programPreset                          ProgramPreset        @relation(fields: [programPreset_id], references: [programPreset_id], onDelete: Cascade)
+  programPreset_id                       Int  
   preset_excercise_set_groups            PresetExcerciseSetGroup[]
   rest_day                               Boolean             @default(false)
 }
@@ -278,7 +272,6 @@ model User {
   broadcasts                        BroadCast[]
   excerciseMetadata                 ExcerciseMetadata[]
   Program                           Program[]
-  Challenge                         Challenge[]
   selected_exercise_for_analytics   Excercise[]
 }
 
@@ -327,9 +320,7 @@ model Workout {
   workout_type            WorkoutType         @default(SELF_MANAGED)
   excercise_set_groups    ExcerciseSetGroup[]
   Program                 Program?            @relation(fields: [programProgram_id], references: [program_id], onDelete: Cascade) // Will only have a value if this is coach-managed. No choice because polymorphism not supported yet by prisma.
-  Challenge               Challenge?          @relation(fields: [challengeChallenge_id], references: [challenge_id], onDelete: Cascade) //Will only have a value if this is challenge 
   programProgram_id       Int?
-  challengeChallenge_id   Int?
 }
 
 model ExcerciseSetGroup {
