@@ -1,20 +1,18 @@
 import { AppContext } from "../../../../types/contextType";
 import {
   onlyCoach,
-  onlyAuthenticated,
 } from "../../../../service/firebase/firebase_service";
 import {
   getActiveProgram,
   getActiveWorkoutCount,
 } from "../../../../service/workout_manager/utils";
-import { MutationCreateProgramArgs, MutationLoadProgramFromPresetArgs } from "../../../../types/graphql";
+import { MutationCreateProgramArgs } from "../../../../types/graphql";
 import { formatExcerciseSetGroups } from "../../../../service/workout_manager/utils";
 import { extractMetadatas } from "../../../../service/workout_manager/utils";
 import { generateOrUpdateExcerciseMetadata } from "../../../../service/workout_manager/exercise_metadata_manager/exercise_metadata_manager";
 import { ExcerciseSetGroupInput } from "../../../../types/graphql";
 import { Workout, WorkoutType } from "@prisma/client";
 import { resetActiveProgramsForCoaches } from "../../../../service/workout_manager/utils";
-import { convertPresetIntoExcerciseSetGroups } from "../../../../service/workout_manager/utils";
 /*at any given time, there will only be one active program for the user,so
   //1. change all existing programs to is_active = false
   //2. set the new program to be active,
@@ -107,71 +105,3 @@ export const endActiveProgram = async (
 };
 
 
-//TO DO: fix and implement
-export async function loadProgramFromPreset(
-  _: unknown,
-  args: MutationLoadProgramFromPresetArgs,
-  context: AppContext
-) {
-  onlyAuthenticated(context);
-  const prisma = context.dataSources.prisma;
-  const { programPreset_id, user_id,start_date } = args;
-  let workouts: Workout[] = [];
-  //1. load preset
-  const preset = await prisma.programPreset.findFirst({
-    where: {
-      programPreset_id: parseInt(programPreset_id),
-    },
-    include: {
-      preset_workouts: {
-        include: {
-          preset_excercise_set_groups: {
-            include: {
-              preset_excercise_sets: true,
-            },
-          },
-        },
-      },
-    },
-  });
-  // 2. set all existing programs to be inactive
-  resetActiveProgramsForCoaches(context, WorkoutType.COACH_MANAGED, user_id);
-  // 3. create workout array, preset_workouts length should be 7, push into arrat only if not rest day
-  for (let i = 0; i < preset.preset_workouts.length; i++) {
-    if(!preset.preset_workouts[i].rest_day){
-      var newDate = new Date(start_date)
-      newDate.setDate(newDate.getDate() + i);
-      let workout: any = {
-        user: { connect: { user_id: context.base_user.User.user_id } },
-        workout_type: WorkoutType.COACH_MANAGED,
-        workout_name: preset.preset_name,
-        date_scheduled:newDate,
-        life_span: preset.life_span, //life_span to be confirmed 1/0 <--
-        order_index: i + 1,
-        excercise_set_groups: {
-          create: convertPresetIntoExcerciseSetGroups(
-            preset.preset_workouts[i].preset_excercise_set_groups
-          ),
-        },
-       
-      };
-      workouts.push(workout);
-    }
-  }
-  // 4. create the program with the workouts
-  await prisma.program.create({
-    data: {
-      workouts: { create: workouts },
-      is_active: true,
-      user: { connect: { user_id: context.base_user.User.user_id } },
-      coach: { connect: { coach_id: context.base_user!.coach!.coach_id } },
-      program_preset_id: parseInt(programPreset_id),
-    },
-  });
-
-  return {
-    code: "200",
-    success: true,
-    message: "Successfully created a challenge.",
-  };
-}

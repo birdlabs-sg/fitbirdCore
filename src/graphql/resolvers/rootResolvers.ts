@@ -38,7 +38,7 @@ import { Resolvers } from "../../types/graphql";
 import { usersQueryResolver } from "./query/queryUsers";
 import { GraphQLScalarType } from "graphql";
 import { baseUsersQueryResolver } from "./query/queryBaseUsers";
-import { createProgram,endActiveProgram, loadProgramFromPreset } from "./mutation/coachMutations/mutateCoachProgram";
+import { createProgram,endActiveProgram } from "./mutation/coachMutations/mutateCoachProgram";
 import { coachAllUsersQueryResolver } from "./query/coachQueries/queryCoachAllUsers";
 import { coachWorkoutNameQueryResolver } from "./query/coachQueries/queryCoachWorkoutName";
 import { coachRegisteredUsersQueryResolver } from "./query/coachQueries/queryCoachRegisteredUsers";
@@ -94,7 +94,6 @@ export const resolvers: Resolvers = {
     createPrivateMessage: createPrivateMessage,
     deletePrivateMessage:deletePrivateMessage,
     endActiveProgram: endActiveProgram,
-    loadProgramFromPreset:loadProgramFromPreset,
     createProgramPreset:createProgramPreset,
     deleteProgramPreset:deleteProgramPreset
   },
