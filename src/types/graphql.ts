@@ -345,6 +345,8 @@ export type Mutation = {
   generateNotification?: Maybe<NotificationResponse>;
   generateWorkoutReminder?: Maybe<NotificationResponse>;
   generateWorkouts?: Maybe<Array<Workout>>;
+  /** [PROTECTED] loads an active program preset object into program (ONLY COACH). */
+  loadProgramFromPreset?: Maybe<MutateProgramResponse>;
   regenerateWorkouts?: Maybe<Array<Workout>>;
   signup?: Maybe<SignupResponse>;
   updateBaseUser?: Maybe<MutateBaseUserResponse>;
@@ -481,6 +483,14 @@ export type MutationGenerateNotificationArgs = {
 /** [PROTECTED] Mutation to create a programPreset */
 export type MutationGenerateWorkoutsArgs = {
   no_of_workouts: Scalars['Int'];
+};
+
+
+/** [PROTECTED] Mutation to create a programPreset */
+export type MutationLoadProgramFromPresetArgs = {
+  programPreset_id: Scalars['ID'];
+  start_date: Scalars['Date'];
+  user_id: Scalars['ID'];
 };
 
 
@@ -1430,6 +1440,7 @@ export type MutationResolvers<ContextType = AppContext, ParentType extends Resol
   generateNotification?: Resolver<Maybe<ResolversTypes['NotificationResponse']>, ParentType, ContextType, RequireFields<MutationGenerateNotificationArgs, 'body' | 'title' | 'token'>>;
   generateWorkoutReminder?: Resolver<Maybe<ResolversTypes['NotificationResponse']>, ParentType, ContextType>;
   generateWorkouts?: Resolver<Maybe<Array<ResolversTypes['Workout']>>, ParentType, ContextType, RequireFields<MutationGenerateWorkoutsArgs, 'no_of_workouts'>>;
+  loadProgramFromPreset?: Resolver<Maybe<ResolversTypes['mutateProgramResponse']>, ParentType, ContextType, RequireFields<MutationLoadProgramFromPresetArgs, 'programPreset_id' | 'start_date' | 'user_id'>>;
   regenerateWorkouts?: Resolver<Maybe<Array<ResolversTypes['Workout']>>, ParentType, ContextType>;
   signup?: Resolver<Maybe<ResolversTypes['SignupResponse']>, ParentType, ContextType, RequireFields<MutationSignupArgs, 'displayName' | 'email' | 'is_user' | 'password'>>;
   updateBaseUser?: Resolver<Maybe<ResolversTypes['MutateBaseUserResponse']>, ParentType, ContextType, Partial<MutationUpdateBaseUserArgs>>;
