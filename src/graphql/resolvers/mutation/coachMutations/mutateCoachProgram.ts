@@ -142,7 +142,7 @@ export async function loadProgramFromPreset(
       var newDate = new Date(start_date)
       newDate.setDate(newDate.getDate() + i);
       let workout: any = {
-        user: { connect: { user_id: context.base_user.User.user_id } },
+        user: { connect: { user_id:parseInt(user_id)} },
         workout_type: WorkoutType.COACH_MANAGED,
         workout_name: preset.preset_name,
         date_scheduled:newDate,
@@ -163,7 +163,7 @@ export async function loadProgramFromPreset(
     data: {
       workouts: { create: workouts },
       is_active: true,
-      user: { connect: { user_id: context.base_user.User.user_id } },
+      user: { connect: { user_id: parseInt(user_id) } },
       coach: { connect: { coach_id: context.base_user!.coach!.coach_id } },
     },
   });
