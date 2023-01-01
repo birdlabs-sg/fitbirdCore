@@ -24,8 +24,8 @@ export const coachActiveProgramQueryResolver = async (
   });
   ///------------------ Temp workaround segment (To be tested once app is completed) -----------------------------///
   /* The issue was that this endpoint is supposed to return only information of workouts up to 7 days, including rest days, in a week, to showcase the flow of the program.
-    However, there is no way to distinguish between the completed workouts and the rest days, as these features have not beem implemented on the schema yet, and the number of completed workouts may exceed 7 OR the number of workouts per week is less than 7, and this would result in skipping some days, which is not the desired outcome for this endpoint
-    A workout program can therefore only be identified in its index via the last 5 letters of its workout name , eg:" abc - Day 1", therefore, we can use it to identify which day it belongs in the workout list of 7 days via this workaround:
+    However, there is no way to distinguish between each completed workouts and each rest days, as these features have not beem implemented on the schema, and the number of completed workouts may exceed 7 OR the number of workouts per week is less than 7, and this would result in skipping some days, which is not the desired outcome for this endpoint
+    A workout program can therefore only be identified in its index via the last 5 letters of its workout name , eg:" abc - Day 1", therefore, we can use it to identify which day it belongs in the workout list of 7 days via this workaround using placeholder workouts:
     1. The counter checks the number of times that it has looped through, a total of 7 days is required to return 1 week of workouts
     2. The i value checks if it is still possible to retrieve the workout from the list of workouts, if it cannot, then it means that it has already reached the end of the program list (may be until a day that is before day 7, hence the other contition, (1) is still required)
     *** However, this assumes that the workouts created by are ordered in decending order: Day 7,6,5,4,3,2,1
