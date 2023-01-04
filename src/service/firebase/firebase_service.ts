@@ -37,34 +37,24 @@ export const signupFirebase = async (
     displayName: displayName,
     disabled: false,
   });
-
-  if (is_user) {
-    const prismaBaseUser = await prisma.baseUser.create({
-      data: {
-        firebase_uid: firebaseUser.uid,
-        email: firebaseUser.email!,
-        displayName: firebaseUser.displayName!,
+  const prismaBaseUser = await prisma.baseUser.create({
+    data: {
+      firebase_uid: firebaseUser.uid,
+      email: firebaseUser.email!,
+      displayName: firebaseUser.displayName!,
+      ...(is_user && {
         User: {
           create: {},
         },
-      },
-    });
-
-    return prismaBaseUser;
-  } else {
-    const prismaBaseUser = await prisma.baseUser.create({
-      data: {
-        firebase_uid: firebaseUser.uid,
-        email: firebaseUser.email!,
-        displayName: firebaseUser.displayName!,
+      }),
+      ...(!is_user && {
         coach: {
           create: {},
         },
-      },
-    });
-
-    return prismaBaseUser;
-  }
+      }),
+    },
+  });
+  return prismaBaseUser;
 };
 
 export const getAuthToken = (req: Context) => {
@@ -112,7 +102,6 @@ export const onlyAuthenticated = (context: AppContext) => {
       },
     });
   }
-
 };
 
 export const onlyAdmin = (context: AppContext) => {
@@ -132,14 +121,6 @@ export const onlyCoach = (context: AppContext) => {
         code: "FORBIDDEN",
       },
     });
-  }
-  
-};
-export const isUser = (context: AppContext) => {
-  if (context.base_user?.User) {
-    return true;
-  } else {
-    return false;
   }
 };
 

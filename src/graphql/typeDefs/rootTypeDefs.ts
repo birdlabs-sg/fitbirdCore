@@ -1,87 +1,95 @@
 import gql from "graphql-tag";
 // Imports for object types
-import { Enum } from "./objectDef/enum";
-import { Excercise } from "./objectDef/excercise";
-import { ExcerciseSet } from "./objectDef/excerciseSet";
-import { Measurement } from "./objectDef/measurement";
-import { Notification } from "./objectDef/notification";
-import { MuscleRegion } from "./objectDef/muscleRegion";
-import { User } from "./objectDef/user";
-import { Workout } from "./objectDef/workout";
-import { BroadCast } from "./objectDef/broadCast";
-import { Coach } from "./objectDef/coach";
-import { Program } from "./objectDef/program";
-import { Review } from "./objectDef/review";
-import { BaseUser } from "./objectDef/baseUser";
-import { Analytics } from "./objectDef/analytics";
+import { Enum } from "./enum";
+import { Excercise } from "./exercise/excercise";
+import { ExcerciseSet } from "./workout/excerciseSet";
+import { Measurement } from "./measurement/measurement";
+import { Notification } from "./notification/notification";
+import { MuscleRegion } from "./muscle_region/muscleRegion";
+import { User } from "./user/user";
+import { Workout } from "./workout/workout";
+import { BroadCast } from "./broadcast/broadCast";
+import { Coach } from "./user/coach";
+import { Program } from "./program/program";
+import { Review } from "./user/review";
+import { BaseUser } from "./user/baseUser";
+import { Analytics } from "./analytics/analytics";
 // Imports for mutations
-import { mutateSignup } from "./mutationDef/mutateSignup";
-import { mutatateGenerateIdToken } from "./mutationDef/mutateGenerateIdToken";
-import { mutateMuscleRegion } from "./mutationDef/mutateMuscleRegion";
-import { mutateMeasurement } from "./mutationDef/mutateMeasurement";
-import { mutateWorkout } from "./mutationDef/mutateWorkout";
-import { mutateUser } from "./mutationDef/mutateUser";
-import { mutateBaseUser } from "./mutationDef/mutateBaseUser";
-import { ExcerciseMetadata } from "./objectDef/exerciseMetadata";
-import { mutateExcerciseMetadata } from "./mutationDef/mutateExcerciseMetaData";
-import { WorkoutFrequency } from "./objectDef/workoutFrequency";
-import { ExcercisePerformance } from "./objectDef/excercisePerformance";
-import { mutateGenerateWorkouts } from "./mutationDef/mutateGenerateWorkouts";
-import { mutateNotification } from "./mutationDef/mutateNotification";
-import { mutateProgram } from "./mutationDef/mutateProgram";
-import { ContentBlock } from "./objectDef/contentBlock";
-import { privateMessage } from "./objectDef/privateMessage";
-import { mutatePrivateMessage } from "./mutationDef/mutatePrivateMessage";
-import { mutatePreset } from "./mutationDef/mutatePresets";
-import {programPreset } from "./objectDef/programPreset";
-import { PresetExcerciseSet } from "./objectDef/presetExcerciseSet";
-import { PresetWorkout } from "./objectDef/presetWorkout";
-
+import { mutateSignup } from "./user/mutateSignup";
+import { mutatateGenerateIdToken } from "./firebase/mutateGenerateIdToken";
+import { mutateMuscleRegion } from "./muscle_region/mutateMuscleRegion";
+import { mutateMeasurement } from "./measurement/mutateMeasurement";
+import { mutateWorkout } from "./workout/mutateWorkout";
+import { mutateUser } from "./user/mutateUser";
+import { mutateBaseUser } from "./user/mutateBaseUser";
+import { ExcerciseMetadata } from "./exercise_metadata/exerciseMetadata";
+import { mutateExcerciseMetadata } from "./exercise_metadata/mutateExcerciseMetaData";
+import { WorkoutFrequency } from "./analytics/workoutFrequency";
+import { ExcercisePerformance } from "./analytics/excercisePerformance";
+import { mutateGenerateWorkouts } from "./program/mutateGenerateProgram";
+import { mutateNotification } from "./notification/mutateNotification";
+import { mutateProgram } from "./program/mutateProgram";
+import { ContentBlock } from "./content_block/contentBlock";
+import { privateMessage } from "./firebase/privateMessage";
+import { mutatePrivateMessage } from "./firebase/mutatePrivateMessage";
+import { mutatePreset } from "./preset/mutatePresets";
+import { programPreset } from "./preset/programPreset";
+import { PresetExcerciseSet } from "./preset/presetExcerciseSet";
+import { PresetWorkout } from "./preset/presetWorkout";
+import { mutateClientCoachRelationship } from "./client_coach_relationship/mutateClientCoachRelationship";
+import { ClientCoachRelationship } from "./client_coach_relationship/clientCoachRelationship";
 
 const queryTypeDef = gql`
   scalar Date
   "This is the root query to resources. Require ADMIN permission to access all, otherwise resources are scoped to the user issuing the request."
   type Query {
-    baseUsers: [BaseUser]
-    coachRegisteredUsers(filter: coachUserFilter!): [BaseUser]
-    coachAllUsers: [BaseUser]
-    coachActiveProgram(user_id:ID!): Program
-    coachWorkoutName(
-      workout_name: ID!
-      user_id: ID!
-      programProgram_id: ID!
-    ): Workout
-    coachPreset(programPreset_id:ID!): programPreset
-    coachPresets: [programPreset]
-    user: User
-    workouts(filter: WorkoutFilter!, type: WorkoutType, user_id: ID): [Workout]
-    # TODO: Implement these to fit the description on linear
-    getWorkout(workout_id: ID!): Workout
-    excercises: [Excercise]
-    excludedExcercises: [Excercise]
+    programs(user_id: ID!, coach_id: ID): Program!
+    preset(programPreset_id: ID!): programPreset!
+    presets: [programPreset!]!
+    baseUser: BaseUser!
+    user: User!
+    workouts(filter: WorkoutQueryFilter!): [Workout!]!
+    workout(workout_id: ID!, user_id: ID!, coach_id: ID): Workout!
+    excercises: [Excercise!]!
+    excludedExcercises: [Excercise!]!
     getExcercise(excercise_name: ID!): Excercise
-    notifications: [Notification]
+    notifications: [Notification!]!
     analyticsExerciseOneRepMax(
       excercise_names_list: [ID!]!
-      user_id:ID
-    ): [ExerciseOneRepMaxDataPoint]
+      user_id: ID
+    ): [ExerciseOneRepMaxDataPoint!]!
     analyticsExerciseTotalVolume(
       excercise_names_list: [ID!]!
-      user_id:ID
-    ): [ExerciseTotalVolumeDataPoint]
-    analyticsWorkoutAverageRPE: [WorkoutAverageRPEDataPoint]
-    workout_frequencies: [WorkoutFrequency]
+      user_id: ID
+    ): [ExerciseTotalVolumeDataPoint!]!
+    analyticsWorkoutAverageRPE: [WorkoutAverageRPEDataPoint!]!
+    workout_frequencies: [WorkoutFrequency!]!
     getExcercisePerformance(
       excercise_name: ID!
       span: Int
-      user_id:ID
-    ): ExcercisePerformance
-    getExcerciseMetadatas(excercise_names_list: [ID!]!): [ExcerciseMetadata]
-    getContentBlocks(content_block_type: ContentBlockType!): [ContentBlock]
-    getPrivateMessages(pair_id:ID!):[PrivateMessage]
-    "This query is only available to administrators."
-    users: [User]
-    
+      user_id: ID
+    ): ExcercisePerformance!
+    getExcerciseMetadatas(excercise_names_list: [ID!]!): [ExcerciseMetadata!]!
+    getContentBlocks(content_block_type: ContentBlockType!): [ContentBlock!]!
+    getPrivateMessages(pair_id: ID!): [PrivateMessage!]!
+    users(coach_filters: UserQueryCoachFilter): [User!]!
+    getClientCoachRelationship(
+      user_id: ID!
+      coach_id: ID!
+    ): ClientCoachRelationship!
+    getClientCoachRelationships: [ClientCoachRelationship!]!
+  }
+
+  input UserQueryCoachFilter {
+    clients: Boolean
+    active: Boolean
+  }
+  input WorkoutQueryFilter {
+    completed: Boolean
+    workout_name: String
+    program_id: ID
+    user_id: ID!
+    coach_id: ID
   }
 `;
 
@@ -111,6 +119,8 @@ const mutationTypeDefs = [
   mutateBaseUser,
   mutatePrivateMessage,
   mutatePreset,
+  mutateGenerateWorkouts,
+  mutateClientCoachRelationship,
 ];
 
 const objectTypeDefs = [
@@ -134,9 +144,10 @@ const objectTypeDefs = [
   Analytics,
   ContentBlock,
   privateMessage,
- programPreset,
+  programPreset,
   PresetExcerciseSet,
-  PresetWorkout
+  PresetWorkout,
+  ClientCoachRelationship,
 ];
 
 export const typeDefs = baseTypeDefs.concat.apply(
