@@ -1,6 +1,6 @@
 import { GraphQLResolveInfo, GraphQLScalarType, GraphQLScalarTypeConfig } from 'graphql';
 import { Token as Tokenmodel } from './tokenType';
-import { BaseUser as BaseUsermodel, ContentBlock as ContentBlockmodel, Coach as Coachmodel, Program as Programmodel, User as Usermodel, Workout as Workoutmodel, ExcerciseMetadata as ExcerciseMetadatamodel, Measurement as Measurementmodel, ExcerciseSetGroup as ExcerciseSetGroupmodel, MuscleRegion as MuscleRegionmodel, Excercise as Excercisemodel, ExcerciseSet as ExcerciseSetmodel, BroadCast as BroadCastmodel, Notification as Notificationmodel } from '@prisma/client';
+import { BaseUser as BaseUsermodel, ContentBlock as ContentBlockmodel, Coach as Coachmodel, Program as Programmodel, User as Usermodel, Workout as Workoutmodel, ExcerciseMetadata as ExcerciseMetadatamodel, Measurement as Measurementmodel, ExcerciseSetGroup as ExcerciseSetGroupmodel, MuscleRegion as MuscleRegionmodel, Excercise as Excercisemodel, ExcerciseSet as ExcerciseSetmodel, BroadCast as BroadCastmodel, Notification as Notificationmodel, CoachClientRelationship as CoachClientRelationshipmodel } from '@prisma/client';
 import { AppContext } from './contextType';
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = undefined | T;
@@ -41,20 +41,20 @@ export type BroadCast = {
 };
 
 /** Represents broadcast message to selected users. */
-export type ClientCoachRelationship = {
-  __typename?: 'ClientCoachRelationship';
-  active?: Maybe<Scalars['Boolean']>;
-  coach?: Maybe<Coach>;
-  date_created?: Maybe<Scalars['Date']>;
-  user?: Maybe<User>;
-};
-
-/** Represents broadcast message to selected users. */
 export type Coach = {
   __typename?: 'Coach';
   Program?: Maybe<Array<Program>>;
   Review?: Maybe<Array<Review>>;
   coach_id: Scalars['ID'];
+};
+
+/** Represents broadcast message to selected users. */
+export type CoachClientRelationship = {
+  __typename?: 'CoachClientRelationship';
+  active?: Maybe<Scalars['Boolean']>;
+  coach?: Maybe<Coach>;
+  date_created?: Maybe<Scalars['Date']>;
+  user?: Maybe<User>;
 };
 
 /** Represents broadcast message to selected users. */
@@ -336,7 +336,7 @@ export type Mutation = {
   __typename?: 'Mutation';
   /** [PROTECTED] Updates a workout object (Must belong to the requestor). Note: This will replace any existing excercise sets. */
   completeWorkout?: Maybe<MutateWorkoutsResponse>;
-  createClientCoachRelationship?: Maybe<MutateClientCoachRelationship>;
+  createCoachClientRelationship?: Maybe<MutateCoachClientRelationship>;
   createExcerciseMetadata?: Maybe<MutateExcerciseMetaDataResponse>;
   /** [PROTECTED] Creates a measurement object for the requestor. */
   createMeasurement?: Maybe<MutateMeasurementResponse>;
@@ -344,26 +344,27 @@ export type Mutation = {
   createMuscleRegion?: Maybe<MutateMuscleRegionResponse>;
   /** [PROTECTED] Creates a PrivateMessage Object. */
   createPrivateMessage?: Maybe<MutatePrivateMessageResponse>;
-  /** [PROTECTED] Creates a program object (ONLY COACH). */
-  createProgram?: Maybe<MutateProgramResponse>;
+  /** [PROTECTED] Creates a program object. */
+  createProgram: MutateProgramResponse;
   createProgramPreset?: Maybe<PresetResponse>;
   /** [PROTECTED] Creates a workout object for the requestor. */
   createWorkout?: Maybe<MutateWorkoutResponse>;
   /** [PROTECTED] Updates a excerciseMetadata object. */
-  deleteClientCoachRelationship?: Maybe<MutateClientCoachRelationship>;
+  deleteCoachClientRelationship?: Maybe<MutateCoachClientRelationship>;
   /** [PROTECTED] Deletes a measurement object for the requestor (Must belong to the requestor). */
   deleteMeasurement?: Maybe<MutateMeasurementResponse>;
   /** [PROTECTED] Deletes a muscle region object. */
   deleteMuscleRegion?: Maybe<MutateMuscleRegionResponse>;
   /** [PROTECTED] Deletes a PrivateMessage Object. */
   deletePrivateMessage?: Maybe<MutationResponse>;
-  deleteProgram: Program;
+  /** [PROTECTED] Deletes a program object. */
+  deleteProgram: MutateProgramResponse;
   /** [PROTECTED] Mutation to delete a programPreset */
   deleteProgramPreset?: Maybe<PresetResponse>;
   /** [PROTECTED] Deletes a workout object (Must belong to the requestor). */
   deleteWorkout?: Maybe<MutateWorkoutsResponse>;
   /** [PROTECTED] ends an active program object (ONLY COACH). */
-  endActiveProgram?: Maybe<MutateProgramResponse>;
+  endActiveProgram: MutateProgramResponse;
   generateFirebaseIdToken?: Maybe<GenerateIdTokenResponse>;
   generateNotification?: Maybe<NotificationResponse>;
   generateProgram: Program;
@@ -371,14 +372,15 @@ export type Mutation = {
   refreshProgram: Program;
   signup?: Maybe<SignupResponse>;
   updateBaseUser?: Maybe<MutateBaseUserResponse>;
-  updateClientCoachRelationship?: Maybe<MutateClientCoachRelationship>;
+  updateCoachClientRelationship?: Maybe<MutateCoachClientRelationship>;
   /** [PROTECTED] Updates a excerciseMetadata object. */
   updateExcerciseMetadata?: Maybe<MutateExcerciseMetaDataResponse>;
   /** [PROTECTED] Update a measurement object for the requestor (Must belong to the requestor). */
   updateMeasurement?: Maybe<MutateMeasurementResponse>;
   /** [PROTECTED] Updates a muscle region object. */
   updateMuscleRegion?: Maybe<MutateMuscleRegionResponse>;
-  updateProgram: Program;
+  /** [PROTECTED] Updates a program object. */
+  updateProgram: MutateProgramResponse;
   updateUser?: Maybe<MutateUserResponse>;
   /** [PROTECTED] Updates a workout object (Must belong to the requestor). Note: This will replace any existing excercise sets. */
   updateWorkout?: Maybe<MutateWorkoutResponse>;
@@ -393,7 +395,7 @@ export type MutationCompleteWorkoutArgs = {
 
 
 /** [PROTECTED] Mutation to create a programPreset */
-export type MutationCreateClientCoachRelationshipArgs = {
+export type MutationCreateCoachClientRelationshipArgs = {
   coach_id: Scalars['ID'];
   user_id: Scalars['ID'];
 };
@@ -442,7 +444,8 @@ export type MutationCreatePrivateMessageArgs = {
 
 /** [PROTECTED] Mutation to create a programPreset */
 export type MutationCreateProgramArgs = {
-  coach_id: Scalars['ID'];
+  coach_id?: InputMaybe<Scalars['ID']>;
+  program_type: ProgramType;
   user_id: Scalars['ID'];
   workoutsInput: Array<WorkoutInput>;
 };
@@ -460,15 +463,17 @@ export type MutationCreateProgramPresetArgs = {
 
 /** [PROTECTED] Mutation to create a programPreset */
 export type MutationCreateWorkoutArgs = {
+  coach_id?: InputMaybe<Scalars['ID']>;
   dayOfWeek: DayOfWeek;
   excercise_set_groups: Array<ExcerciseSetGroupInput>;
   program_id: Scalars['ID'];
+  user_id: Scalars['ID'];
   workout_name: Scalars['String'];
 };
 
 
 /** [PROTECTED] Mutation to create a programPreset */
-export type MutationDeleteClientCoachRelationshipArgs = {
+export type MutationDeleteCoachClientRelationshipArgs = {
   coach_id: Scalars['ID'];
   user_id: Scalars['ID'];
 };
@@ -494,7 +499,9 @@ export type MutationDeletePrivateMessageArgs = {
 
 /** [PROTECTED] Mutation to create a programPreset */
 export type MutationDeleteProgramArgs = {
+  coach_id?: InputMaybe<Scalars['ID']>;
   program_id: Scalars['ID'];
+  user_id: Scalars['ID'];
 };
 
 
@@ -561,7 +568,7 @@ export type MutationUpdateBaseUserArgs = {
 
 
 /** [PROTECTED] Mutation to create a programPreset */
-export type MutationUpdateClientCoachRelationshipArgs = {
+export type MutationUpdateCoachClientRelationshipArgs = {
   active: Scalars['Boolean'];
   coach_id: Scalars['ID'];
   user_id: Scalars['ID'];
@@ -643,10 +650,12 @@ export type MutationUpdateUserArgs = {
 
 /** [PROTECTED] Mutation to create a programPreset */
 export type MutationUpdateWorkoutArgs = {
+  coach_id?: InputMaybe<Scalars['ID']>;
   date_scheduled?: InputMaybe<Scalars['Date']>;
   dayOfWeek?: InputMaybe<DayOfWeek>;
   excercise_set_groups?: InputMaybe<Array<ExcerciseSetGroupInput>>;
   performance_rating?: InputMaybe<Scalars['Float']>;
+  user_id: Scalars['ID'];
   workout_id: Scalars['ID'];
   workout_name?: InputMaybe<Scalars['String']>;
   workout_state?: InputMaybe<WorkoutState>;
@@ -764,8 +773,8 @@ export type Query = {
   baseUser: BaseUser;
   excercises: Array<Excercise>;
   excludedExcercises: Array<Excercise>;
-  getClientCoachRelationship: ClientCoachRelationship;
-  getClientCoachRelationships: Array<ClientCoachRelationship>;
+  getCoachClientRelationship: CoachClientRelationship;
+  getCoachClientRelationships: Array<CoachClientRelationship>;
   getContentBlocks: Array<ContentBlock>;
   getExcercise?: Maybe<Excercise>;
   getExcerciseMetadatas: Array<ExcerciseMetadata>;
@@ -774,7 +783,8 @@ export type Query = {
   notifications: Array<Notification>;
   preset: ProgramPreset;
   presets: Array<ProgramPreset>;
-  programs: Program;
+  program: Program;
+  programs: Array<Program>;
   user: User;
   users: Array<User>;
   workout: Workout;
@@ -798,7 +808,7 @@ export type QueryAnalyticsExerciseTotalVolumeArgs = {
 
 
 /** This is the root query to resources. Require ADMIN permission to access all, otherwise resources are scoped to the user issuing the request. */
-export type QueryGetClientCoachRelationshipArgs = {
+export type QueryGetCoachClientRelationshipArgs = {
   coach_id: Scalars['ID'];
   user_id: Scalars['ID'];
 };
@@ -839,6 +849,14 @@ export type QueryGetPrivateMessagesArgs = {
 /** This is the root query to resources. Require ADMIN permission to access all, otherwise resources are scoped to the user issuing the request. */
 export type QueryPresetArgs = {
   programPreset_id: Scalars['ID'];
+};
+
+
+/** This is the root query to resources. Require ADMIN permission to access all, otherwise resources are scoped to the user issuing the request. */
+export type QueryProgramArgs = {
+  coach_id?: InputMaybe<Scalars['ID']>;
+  program_id: Scalars['ID'];
+  user_id: Scalars['ID'];
 };
 
 
@@ -1030,9 +1048,9 @@ export type ExcerciseSetInput = {
 };
 
 /** Response if mutating a excercise was successful */
-export type MutateClientCoachRelationship = MutationResponse & {
-  __typename?: 'mutateClientCoachRelationship';
-  client_coach_relationship?: Maybe<ClientCoachRelationship>;
+export type MutateCoachClientRelationship = MutationResponse & {
+  __typename?: 'mutateCoachClientRelationship';
+  client_coach_relationship?: Maybe<CoachClientRelationship>;
   code: Scalars['String'];
   message: Scalars['String'];
   success: Scalars['Boolean'];
@@ -1115,7 +1133,6 @@ export type WorkoutInput = {
   date_scheduled?: InputMaybe<Scalars['Date']>;
   dayOfWeek: DayOfWeek;
   excercise_set_groups: Array<ExcerciseSetGroupInput>;
-  program_id: Scalars['ID'];
   workout_name: Scalars['String'];
 };
 
@@ -1191,8 +1208,8 @@ export type ResolversTypes = {
   BaseUser: ResolverTypeWrapper<BaseUsermodel>;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']>;
   BroadCast: ResolverTypeWrapper<BroadCastmodel>;
-  ClientCoachRelationship: ResolverTypeWrapper<Omit<ClientCoachRelationship, 'coach' | 'user'> & { coach?: Maybe<ResolversTypes['Coach']>, user?: Maybe<ResolversTypes['User']> }>;
   Coach: ResolverTypeWrapper<Coachmodel>;
+  CoachClientRelationship: ResolverTypeWrapper<CoachClientRelationshipmodel>;
   ContentBlock: ResolverTypeWrapper<ContentBlockmodel>;
   ContentBlockType: ContentBlockType;
   Date: ResolverTypeWrapper<Scalars['Date']>;
@@ -1226,7 +1243,7 @@ export type ResolversTypes = {
   MutatePrivateMessageResponse: ResolverTypeWrapper<MutatePrivateMessageResponse>;
   MutateUserResponse: ResolverTypeWrapper<Omit<MutateUserResponse, 'user'> & { user?: Maybe<ResolversTypes['User']> }>;
   Mutation: ResolverTypeWrapper<{}>;
-  MutationResponse: ResolversTypes['GenerateIdTokenResponse'] | ResolversTypes['MutateBaseUserResponse'] | ResolversTypes['MutatePrivateMessageResponse'] | ResolversTypes['MutateUserResponse'] | ResolversTypes['NotificationResponse'] | ResolversTypes['SignupResponse'] | ResolversTypes['mutateClientCoachRelationship'] | ResolversTypes['mutateExcerciseMetaDataResponse'] | ResolversTypes['mutateMeasurementResponse'] | ResolversTypes['mutateMuscleRegionResponse'] | ResolversTypes['mutateProgramResponse'] | ResolversTypes['mutateWorkoutResponse'] | ResolversTypes['mutateWorkoutsResponse'] | ResolversTypes['presetResponse'];
+  MutationResponse: ResolversTypes['GenerateIdTokenResponse'] | ResolversTypes['MutateBaseUserResponse'] | ResolversTypes['MutatePrivateMessageResponse'] | ResolversTypes['MutateUserResponse'] | ResolversTypes['NotificationResponse'] | ResolversTypes['SignupResponse'] | ResolversTypes['mutateCoachClientRelationship'] | ResolversTypes['mutateExcerciseMetaDataResponse'] | ResolversTypes['mutateMeasurementResponse'] | ResolversTypes['mutateMuscleRegionResponse'] | ResolversTypes['mutateProgramResponse'] | ResolversTypes['mutateWorkoutResponse'] | ResolversTypes['mutateWorkoutsResponse'] | ResolversTypes['presetResponse'];
   Notification: ResolverTypeWrapper<Notificationmodel>;
   NotificationResponse: ResolverTypeWrapper<NotificationResponse>;
   PresetDifficulty: PresetDifficulty;
@@ -1257,7 +1274,7 @@ export type ResolversTypes = {
   excerciseMetaDataInput: ExcerciseMetaDataInput;
   excerciseSetGroupInput: ExcerciseSetGroupInput;
   excerciseSetInput: ExcerciseSetInput;
-  mutateClientCoachRelationship: ResolverTypeWrapper<Omit<MutateClientCoachRelationship, 'client_coach_relationship'> & { client_coach_relationship?: Maybe<ResolversTypes['ClientCoachRelationship']> }>;
+  mutateCoachClientRelationship: ResolverTypeWrapper<Omit<MutateCoachClientRelationship, 'client_coach_relationship'> & { client_coach_relationship?: Maybe<ResolversTypes['CoachClientRelationship']> }>;
   mutateExcerciseMetaDataResponse: ResolverTypeWrapper<Omit<MutateExcerciseMetaDataResponse, 'excercise_metadata'> & { excercise_metadata?: Maybe<ResolversTypes['ExcerciseMetadata']> }>;
   mutateMeasurementResponse: ResolverTypeWrapper<Omit<MutateMeasurementResponse, 'measurement'> & { measurement?: Maybe<ResolversTypes['Measurement']> }>;
   mutateMuscleRegionResponse: ResolverTypeWrapper<Omit<MutateMuscleRegionResponse, 'muscle_region'> & { muscle_region?: Maybe<ResolversTypes['MuscleRegion']> }>;
@@ -1274,8 +1291,8 @@ export type ResolversParentTypes = {
   BaseUser: BaseUsermodel;
   Boolean: Scalars['Boolean'];
   BroadCast: BroadCastmodel;
-  ClientCoachRelationship: Omit<ClientCoachRelationship, 'coach' | 'user'> & { coach?: Maybe<ResolversParentTypes['Coach']>, user?: Maybe<ResolversParentTypes['User']> };
   Coach: Coachmodel;
+  CoachClientRelationship: CoachClientRelationshipmodel;
   ContentBlock: ContentBlockmodel;
   Date: Scalars['Date'];
   Excercise: Excercisemodel;
@@ -1298,7 +1315,7 @@ export type ResolversParentTypes = {
   MutatePrivateMessageResponse: MutatePrivateMessageResponse;
   MutateUserResponse: Omit<MutateUserResponse, 'user'> & { user?: Maybe<ResolversParentTypes['User']> };
   Mutation: {};
-  MutationResponse: ResolversParentTypes['GenerateIdTokenResponse'] | ResolversParentTypes['MutateBaseUserResponse'] | ResolversParentTypes['MutatePrivateMessageResponse'] | ResolversParentTypes['MutateUserResponse'] | ResolversParentTypes['NotificationResponse'] | ResolversParentTypes['SignupResponse'] | ResolversParentTypes['mutateClientCoachRelationship'] | ResolversParentTypes['mutateExcerciseMetaDataResponse'] | ResolversParentTypes['mutateMeasurementResponse'] | ResolversParentTypes['mutateMuscleRegionResponse'] | ResolversParentTypes['mutateProgramResponse'] | ResolversParentTypes['mutateWorkoutResponse'] | ResolversParentTypes['mutateWorkoutsResponse'] | ResolversParentTypes['presetResponse'];
+  MutationResponse: ResolversParentTypes['GenerateIdTokenResponse'] | ResolversParentTypes['MutateBaseUserResponse'] | ResolversParentTypes['MutatePrivateMessageResponse'] | ResolversParentTypes['MutateUserResponse'] | ResolversParentTypes['NotificationResponse'] | ResolversParentTypes['SignupResponse'] | ResolversParentTypes['mutateCoachClientRelationship'] | ResolversParentTypes['mutateExcerciseMetaDataResponse'] | ResolversParentTypes['mutateMeasurementResponse'] | ResolversParentTypes['mutateMuscleRegionResponse'] | ResolversParentTypes['mutateProgramResponse'] | ResolversParentTypes['mutateWorkoutResponse'] | ResolversParentTypes['mutateWorkoutsResponse'] | ResolversParentTypes['presetResponse'];
   Notification: Notificationmodel;
   NotificationResponse: NotificationResponse;
   PresetExcerciseSet: PresetExcerciseSet;
@@ -1323,7 +1340,7 @@ export type ResolversParentTypes = {
   excerciseMetaDataInput: ExcerciseMetaDataInput;
   excerciseSetGroupInput: ExcerciseSetGroupInput;
   excerciseSetInput: ExcerciseSetInput;
-  mutateClientCoachRelationship: Omit<MutateClientCoachRelationship, 'client_coach_relationship'> & { client_coach_relationship?: Maybe<ResolversParentTypes['ClientCoachRelationship']> };
+  mutateCoachClientRelationship: Omit<MutateCoachClientRelationship, 'client_coach_relationship'> & { client_coach_relationship?: Maybe<ResolversParentTypes['CoachClientRelationship']> };
   mutateExcerciseMetaDataResponse: Omit<MutateExcerciseMetaDataResponse, 'excercise_metadata'> & { excercise_metadata?: Maybe<ResolversParentTypes['ExcerciseMetadata']> };
   mutateMeasurementResponse: Omit<MutateMeasurementResponse, 'measurement'> & { measurement?: Maybe<ResolversParentTypes['Measurement']> };
   mutateMuscleRegionResponse: Omit<MutateMuscleRegionResponse, 'muscle_region'> & { muscle_region?: Maybe<ResolversParentTypes['MuscleRegion']> };
@@ -1354,18 +1371,18 @@ export type BroadCastResolvers<ContextType = AppContext, ParentType extends Reso
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
-export type ClientCoachRelationshipResolvers<ContextType = AppContext, ParentType extends ResolversParentTypes['ClientCoachRelationship'] = ResolversParentTypes['ClientCoachRelationship']> = {
-  active?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
-  coach?: Resolver<Maybe<ResolversTypes['Coach']>, ParentType, ContextType>;
-  date_created?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
-  user?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-};
-
 export type CoachResolvers<ContextType = AppContext, ParentType extends ResolversParentTypes['Coach'] = ResolversParentTypes['Coach']> = {
   Program?: Resolver<Maybe<Array<ResolversTypes['Program']>>, ParentType, ContextType>;
   Review?: Resolver<Maybe<Array<ResolversTypes['Review']>>, ParentType, ContextType>;
   coach_id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type CoachClientRelationshipResolvers<ContextType = AppContext, ParentType extends ResolversParentTypes['CoachClientRelationship'] = ResolversParentTypes['CoachClientRelationship']> = {
+  active?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+  coach?: Resolver<Maybe<ResolversTypes['Coach']>, ParentType, ContextType>;
+  date_created?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
+  user?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -1523,22 +1540,22 @@ export type MutateUserResponseResolvers<ContextType = AppContext, ParentType ext
 
 export type MutationResolvers<ContextType = AppContext, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
   completeWorkout?: Resolver<Maybe<ResolversTypes['mutateWorkoutsResponse']>, ParentType, ContextType, RequireFields<MutationCompleteWorkoutArgs, 'excercise_set_groups' | 'workout_id'>>;
-  createClientCoachRelationship?: Resolver<Maybe<ResolversTypes['mutateClientCoachRelationship']>, ParentType, ContextType, RequireFields<MutationCreateClientCoachRelationshipArgs, 'coach_id' | 'user_id'>>;
+  createCoachClientRelationship?: Resolver<Maybe<ResolversTypes['mutateCoachClientRelationship']>, ParentType, ContextType, RequireFields<MutationCreateCoachClientRelationshipArgs, 'coach_id' | 'user_id'>>;
   createExcerciseMetadata?: Resolver<Maybe<ResolversTypes['mutateExcerciseMetaDataResponse']>, ParentType, ContextType, RequireFields<MutationCreateExcerciseMetadataArgs, 'excercise_name' | 'user_id'>>;
   createMeasurement?: Resolver<Maybe<ResolversTypes['mutateMeasurementResponse']>, ParentType, ContextType, RequireFields<MutationCreateMeasurementArgs, 'length_units' | 'measured_at' | 'measurement_value' | 'muscle_region_id'>>;
   createMuscleRegion?: Resolver<Maybe<ResolversTypes['mutateMuscleRegionResponse']>, ParentType, ContextType, RequireFields<MutationCreateMuscleRegionArgs, 'muscle_region_description' | 'muscle_region_name' | 'muscle_region_type'>>;
   createPrivateMessage?: Resolver<Maybe<ResolversTypes['MutatePrivateMessageResponse']>, ParentType, ContextType, RequireFields<MutationCreatePrivateMessageArgs, 'message_content' | 'receiver_id'>>;
-  createProgram?: Resolver<Maybe<ResolversTypes['mutateProgramResponse']>, ParentType, ContextType, RequireFields<MutationCreateProgramArgs, 'coach_id' | 'user_id' | 'workoutsInput'>>;
+  createProgram?: Resolver<ResolversTypes['mutateProgramResponse'], ParentType, ContextType, RequireFields<MutationCreateProgramArgs, 'program_type' | 'user_id' | 'workoutsInput'>>;
   createProgramPreset?: Resolver<Maybe<ResolversTypes['presetResponse']>, ParentType, ContextType, RequireFields<MutationCreateProgramPresetArgs, 'life_span' | 'preset_difficulty' | 'preset_name' | 'preset_workouts'>>;
-  createWorkout?: Resolver<Maybe<ResolversTypes['mutateWorkoutResponse']>, ParentType, ContextType, RequireFields<MutationCreateWorkoutArgs, 'dayOfWeek' | 'excercise_set_groups' | 'program_id' | 'workout_name'>>;
-  deleteClientCoachRelationship?: Resolver<Maybe<ResolversTypes['mutateClientCoachRelationship']>, ParentType, ContextType, RequireFields<MutationDeleteClientCoachRelationshipArgs, 'coach_id' | 'user_id'>>;
+  createWorkout?: Resolver<Maybe<ResolversTypes['mutateWorkoutResponse']>, ParentType, ContextType, RequireFields<MutationCreateWorkoutArgs, 'dayOfWeek' | 'excercise_set_groups' | 'program_id' | 'user_id' | 'workout_name'>>;
+  deleteCoachClientRelationship?: Resolver<Maybe<ResolversTypes['mutateCoachClientRelationship']>, ParentType, ContextType, RequireFields<MutationDeleteCoachClientRelationshipArgs, 'coach_id' | 'user_id'>>;
   deleteMeasurement?: Resolver<Maybe<ResolversTypes['mutateMeasurementResponse']>, ParentType, ContextType, RequireFields<MutationDeleteMeasurementArgs, 'measurement_id'>>;
   deleteMuscleRegion?: Resolver<Maybe<ResolversTypes['mutateMuscleRegionResponse']>, ParentType, ContextType, RequireFields<MutationDeleteMuscleRegionArgs, 'muscle_region_id'>>;
   deletePrivateMessage?: Resolver<Maybe<ResolversTypes['MutationResponse']>, ParentType, ContextType, RequireFields<MutationDeletePrivateMessageArgs, 'message_id'>>;
-  deleteProgram?: Resolver<ResolversTypes['Program'], ParentType, ContextType, RequireFields<MutationDeleteProgramArgs, 'program_id'>>;
+  deleteProgram?: Resolver<ResolversTypes['mutateProgramResponse'], ParentType, ContextType, RequireFields<MutationDeleteProgramArgs, 'program_id' | 'user_id'>>;
   deleteProgramPreset?: Resolver<Maybe<ResolversTypes['presetResponse']>, ParentType, ContextType, RequireFields<MutationDeleteProgramPresetArgs, 'programPreset_id'>>;
   deleteWorkout?: Resolver<Maybe<ResolversTypes['mutateWorkoutsResponse']>, ParentType, ContextType, RequireFields<MutationDeleteWorkoutArgs, 'workout_id'>>;
-  endActiveProgram?: Resolver<Maybe<ResolversTypes['mutateProgramResponse']>, ParentType, ContextType, RequireFields<MutationEndActiveProgramArgs, 'user_id'>>;
+  endActiveProgram?: Resolver<ResolversTypes['mutateProgramResponse'], ParentType, ContextType, RequireFields<MutationEndActiveProgramArgs, 'user_id'>>;
   generateFirebaseIdToken?: Resolver<Maybe<ResolversTypes['GenerateIdTokenResponse']>, ParentType, ContextType, RequireFields<MutationGenerateFirebaseIdTokenArgs, 'uid'>>;
   generateNotification?: Resolver<Maybe<ResolversTypes['NotificationResponse']>, ParentType, ContextType, RequireFields<MutationGenerateNotificationArgs, 'body' | 'title' | 'token'>>;
   generateProgram?: Resolver<ResolversTypes['Program'], ParentType, ContextType, RequireFields<MutationGenerateProgramArgs, 'days_of_week'>>;
@@ -1546,17 +1563,17 @@ export type MutationResolvers<ContextType = AppContext, ParentType extends Resol
   refreshProgram?: Resolver<ResolversTypes['Program'], ParentType, ContextType, RequireFields<MutationRefreshProgramArgs, 'program_id'>>;
   signup?: Resolver<Maybe<ResolversTypes['SignupResponse']>, ParentType, ContextType, RequireFields<MutationSignupArgs, 'displayName' | 'email' | 'is_user' | 'password'>>;
   updateBaseUser?: Resolver<Maybe<ResolversTypes['MutateBaseUserResponse']>, ParentType, ContextType, Partial<MutationUpdateBaseUserArgs>>;
-  updateClientCoachRelationship?: Resolver<Maybe<ResolversTypes['mutateClientCoachRelationship']>, ParentType, ContextType, RequireFields<MutationUpdateClientCoachRelationshipArgs, 'active' | 'coach_id' | 'user_id'>>;
+  updateCoachClientRelationship?: Resolver<Maybe<ResolversTypes['mutateCoachClientRelationship']>, ParentType, ContextType, RequireFields<MutationUpdateCoachClientRelationshipArgs, 'active' | 'coach_id' | 'user_id'>>;
   updateExcerciseMetadata?: Resolver<Maybe<ResolversTypes['mutateExcerciseMetaDataResponse']>, ParentType, ContextType, RequireFields<MutationUpdateExcerciseMetadataArgs, 'excercise_metadata_state' | 'excercise_name'>>;
   updateMeasurement?: Resolver<Maybe<ResolversTypes['mutateMeasurementResponse']>, ParentType, ContextType, RequireFields<MutationUpdateMeasurementArgs, 'measurement_id'>>;
   updateMuscleRegion?: Resolver<Maybe<ResolversTypes['mutateMuscleRegionResponse']>, ParentType, ContextType, RequireFields<MutationUpdateMuscleRegionArgs, 'muscle_region_id'>>;
-  updateProgram?: Resolver<ResolversTypes['Program'], ParentType, ContextType, RequireFields<MutationUpdateProgramArgs, 'program_id'>>;
+  updateProgram?: Resolver<ResolversTypes['mutateProgramResponse'], ParentType, ContextType, RequireFields<MutationUpdateProgramArgs, 'program_id'>>;
   updateUser?: Resolver<Maybe<ResolversTypes['MutateUserResponse']>, ParentType, ContextType, Partial<MutationUpdateUserArgs>>;
-  updateWorkout?: Resolver<Maybe<ResolversTypes['mutateWorkoutResponse']>, ParentType, ContextType, RequireFields<MutationUpdateWorkoutArgs, 'workout_id'>>;
+  updateWorkout?: Resolver<Maybe<ResolversTypes['mutateWorkoutResponse']>, ParentType, ContextType, RequireFields<MutationUpdateWorkoutArgs, 'user_id' | 'workout_id'>>;
 };
 
 export type MutationResponseResolvers<ContextType = AppContext, ParentType extends ResolversParentTypes['MutationResponse'] = ResolversParentTypes['MutationResponse']> = {
-  __resolveType: TypeResolveFn<'GenerateIdTokenResponse' | 'MutateBaseUserResponse' | 'MutatePrivateMessageResponse' | 'MutateUserResponse' | 'NotificationResponse' | 'SignupResponse' | 'mutateClientCoachRelationship' | 'mutateExcerciseMetaDataResponse' | 'mutateMeasurementResponse' | 'mutateMuscleRegionResponse' | 'mutateProgramResponse' | 'mutateWorkoutResponse' | 'mutateWorkoutsResponse' | 'presetResponse', ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'GenerateIdTokenResponse' | 'MutateBaseUserResponse' | 'MutatePrivateMessageResponse' | 'MutateUserResponse' | 'NotificationResponse' | 'SignupResponse' | 'mutateCoachClientRelationship' | 'mutateExcerciseMetaDataResponse' | 'mutateMeasurementResponse' | 'mutateMuscleRegionResponse' | 'mutateProgramResponse' | 'mutateWorkoutResponse' | 'mutateWorkoutsResponse' | 'presetResponse', ParentType, ContextType>;
   code?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
@@ -1629,8 +1646,8 @@ export type QueryResolvers<ContextType = AppContext, ParentType extends Resolver
   baseUser?: Resolver<ResolversTypes['BaseUser'], ParentType, ContextType>;
   excercises?: Resolver<Array<ResolversTypes['Excercise']>, ParentType, ContextType>;
   excludedExcercises?: Resolver<Array<ResolversTypes['Excercise']>, ParentType, ContextType>;
-  getClientCoachRelationship?: Resolver<ResolversTypes['ClientCoachRelationship'], ParentType, ContextType, RequireFields<QueryGetClientCoachRelationshipArgs, 'coach_id' | 'user_id'>>;
-  getClientCoachRelationships?: Resolver<Array<ResolversTypes['ClientCoachRelationship']>, ParentType, ContextType>;
+  getCoachClientRelationship?: Resolver<ResolversTypes['CoachClientRelationship'], ParentType, ContextType, RequireFields<QueryGetCoachClientRelationshipArgs, 'coach_id' | 'user_id'>>;
+  getCoachClientRelationships?: Resolver<Array<ResolversTypes['CoachClientRelationship']>, ParentType, ContextType>;
   getContentBlocks?: Resolver<Array<ResolversTypes['ContentBlock']>, ParentType, ContextType, RequireFields<QueryGetContentBlocksArgs, 'content_block_type'>>;
   getExcercise?: Resolver<Maybe<ResolversTypes['Excercise']>, ParentType, ContextType, RequireFields<QueryGetExcerciseArgs, 'excercise_name'>>;
   getExcerciseMetadatas?: Resolver<Array<ResolversTypes['ExcerciseMetadata']>, ParentType, ContextType, RequireFields<QueryGetExcerciseMetadatasArgs, 'excercise_names_list'>>;
@@ -1639,7 +1656,8 @@ export type QueryResolvers<ContextType = AppContext, ParentType extends Resolver
   notifications?: Resolver<Array<ResolversTypes['Notification']>, ParentType, ContextType>;
   preset?: Resolver<ResolversTypes['programPreset'], ParentType, ContextType, RequireFields<QueryPresetArgs, 'programPreset_id'>>;
   presets?: Resolver<Array<ResolversTypes['programPreset']>, ParentType, ContextType>;
-  programs?: Resolver<ResolversTypes['Program'], ParentType, ContextType, RequireFields<QueryProgramsArgs, 'user_id'>>;
+  program?: Resolver<ResolversTypes['Program'], ParentType, ContextType, RequireFields<QueryProgramArgs, 'program_id' | 'user_id'>>;
+  programs?: Resolver<Array<ResolversTypes['Program']>, ParentType, ContextType, RequireFields<QueryProgramsArgs, 'user_id'>>;
   user?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
   users?: Resolver<Array<ResolversTypes['User']>, ParentType, ContextType, Partial<QueryUsersArgs>>;
   workout?: Resolver<ResolversTypes['Workout'], ParentType, ContextType, RequireFields<QueryWorkoutArgs, 'user_id' | 'workout_id'>>;
@@ -1730,8 +1748,8 @@ export type WorkoutFrequencyResolvers<ContextType = AppContext, ParentType exten
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
-export type MutateClientCoachRelationshipResolvers<ContextType = AppContext, ParentType extends ResolversParentTypes['mutateClientCoachRelationship'] = ResolversParentTypes['mutateClientCoachRelationship']> = {
-  client_coach_relationship?: Resolver<Maybe<ResolversTypes['ClientCoachRelationship']>, ParentType, ContextType>;
+export type MutateCoachClientRelationshipResolvers<ContextType = AppContext, ParentType extends ResolversParentTypes['mutateCoachClientRelationship'] = ResolversParentTypes['mutateCoachClientRelationship']> = {
+  client_coach_relationship?: Resolver<Maybe<ResolversTypes['CoachClientRelationship']>, ParentType, ContextType>;
   code?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
@@ -1806,8 +1824,8 @@ export type ProgramPresetResolvers<ContextType = AppContext, ParentType extends 
 export type Resolvers<ContextType = AppContext> = {
   BaseUser?: BaseUserResolvers<ContextType>;
   BroadCast?: BroadCastResolvers<ContextType>;
-  ClientCoachRelationship?: ClientCoachRelationshipResolvers<ContextType>;
   Coach?: CoachResolvers<ContextType>;
+  CoachClientRelationship?: CoachClientRelationshipResolvers<ContextType>;
   ContentBlock?: ContentBlockResolvers<ContextType>;
   Date?: GraphQLScalarType;
   Excercise?: ExcerciseResolvers<ContextType>;
@@ -1842,7 +1860,7 @@ export type Resolvers<ContextType = AppContext> = {
   Workout?: WorkoutResolvers<ContextType>;
   WorkoutAverageRPEDataPoint?: WorkoutAverageRpeDataPointResolvers<ContextType>;
   WorkoutFrequency?: WorkoutFrequencyResolvers<ContextType>;
-  mutateClientCoachRelationship?: MutateClientCoachRelationshipResolvers<ContextType>;
+  mutateCoachClientRelationship?: MutateCoachClientRelationshipResolvers<ContextType>;
   mutateExcerciseMetaDataResponse?: MutateExcerciseMetaDataResponseResolvers<ContextType>;
   mutateMeasurementResponse?: MutateMeasurementResponseResolvers<ContextType>;
   mutateMuscleRegionResponse?: MutateMuscleRegionResponseResolvers<ContextType>;

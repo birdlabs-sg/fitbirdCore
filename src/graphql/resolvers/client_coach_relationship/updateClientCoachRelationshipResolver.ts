@@ -1,5 +1,5 @@
 import { onlyAuthenticated } from "../../../service/firebase/firebase_service";
-import { MutationUpdateClientCoachRelationshipArgs } from "../../../types/graphql";
+import { MutationUpdateCoachClientRelationshipArgs } from "../../../types/graphql";
 import { AppContext } from "../../../types/contextType";
 import { GraphQLError } from "graphql";
 
@@ -9,9 +9,9 @@ import { GraphQLError } from "graphql";
  * NOTE:
  * Requestor's ID has to be either @coach_id or @user_id
  */
-export const updateClientCoachRelationshipResolver = async (
+export const updateCoachClientRelationshipResolver = async (
   _: unknown,
-  { coach_id, user_id, active }: MutationUpdateClientCoachRelationshipArgs,
+  { coach_id, user_id, active }: MutationUpdateCoachClientRelationshipArgs,
   context: AppContext
 ) => {
   onlyAuthenticated(context);
@@ -26,7 +26,7 @@ export const updateClientCoachRelationshipResolver = async (
     );
   }
   const prisma = context.dataSources.prisma;
-  const clientCoachRelationship = prisma.coachClientRelationship.update({
+  const clientCoachRelationship = await prisma.coachClientRelationship.update({
     where: {
       coach_id_user_id: {
         user_id: parseInt(user_id),
@@ -41,6 +41,6 @@ export const updateClientCoachRelationshipResolver = async (
     code: "200",
     success: true,
     message: "Successfully updated your workout!",
-    workouts: clientCoachRelationship,
+    client_coach_relationship: clientCoachRelationship,
   };
 };

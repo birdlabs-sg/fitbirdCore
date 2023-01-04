@@ -1,4 +1,4 @@
-import { DayOfWeek, Prisma } from "@prisma/client";
+import { DayOfWeek, Prisma, ProgramType } from "@prisma/client";
 import { AppContext } from "../../../types/contextType";
 import { MutationCreateProgramArgs } from "../../../types/graphql";
 import {
@@ -8,13 +8,17 @@ import {
 import { generateOrUpdateExcerciseMetadata } from "../../../service/workout_manager/exercise_metadata_manager/exercise_metadata_manager";
 import { onlyAuthenticated } from "../../../service/firebase/firebase_service";
 import { clientCoachRelationshipGuard } from "./utils";
+import { GraphQLError } from "graphql";
 
 export const createProgramResolver = async (
   _: unknown,
-  { user_id, coach_id, workoutsInput }: MutationCreateProgramArgs,
+  { user_id, coach_id, workoutsInput, program_type }: MutationCreateProgramArgs,
   context: AppContext
 ) => {
   onlyAuthenticated(context);
+  if (program_type == ProgramType.COACH_MANAGED && !coach_id) {
+    throw new GraphQLError("Coached managed programs must pass in coach_id.");
+  }
   await clientCoachRelationshipGuard({
     context,
     user_id: parseInt(user_id),
@@ -51,6 +55,7 @@ export const createProgramResolver = async (
   const program = await prisma.program.create({
     data: {
       ...(coach_id && { coach: { connect: { coach_id: parseInt(coach_id) } } }),
+      program_type: program_type,
       user: { connect: { user_id: parseInt(user_id) } },
       is_active: true,
       workouts: {

@@ -1,5 +1,5 @@
 import { onlyAuthenticated } from "../../../service/firebase/firebase_service";
-import { QueryGetClientCoachRelationshipArgs } from "../../../types/graphql";
+import { QueryGetCoachClientRelationshipArgs } from "../../../types/graphql";
 import { AppContext } from "../../../types/contextType";
 import { GraphQLError } from "graphql";
 import { clientCoachRelationshipGuard } from "../program/utils";
@@ -10,9 +10,9 @@ import { clientCoachRelationshipGuard } from "../program/utils";
  * NOTE:
  * Requestor's ID has to be either @coach_id or @user_id
  */
-export const getClientCoachRelationshipResolver = async (
+export const getCoachClientRelationshipResolver = async (
   _: unknown,
-  { user_id, coach_id }: QueryGetClientCoachRelationshipArgs,
+  { user_id, coach_id }: QueryGetCoachClientRelationshipArgs,
   context: AppContext
 ) => {
   onlyAuthenticated(context);
@@ -27,19 +27,12 @@ export const getClientCoachRelationshipResolver = async (
     onlyAllowActiveRelationship: false,
   });
   const prisma = context.dataSources.prisma;
-  const clientCoachRelationship =
-    prisma.coachClientRelationship.findUniqueOrThrow({
-      where: {
-        coach_id_user_id: {
-          user_id: parseInt(user_id),
-          coach_id: parseInt(user_id),
-        },
+  return await prisma.coachClientRelationship.findUniqueOrThrow({
+    where: {
+      coach_id_user_id: {
+        user_id: parseInt(user_id),
+        coach_id: parseInt(user_id),
       },
-    });
-  return {
-    code: "200",
-    success: true,
-    message: "Successfully updated your workout!",
-    workouts: clientCoachRelationship,
-  };
+    },
+  });
 };

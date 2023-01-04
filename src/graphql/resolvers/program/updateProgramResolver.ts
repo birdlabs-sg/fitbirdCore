@@ -5,7 +5,7 @@ import { clientCoachRelationshipGuard } from "./utils";
 /**
  * Updates the program specified by @program_id
  */
-export const updateProgram = async (
+export const updateProgramResolver = async (
   _: unknown,
   {
     program_id,
@@ -30,7 +30,7 @@ export const updateProgram = async (
     onlyAllowActiveRelationship: true,
   });
 
-  const updatedWorkout = await prisma.program.update({
+  const updatedProgram = await prisma.program.update({
     where: {
       program_id: parseInt(program_id),
     },
@@ -38,23 +38,12 @@ export const updateProgram = async (
       ...(new_coach_id && { coach_id: parseInt(new_coach_id) }),
       ...otherArgs,
     },
-    include: {
-      workouts: {
-        include: {
-          excercise_set_groups: {
-            include: {
-              excercise_sets: true,
-            },
-          },
-        },
-      },
-    },
   });
 
   return {
     code: "200",
     success: true,
-    message: "Successfully updated your workout!",
-    workout: updatedWorkout,
+    message: "Successfully updated your program!",
+    program: updatedProgram,
   };
 };

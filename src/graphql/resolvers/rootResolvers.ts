@@ -28,7 +28,7 @@ import { createMuscleRegionResolver } from "./muscle_region/createMuscleRegionRe
 import { updateMuscleRegionResolver } from "./muscle_region/updateMuscleRegionResolver";
 import { deleteMuscleRegionResolver } from "./muscle_region/deleteMuscleRegionResolver";
 import { createProgramPresetResolver } from "./preset/createProgramPresetResolver";
-import { programsQueryResolver } from "./program/queryProgramResolver";
+
 import { presetQueryResolver } from "./preset/queryPresetResolver";
 import { presetsQueryResolver } from "./preset/queryPresetsResolver";
 import { generateFirebaseIdTokenResolver } from "./firebase/generateFirebaseIdTokenResolver";
@@ -46,11 +46,15 @@ import { deletePrivateMessageResolver } from "./messages/deletePrivateMessageRes
 import { queryWorkoutResolver } from "./workout/queryWorkoutResolver";
 import { queryWorkoutsResolver } from "./workout/queryWorkoutsResolver";
 import { updateUser } from "./user/updateUserResolver";
-import { createClientCoachRelationshipResolver } from "./client_coach_relationship/createClientCoachRelationshipResolver";
-import { updateClientCoachRelationshipResolver } from "./client_coach_relationship/updateClientCoachRelationshipResolver";
-import { deleteClientCoachRelationshipResolver } from "./client_coach_relationship/deleteClientCoachRelationshipResolver";
-// import { getClientCoachRelationshipResolver } from "./client_coach_relationship/getClientCoachRelationshipResolver";
-// import { getClientCoachRelationshipsResolver } from "./client_coach_relationship/getClientCoachRelationshipsResolver";
+import { createCoachClientRelationshipResolver } from "./client_coach_relationship/createClientCoachRelationshipResolver";
+import { updateCoachClientRelationshipResolver } from "./client_coach_relationship/updateClientCoachRelationshipResolver";
+import { deleteCoachClientRelationshipResolver } from "./client_coach_relationship/deleteClientCoachRelationshipResolver";
+import { getCoachClientRelationshipResolver } from "./client_coach_relationship/getClientCoachRelationshipResolver";
+import { getCoachClientRelationshipsResolver } from "./client_coach_relationship/getClientCoachRelationshipsResolver";
+import { queryProgramResolver } from "./program/queryProgramResolver";
+import { queryProgramsResolver } from "./program/queryProgramsResolver";
+import { updateProgramResolver } from "./program/updateProgramResolver";
+import { deleteprogramResolver } from "./program/deleteProgramResolver";
 
 const dateScalar = new GraphQLScalarType({
   name: "Date",
@@ -82,17 +86,20 @@ export const resolvers: Resolvers = {
     createProgramPreset: createProgramPresetResolver,
     deleteProgramPreset: deleteProgramPreset,
     createProgram: createProgramResolver,
+    updateProgram: updateProgramResolver,
+    deleteProgram: deleteprogramResolver,
     generateProgram: generateProgramResolver,
     refreshProgram: refreshProgramResolver,
-    createClientCoachRelationship: createClientCoachRelationshipResolver,
-    updateClientCoachRelationship: updateClientCoachRelationshipResolver,
-    deleteClientCoachRelationship: deleteClientCoachRelationshipResolver,
+    createCoachClientRelationship: createCoachClientRelationshipResolver,
+    updateCoachClientRelationship: updateCoachClientRelationshipResolver,
+    deleteCoachClientRelationship: deleteCoachClientRelationshipResolver,
   },
 
   //Root Query: Top level querying logic here
   Query: {
     getContentBlocks: getContentBlocksResolver,
-    programs: programsQueryResolver,
+    programs: queryProgramsResolver,
+    program: queryProgramResolver,
     preset: presetQueryResolver,
     presets: presetsQueryResolver,
     baseUser: baseUserQueryResolver,
@@ -110,8 +117,8 @@ export const resolvers: Resolvers = {
     analyticsExerciseTotalVolume: analyticsExerciseTotalVolumeResolver,
     analyticsWorkoutAverageRPE: analyticsWorkoutAverageRPEResolver,
     getPrivateMessages: privateMessagesQueryResolver,
-    // getClientCoachRelationship: getClientCoachRelationshipResolver,
-    // getClientCoachRelationships: getClientCoachRelationshipsResolver,
+    getCoachClientRelationship: getCoachClientRelationshipResolver,
+    getCoachClientRelationships: getCoachClientRelationshipsResolver,
   },
   // Chained resolvers - resolve nested fields (AKA non-scalar values)
   Workout: {
@@ -146,6 +153,21 @@ export const resolvers: Resolvers = {
       });
     },
   },
+  CoachClientRelationship: {
+    async coach(parent, _, context) {
+      const prisma = context.dataSources.prisma;
+      return await prisma.coach.findUniqueOrThrow({
+        where: { coach_id: parent.coach_id },
+      });
+    },
+
+    async user(parent, _, context) {
+      const prisma = context.dataSources.prisma;
+      return await prisma.user.findUniqueOrThrow({
+        where: { user_id: parent.user_id },
+      });
+    },
+  },
 
   Program: {
     async coach(parent, _, context) {
@@ -155,6 +177,13 @@ export const resolvers: Resolvers = {
       }
       return await prisma.coach.findUniqueOrThrow({
         where: { coach_id: parent.coach_id },
+      });
+    },
+
+    async user(parent, _, context) {
+      const prisma = context.dataSources.prisma;
+      return await prisma.user.findUniqueOrThrow({
+        where: { user_id: parent.user_id },
       });
     },
 

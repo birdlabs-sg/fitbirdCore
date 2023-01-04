@@ -50,6 +50,8 @@ export const mutateWorkout = gql`
   type Mutation {
     "[PROTECTED] Creates a workout object for the requestor."
     createWorkout(
+      coach_id: ID
+      user_id: ID!
       program_id: ID!
       dayOfWeek: DayOfWeek!
       workout_name: String!
@@ -64,6 +66,8 @@ export const mutateWorkout = gql`
 
     "[PROTECTED] Updates a workout object (Must belong to the requestor). Note: This will replace any existing excercise sets."
     updateWorkout(
+      coach_id: ID
+      user_id: ID!
       workout_id: ID!
       workout_name: String
       dayOfWeek: DayOfWeek

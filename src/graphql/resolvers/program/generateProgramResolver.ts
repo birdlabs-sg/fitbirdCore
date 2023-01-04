@@ -13,5 +13,6 @@ export const generateProgramResolver = async (
   context: AppContext
 ) => {
   onlyAuthenticated(context);
+  // TODO: only allow users themselves to generate programs
   return await workoutGeneratorV2(days_of_week, context);
 };

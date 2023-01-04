@@ -55,7 +55,7 @@ export const clientCoachRelationshipGuard = async ({
   if (!coachClientRelationship) {
     throw new GraphQLError("Coach client relationship does not exist.");
   }
-  if (onlyAllowActiveRelationship && coachClientRelationship.active) {
+  if (onlyAllowActiveRelationship && !coachClientRelationship.active) {
     throw new GraphQLError("Coach client relationship is not active.");
   }
 };

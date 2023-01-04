@@ -8,6 +8,8 @@ import { getActiveWorkout } from "../../../service/workout_manager/utils";
 import { AppContext } from "../../../types/contextType";
 import { MutationCreateWorkoutArgs } from "../../../types/graphql";
 import { generateOrUpdateExcerciseMetadata } from "../../../service/workout_manager/exercise_metadata_manager/exercise_metadata_manager";
+import { ProgramType } from "@prisma/client";
+import { clientCoachRelationshipGuard } from "../program/utils";
 
 /**
  * Creates a new workout.
@@ -19,10 +21,30 @@ export async function createWorkoutResolver(
     dayOfWeek,
     workout_name,
     program_id,
+    coach_id,
+    user_id,
   }: MutationCreateWorkoutArgs,
   context: AppContext
 ) {
   onlyAuthenticated(context);
+  const prisma = context.dataSources.prisma;
+  const program = await prisma.program.findUniqueOrThrow({
+    where: {
+      program_id: parseInt(program_id),
+    },
+  });
+  if (program.program_type === ProgramType.COACH_MANAGED && !coach_id) {
+    throw new GraphQLError("Coached managed workouts must pass in coach_id.");
+  }
+
+  await clientCoachRelationshipGuard({
+    context,
+    user_id: parseInt(user_id),
+    coach_id: coach_id ? parseInt(coach_id) : null,
+    checkRelationship: true,
+    onlyAllowActiveRelationship: true,
+  });
+
   // Ensure that there is a max of 7 workouts
   const { count } = await getActiveWorkout({
     context: context,
@@ -35,7 +57,7 @@ export async function createWorkoutResolver(
       },
     });
   }
-  const prisma = context.dataSources.prisma;
+
   const [cleaned_excercise_set_groups, excercise_metadatas] =
     extractMetadatas(excercise_set_groups);
   await generateOrUpdateExcerciseMetadata({

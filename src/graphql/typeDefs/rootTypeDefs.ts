@@ -36,14 +36,15 @@ import { mutatePreset } from "./preset/mutatePresets";
 import { programPreset } from "./preset/programPreset";
 import { PresetExcerciseSet } from "./preset/presetExcerciseSet";
 import { PresetWorkout } from "./preset/presetWorkout";
-import { mutateClientCoachRelationship } from "./client_coach_relationship/mutateClientCoachRelationship";
-import { ClientCoachRelationship } from "./client_coach_relationship/clientCoachRelationship";
+import { mutateCoachClientRelationship } from "./coach_client_relationship/mutateCoachClientRelationship";
+import { CoachClientRelationship } from "./coach_client_relationship/coachClientRelationship";
 
 const queryTypeDef = gql`
   scalar Date
   "This is the root query to resources. Require ADMIN permission to access all, otherwise resources are scoped to the user issuing the request."
   type Query {
-    programs(user_id: ID!, coach_id: ID): Program!
+    programs(user_id: ID!, coach_id: ID): [Program!]!
+    program(user_id: ID!, coach_id: ID, program_id: ID!): Program!
     preset(programPreset_id: ID!): programPreset!
     presets: [programPreset!]!
     baseUser: BaseUser!
@@ -73,11 +74,11 @@ const queryTypeDef = gql`
     getContentBlocks(content_block_type: ContentBlockType!): [ContentBlock!]!
     getPrivateMessages(pair_id: ID!): [PrivateMessage!]!
     users(coach_filters: UserQueryCoachFilter): [User!]!
-    getClientCoachRelationship(
+    getCoachClientRelationship(
       user_id: ID!
       coach_id: ID!
-    ): ClientCoachRelationship!
-    getClientCoachRelationships: [ClientCoachRelationship!]!
+    ): CoachClientRelationship!
+    getCoachClientRelationships: [CoachClientRelationship!]!
   }
 
   input UserQueryCoachFilter {
@@ -120,7 +121,7 @@ const mutationTypeDefs = [
   mutatePrivateMessage,
   mutatePreset,
   mutateGenerateWorkouts,
-  mutateClientCoachRelationship,
+  mutateCoachClientRelationship,
 ];
 
 const objectTypeDefs = [
@@ -147,7 +148,7 @@ const objectTypeDefs = [
   programPreset,
   PresetExcerciseSet,
   PresetWorkout,
-  ClientCoachRelationship,
+  CoachClientRelationship,
 ];
 
 export const typeDefs = baseTypeDefs.concat.apply(

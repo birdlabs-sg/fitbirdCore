@@ -69,7 +69,7 @@ export const completeWorkoutResolver = async (
   return {
     code: "200",
     success: true,
-    message: "Successfully updated your workout!",
+    message: "Successfully completed your workout!",
     workouts: active_workouts,
   };
 };

@@ -25,7 +25,8 @@ import { Equipment } from "@prisma/client";
  */
 export const workoutGeneratorV2 = async (
   daysOfWeek: DayOfWeek[],
-  context: AppContext
+  context: AppContext,
+  program_id?: number
 ) => {
   onlyAuthenticated(context);
 
@@ -122,17 +123,23 @@ export const workoutGeneratorV2 = async (
     create_workout_args_list.push(createdWorkoutArgs);
   }
   const newProgram = await prisma.$transaction(async (tx) => {
-    const newProgram = await tx.program.create({
-      data: {
-        program_type: ProgramType.AI_MANAGED,
-        user_id: user.user_id,
-      },
-    });
+    let program_id_to_use: number;
+    if (program_id) {
+      program_id_to_use = program_id;
+    } else {
+      const newProgram = await tx.program.create({
+        data: {
+          program_type: ProgramType.AI_MANAGED,
+          user_id: user.user_id,
+        },
+      });
+      program_id_to_use = newProgram.program_id;
+    }
     await Promise.all(
       create_workout_args_list.map(async (workoutData) => {
         await tx.workout.create({
           data: {
-            programProgram_id: newProgram.program_id,
+            programProgram_id: program_id_to_use,
             ...workoutData,
           },
         });
@@ -140,7 +147,7 @@ export const workoutGeneratorV2 = async (
     );
     return await tx.program.findUnique({
       where: {
-        program_id: newProgram.program_id,
+        program_id: program_id_to_use,
       },
       include: {
         workouts: {

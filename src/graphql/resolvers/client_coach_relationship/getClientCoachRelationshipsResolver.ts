@@ -6,7 +6,7 @@ import { GraphQLError } from "graphql";
  * Retrieves client-coach relationships specfied from the requestor
  *
  */
-export const getClientCoachRelationshipsResolver = async (
+export const getCoachClientRelationshipsResolver = async (
   _: unknown,
   __: unknown,
   context: AppContext
@@ -21,7 +21,7 @@ export const getClientCoachRelationshipsResolver = async (
     );
   }
   const prisma = context.dataSources.prisma;
-  const clientCoachRelationship = prisma.coachClientRelationship.findMany({
+  return await prisma.coachClientRelationship.findMany({
     where: {
       ...(context.base_user?.coach?.coach_id && {
         coach_id: context.base_user?.coach?.coach_id,
@@ -31,10 +31,4 @@ export const getClientCoachRelationshipsResolver = async (
       }),
     },
   });
-  return {
-    code: "200",
-    success: true,
-    message: "Successfully updated your workout!",
-    workouts: clientCoachRelationship,
-  };
 };

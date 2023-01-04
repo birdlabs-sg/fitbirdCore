@@ -26,6 +26,7 @@ generates:
         ExcerciseSet: "@prisma/client#ExcerciseSet"
         BroadCast: "@prisma/client#BroadCast"
         Notification: "@prisma/client#Notification"
+        CoachClientRelationship: "@prisma/client#CoachClientRelationship"
       enum:
         Gender: "@prisma/client#Gender"
         LengthUnit: "@prisma/client#LengthUnit"

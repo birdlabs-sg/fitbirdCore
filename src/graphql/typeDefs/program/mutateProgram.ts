@@ -8,7 +8,6 @@ export const mutateProgram = gql`
   }
 
   input workoutInput {
-    program_id: ID!
     dayOfWeek: DayOfWeek!
     workout_name: String!
     excercise_set_groups: [excerciseSetGroupInput!]!
@@ -17,14 +16,31 @@ export const mutateProgram = gql`
   }
 
   type Mutation {
-    "[PROTECTED] Creates a program object (ONLY COACH)."
+    "[PROTECTED] Creates a program object."
     createProgram(
-      coach_id: ID!
+      coach_id: ID
       user_id: ID!
+      program_type: ProgramType!
       workoutsInput: [workoutInput!]!
-    ): mutateProgramResponse
+    ): mutateProgramResponse!
+    "[PROTECTED] Deletes a program object."
+    deleteProgram(
+      program_id: ID!
+      user_id: ID!
+      coach_id: ID
+    ): mutateProgramResponse!
+
+    "[PROTECTED] Updates a program object."
+    updateProgram(
+      program_id: ID!
+      program_type: ProgramType
+      coach_id: ID
+      is_active: Boolean
+      ending_date: Date
+      starting_date: Date
+    ): mutateProgramResponse!
 
     "[PROTECTED] ends an active program object (ONLY COACH)."
-    endActiveProgram(user_id: ID!): mutateProgramResponse
+    endActiveProgram(user_id: ID!): mutateProgramResponse!
   }
 `;

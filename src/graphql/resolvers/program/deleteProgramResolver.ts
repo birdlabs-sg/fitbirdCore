@@ -2,7 +2,7 @@ import { MutationDeleteProgramArgs } from "../../../types/graphql";
 import { AppContext } from "../../../types/contextType";
 import { clientCoachRelationshipGuard } from "./utils";
 
-export const deleteProgram = async (
+export const deleteprogramResolver = async (
   _: unknown,
   { program_id }: MutationDeleteProgramArgs,
   context: AppContext
@@ -30,7 +30,7 @@ export const deleteProgram = async (
   return {
     code: "200",
     success: true,
-    message: "Successfully Created your program!",
+    message: "Successfully deleted your program!",
     program: program,
   };
 };

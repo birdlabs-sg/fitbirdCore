@@ -1,11 +1,11 @@
 import { AppContext } from "../../../types/contextType";
 
-import { QueryProgramArgs } from "../../../types/graphql";
+import { QueryProgramsArgs } from "../../../types/graphql";
 import { clientCoachRelationshipGuard } from "./utils";
 //finds programs associated to the requestor.
-export const queryProgramResolver = async (
+export const queryProgramsResolver = async (
   _: unknown,
-  { program_id, coach_id, user_id }: QueryProgramArgs,
+  { coach_id, user_id }: QueryProgramsArgs,
   context: AppContext
 ) => {
   // Enforces that the requestor has access to those programs
@@ -17,12 +17,12 @@ export const queryProgramResolver = async (
     checkRelationship: true,
   });
   const prisma = context.dataSources.prisma;
-  const program = await prisma.program.findFirstOrThrow({
+  const programs = await prisma.program.findMany({
     where: {
-      program_id: parseInt(program_id),
-      user_id: parseInt(user_id),
       ...(coach_id && { coach_id: parseInt(coach_id) }),
+      user_id: parseInt(user_id),
+      is_active: true,
     },
   });
-  return program;
+  return programs;
 };

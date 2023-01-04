@@ -27,6 +27,7 @@ export const refreshProgramResolver = async (
     context: context,
     program_id: program_id,
   });
+
   const days_of_week = active_workouts.map((workout) => workout.dayOfWeek);
   const activeWorkoutIDS = active_workouts.map(
     (workout: Workout) => workout.workout_id
@@ -41,5 +42,5 @@ export const refreshProgramResolver = async (
     },
   });
   // generate new active workouts
-  return await workoutGeneratorV2(days_of_week, context);
+  return await workoutGeneratorV2(days_of_week, context, parseInt(program_id));
 };

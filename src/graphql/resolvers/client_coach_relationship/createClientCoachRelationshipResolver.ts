@@ -1,5 +1,6 @@
+import { MutationCreateCoachClientRelationshipArgs } from "../../../types/graphql";
 import { onlyAuthenticated } from "../../../service/firebase/firebase_service";
-import { MutationCreateClientCoachRelationshipArgs } from "../../../types/graphql";
+// import { MutationCreateClientCoachRelationshipArgs } from "../../../types/graphql";
 import { AppContext } from "../../../types/contextType";
 import { GraphQLError } from "graphql";
 
@@ -9,9 +10,9 @@ import { GraphQLError } from "graphql";
  * NOTE:
  * Requestor's ID has to be either @coach_id or @user_id
  */
-export const createClientCoachRelationshipResolver = async (
+export const createCoachClientRelationshipResolver = async (
   _: unknown,
-  { coach_id, user_id }: MutationCreateClientCoachRelationshipArgs,
+  { coach_id, user_id }: MutationCreateCoachClientRelationshipArgs,
   context: AppContext
 ) => {
   onlyAuthenticated(context);
@@ -26,7 +27,7 @@ export const createClientCoachRelationshipResolver = async (
     );
   }
   const prisma = context.dataSources.prisma;
-  const clientCoachRelationship = prisma.coachClientRelationship.create({
+  const clientCoachRelationship = await prisma.coachClientRelationship.create({
     data: {
       user_id: parseInt(user_id),
       coach_id: parseInt(coach_id),
@@ -35,7 +36,7 @@ export const createClientCoachRelationshipResolver = async (
   return {
     code: "200",
     success: true,
-    message: "Successfully updated your workout!",
-    workouts: clientCoachRelationship,
+    message: "Successfully created client-coach relationship!",
+    client_coach_relationship: clientCoachRelationship,
   };
 };
