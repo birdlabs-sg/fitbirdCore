@@ -18,7 +18,7 @@ export async function createWorkoutResolver(
   _: unknown,
   {
     excercise_set_groups,
-    dayOfWeek,
+    date_scheduled,
     workout_name,
     program_id,
     coach_id,
@@ -69,21 +69,25 @@ export async function createWorkoutResolver(
     cleaned_excercise_set_groups
   );
 
-  const workout = await prisma.workout.create({
-    data: {
-      programProgram_id: parseInt(program_id),
-      workout_name: workout_name,
-      dayOfWeek: dayOfWeek,
-      excercise_set_groups: {
-        create: formattedExcerciseSetGroups,
+  const workout = await prisma.workout
+    .create({
+      data: {
+        programProgram_id: parseInt(program_id),
+        workout_name: workout_name,
+        date_scheduled: date_scheduled,
+        excercise_set_groups: {
+          create: formattedExcerciseSetGroups,
+        },
       },
-    },
-  });
+    })
+    .catch((e) => console.log(e));
+
+  console.log(workout);
 
   return {
     code: "200",
     success: true,
     message: "Successfully created a workout.",
-    workout: workout,
+    workout: workout!,
   };
 }

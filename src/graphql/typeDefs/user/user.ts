@@ -31,7 +31,7 @@ export const User = gql`
     measurements: [Measurement!]
     notifications: [Notification!]
     broadcasts: [BroadCast!]
-    excerciseMetadata: [ExcerciseMetadata!]
+    excercise_metadata: [ExcerciseMetadata!]
     program: [Program!]
     selected_exercise_for_analytics: [Excercise!]
   }

@@ -1,7 +1,5 @@
 import * as admin from "firebase-admin";
 import { AppContext } from "../../types/contextType";
-import moment from "moment";
-import { DayOfWeek } from "@prisma/client";
 
 // Generates excerciseMetadata if it's not available for any of the excercises in a workout
 export const generateNotification = async (
@@ -52,30 +50,7 @@ export const generateNotification = async (
 // Only sends notification out to users who have fcm_token
 export const generateWorkoutReminder = async (context: AppContext) => {
   const prisma = context.dataSources.prisma;
-  let currentDay: DayOfWeek;
-  switch (moment().weekday()) {
-    case 1:
-      currentDay = DayOfWeek.MONDAY;
-      break;
-    case 2:
-      currentDay = DayOfWeek.TUESDAY;
-      break;
-    case 3:
-      currentDay = DayOfWeek.WEDNESDAY;
-      break;
-    case 4:
-      currentDay = DayOfWeek.THURSDAY;
-      break;
-    case 5:
-      currentDay = DayOfWeek.FRIDAY;
-      break;
-    case 6:
-      currentDay = DayOfWeek.SATURDAY;
-      break;
-    default:
-      currentDay = DayOfWeek.SUNDAY;
-      break;
-  }
+
   const list_of_users = await prisma.baseUser.findMany({
     where: {
       fcm_tokens: {
@@ -117,7 +92,7 @@ export const generateWorkoutReminder = async (context: AppContext) => {
       let nextWorkout;
       if (activeProgram?.workouts.length) {
         nextWorkout = activeProgram.workouts.find(
-          (workout) => workout.dayOfWeek === currentDay
+          (workout) => workout.date_scheduled === new Date()
         );
       }
       if (nextWorkout != null) {

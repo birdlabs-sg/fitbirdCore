@@ -71,7 +71,6 @@ export async function updateExcerciseMetadataWithCompletedWorkout(
     let best_set = {
       actual_weight: oldMetadata.best_weight,
       actual_reps: oldMetadata.best_rep,
-      weight_unit: oldMetadata.weight_unit,
     };
 
     for (const excercise_set of excercise_group_set.excercise_sets) {
@@ -80,7 +79,6 @@ export async function updateExcerciseMetadataWithCompletedWorkout(
           best_set = {
             actual_weight: excercise_set.actual_weight!,
             actual_reps: excercise_set.actual_reps!,
-            weight_unit: excercise_set.weight_unit,
           };
         }
       } else {
@@ -88,7 +86,6 @@ export async function updateExcerciseMetadataWithCompletedWorkout(
           best_set = {
             actual_weight: excercise_set.actual_weight!,
             actual_reps: excercise_set.actual_reps!,
-            weight_unit: excercise_set.weight_unit,
           };
         }
       }
@@ -104,7 +101,6 @@ export async function updateExcerciseMetadataWithCompletedWorkout(
       data: {
         best_rep: best_set.actual_reps,
         best_weight: best_set.actual_weight,
-        weight_unit: best_set.weight_unit,
         last_excecuted: new Date(),
       },
     });

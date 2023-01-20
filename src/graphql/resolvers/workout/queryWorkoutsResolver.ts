@@ -4,10 +4,10 @@ import { onlyAuthenticated } from "../../../service/firebase/firebase_service";
 import { clientCoachRelationshipGuard } from "../program/utils";
 export async function queryWorkoutsResolver(
   _: unknown,
-  { filter }: QueryWorkoutsArgs,
+  { user_id, coach_id, filter }: QueryWorkoutsArgs,
   context: AppContext
 ) {
-  const { completed, workout_name, program_id, user_id, coach_id } = filter;
+  const { completed, workout_name, program_id } = filter;
 
   onlyAuthenticated(context);
   const prisma = context.dataSources.prisma;

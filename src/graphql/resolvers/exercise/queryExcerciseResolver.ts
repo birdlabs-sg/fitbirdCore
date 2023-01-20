@@ -8,7 +8,7 @@ export const getExcerciseQueryResolver = async (
 ) => {
   const prisma = context.dataSources.prisma;
 
-  return await prisma.excercise.findUnique({
+  return await prisma.excercise.findUniqueOrThrow({
     where: {
       excercise_name: args.excercise_name,
     },

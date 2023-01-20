@@ -17,6 +17,8 @@
         "noUnusedLocals": true,
         "noUnusedParameters": true,
         "useUnknownInCatchVariables": false,
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true,
         "paths": {
             "*": [
                 "node_modules/*"

@@ -1,5 +1,4 @@
 import { onlyAuthenticated } from "../../../service/firebase/firebase_service";
-import { getActiveWorkout } from "../../../service/workout_manager/utils";
 import { checkExistsAndOwnership } from "../../../service/workout_manager/utils";
 import { AppContext } from "../../../types/contextType";
 import { MutationDeleteWorkoutArgs } from "../../../types/graphql";
@@ -24,15 +23,10 @@ export const deleteWorkoutResolver = async (
       workout_id: parseInt(workout_id),
     },
   });
-  const { active_workouts } = await getActiveWorkout({
-    context: context,
-    program_id: JSON.stringify(deletedWorkout.programProgram_id),
-  });
-
   return {
     code: "200",
     success: true,
     message: "Successfully deleted your workout!",
-    workouts: active_workouts,
+    workout: deletedWorkout,
   };
 };

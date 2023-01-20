@@ -1,7 +1,7 @@
 import { AppContext } from "../../../types/contextType";
 import {
   MuscleRegionType,
-  Excercise,
+  // Excercise,
   ExcerciseSetGroupState,
 } from "../../../types/graphql";
 import { workout_name_list } from "./constants";
@@ -18,13 +18,13 @@ import {
   PrismaExerciseSetGroupCreateArgs,
   WorkoutWithExerciseSets,
 } from "../../../types/Prisma";
-import { DayOfWeek, Prisma, ProgramType } from "@prisma/client";
+import { Prisma, ProgramType } from "@prisma/client";
 import { Equipment } from "@prisma/client";
 /**
  * Generator V2.
  */
 export const workoutGeneratorV2 = async (
-  daysOfWeek: DayOfWeek[],
+  initial_days: Date[],
   context: AppContext,
   program_id?: number
 ) => {
@@ -34,10 +34,14 @@ export const workoutGeneratorV2 = async (
   const prisma = context.dataSources.prisma;
 
   // guard clause
-  if (daysOfWeek.length > 6) {
+  if (initial_days.length > 6) {
     throw new GraphQLError("Can only generate 6 workouts maximum per week.");
   }
-  if (daysOfWeek.length < 2) {
+  if (initial_days.length != new Set(initial_days).size) {
+    throw new GraphQLError("Dates must be unique");
+  }
+  if (initial_days.length < 2) {
+    // TODO: remove this restriction
     throw new GraphQLError("A minimum of 2 workouts per week.");
   }
 
@@ -56,7 +60,7 @@ export const workoutGeneratorV2 = async (
 
   // excercise_pointer used with randomRotation determines which exercise type should be next
   let rotationSequenceMuscle: MuscleRegionType[][] = [[]];
-  switch (daysOfWeek.length) {
+  switch (initial_days.length) {
     case 2:
       rotationSequenceMuscle = workoutSplit.twoDaySplitMuscle;
       break;
@@ -76,10 +80,10 @@ export const workoutGeneratorV2 = async (
   let Rotation: MuscleRegionType[] = [];
   let max = 0;
 
-  for (let day = 0; day < daysOfWeek.length; day++) {
+  for (let day = 0; day < initial_days.length; day++) {
     const list_of_excercises: any = [];
     Rotation = rotationSequenceMuscle[day];
-    if (daysOfWeek.length > 5) {
+    if (initial_days.length > 5) {
       max = Rotation.length - 1; // 1 less exercise per day if days is more than 5
     } else {
       max = Rotation.length;
@@ -102,9 +106,7 @@ export const workoutGeneratorV2 = async (
         },
       });
       if (excercises_in_category.length > 0) {
-        const randomSelectedExcercise: Excercise = _.sample(
-          excercises_in_category
-        )!;
+        const randomSelectedExcercise: any = _.sample(excercises_in_category)!;
         const exerciseSetCreateArgs: any = await formatAndGenerateExcerciseSets(
           randomSelectedExcercise.excercise_name,
           context
@@ -116,7 +118,7 @@ export const workoutGeneratorV2 = async (
       Prisma.WorkoutUncheckedCreateInput,
       "program_id" | "programProgram_id"
     > = {
-      dayOfWeek: daysOfWeek[day],
+      date_scheduled: initial_days[day],
       workout_name: _.sample(workout_name_list)!,
       excercise_set_groups: { create: list_of_excercises },
     };
@@ -145,23 +147,21 @@ export const workoutGeneratorV2 = async (
         });
       })
     );
+    await prisma.user.update({
+      where: {
+        user_id: user.user_id,
+      },
+      data: {
+        current_program_enrollment_id: program_id_to_use,
+      },
+    });
     return await tx.program.findUnique({
       where: {
         program_id: program_id_to_use,
       },
-      include: {
-        workouts: {
-          include: {
-            excercise_set_groups: {
-              include: {
-                excercise_sets: true,
-              },
-            },
-          },
-        },
-      },
     });
   });
+
   if (!newProgram) {
     throw new GraphQLError("Could not create program");
   }
@@ -178,20 +178,24 @@ export async function generateNextWorkout(
   next_workout_excercise_set_groups: PrismaExerciseSetGroupCreateArgs[]
 ) {
   const prisma = context.dataSources.prisma;
-  const { workout_name, excercise_set_groups, programProgram_id, dayOfWeek } =
-    previousWorkout;
+  const {
+    workout_name,
+    excercise_set_groups,
+    programProgram_id,
+    date_scheduled,
+  } = previousWorkout;
   const previousExerciseSetGroups = excercise_set_groups;
   const program = await prisma.program.findUniqueOrThrow({
     where: { program_id: programProgram_id },
   });
-  if (program.program_type !== ProgramType.AI_MANAGED) {
-    throw Error("Must be of Ai Managed");
-  }
-  if (previousWorkout.date_closed) {
-    // Do not generate next workout if it's within one week of ending date
-  }
-  if (program.ending_date) {
-    // refresh workouts
+  if (program.program_type !== ProgramType.SELF_MANAGED) {
+    // Only for AI and coached based workouts
+    if (previousWorkout.date_closed) {
+      // TODO: Do not generate next workout if it's within one week of ending date
+    }
+    if (program.ending_date) {
+      // TODO: refresh workouts
+    }
   }
   // Overload the workout
   // Don't need progressive overload because it was NOT completed in previous workout (It was temporarily replaced or removed)
@@ -223,14 +227,35 @@ export async function generateNextWorkout(
       }));
   // Create the workout.
   const formated = formatExcerciseSetGroups(finalExcerciseSetGroups);
-  await prisma.workout.create({
+
+  return await prisma.workout.create({
     data: {
       workout_name: workout_name,
       programProgram_id: program.program_id,
-      dayOfWeek: dayOfWeek,
+      date_scheduled: getNextScheduledDate(date_scheduled!),
+      last_completed: new Date(),
       excercise_set_groups: {
         create: formated,
       },
     },
   });
+}
+
+function getNextScheduledDate(originalScheduledDate: Date) {
+  // 1. Get the day of the week from the scheduled date
+  const dayOfWeek = originalScheduledDate.getDay(); // 0 - sun , 6 - Saturday
+  const currentDay = new Date().getDay();
+  let daysUntil = 0;
+
+  if (dayOfWeek <= currentDay) {
+    daysUntil = 7 - currentDay + dayOfWeek;
+  } else {
+    daysUntil = dayOfWeek - currentDay;
+  }
+
+  const nextWeekDate = new Date(
+    new Date().getTime() + daysUntil * 24 * 60 * 60 * 1000
+  );
+
+  return nextWeekDate;
 }

@@ -187,6 +187,7 @@ model BaseUser {
   email             String           @unique
   firebase_uid      String           @unique
   displayName       String
+  phoneNumber       String?
   fcm_tokens        FCMToken[]
   coach             Coach?
   User              User?
@@ -260,7 +261,6 @@ model PresetExcerciseSet {
   preset_excercise_set_group_id Int
   target_reps                   Int
   target_weight                 Float
-  weight_unit                   WeightUnit              @default(KG)
 }
 
 model User {
@@ -272,12 +272,11 @@ model User {
   workout_frequency                 Int?
   workout_duration                  Int?
   goal                              Goal?
-  gender                            Gender?
+  gender                            Gender                    @default(MALE)
   weight                            Float?
   height                            Float?
-  weight_unit                       WeightUnit?
-  height_unit                       LengthUnit?
-  phoneNumber                       String?
+  weight_unit                       WeightUnit                @default(KG)
+  height_unit                       LengthUnit                @default(CM)
   compound_movement_rep_lower_bound Int                       @default(3)
   compound_movement_rep_upper_bound Int                       @default(10)
   isolated_movement_rep_lower_bound Int                       @default(5)
@@ -303,11 +302,9 @@ model ExcerciseMetadata {
   excercise_metadata_state              ExcerciseMetadataState @default(LEARNING)
   user                                  User                   @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
   excercise                             Excercise              @relation(fields: [excercise_name], references: [excercise_name], onDelete: Cascade)
-  haveRequiredEquipment                 Boolean?
-  preferred                             Boolean?
+  preferred                             Boolean                @default(false)
   last_excecuted                        DateTime?
   best_weight                           Float                  @default(0)
-  weight_unit                           WeightUnit             @default(KG)
   best_rep                              Int                    @default(0)
   rest_time_lower_bound                 Int                    @default(90)
   rest_time_upper_bound                 Int                    @default(180)
@@ -333,9 +330,9 @@ model Measurement {
 model Workout {
   workout_id           Int                 @id @default(autoincrement())
   workout_name         String
-  dayOfWeek            DayOfWeek
-  date_scheduled       DateTime?
+  date_scheduled       DateTime
   date_closed          DateTime?
+  last_completed       DateTime?
   performance_rating   Float?
   workout_state        WorkoutState        @default(UNATTEMPTED)
   excercise_set_groups ExcerciseSetGroup[]
@@ -400,11 +397,11 @@ model Excercise {
 model ExcerciseSet {
   excercise_set_id           Int               @id @default(autoincrement())
   target_weight              Float
-  weight_unit                WeightUnit
   target_reps                Int
   actual_weight              Float?
   actual_reps                Int?
   rate_of_perceived_exertion Int?
+  to_skip                    Boolean           @default(false)
   excerciseSetGroup          ExcerciseSetGroup @relation(fields: [excercise_set_group_id], references: [excercise_set_group_id], onDelete: Cascade)
   excercise_set_group_id     Int
 }

@@ -15,12 +15,13 @@ import { MutationRefreshProgramArgs } from "../../../types/graphql";
  */
 export const refreshProgramResolver = async (
   _: unknown,
-  { program_id }: MutationRefreshProgramArgs,
+  { program_id, initial_days }: MutationRefreshProgramArgs,
   context: AppContext
 ) => {
   onlyAuthenticated(context);
   const prisma = context.dataSources.prisma;
   const no_of_workouts = context.base_user?.User?.workout_frequency ?? 3;
+
   assert(no_of_workouts > 0 && no_of_workouts <= 6);
 
   const { active_workouts } = await getActiveWorkout({
@@ -28,7 +29,8 @@ export const refreshProgramResolver = async (
     program_id: program_id,
   });
 
-  const days_of_week = active_workouts.map((workout) => workout.dayOfWeek);
+  const days_of_week =
+    initial_days ?? active_workouts.map((workout) => workout.date_scheduled);
   const activeWorkoutIDS = active_workouts.map(
     (workout: Workout) => workout.workout_id
   );

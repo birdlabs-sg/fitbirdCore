@@ -17,6 +17,7 @@ export const updateWorkout = async (
   { workout_id, excercise_set_groups, ...otherArgs }: MutationUpdateWorkoutArgs,
   context: AppContext
 ) => {
+  console.log("hi");
   onlyAuthenticated(context);
   let final_user_id: string | undefined;
   if (context.base_user?.User?.user_id) {
@@ -63,6 +64,8 @@ export const updateWorkout = async (
       excercise_set_groups: { include: { excercise_sets: true } },
     },
   });
+
+  console.log(updatedWorkout);
 
   return {
     code: "200",

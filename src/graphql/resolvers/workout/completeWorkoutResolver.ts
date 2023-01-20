@@ -1,11 +1,9 @@
+import { WorkoutState } from "@prisma/client";
 import { onlyAuthenticated } from "../../../service/firebase/firebase_service";
 import { report } from "../../../service/slack/slack_service";
 import { updateExcerciseMetadataWithCompletedWorkout } from "../../../service/workout_manager/exercise_metadata_manager/exercise_metadata_manager";
 import { generateOrUpdateExcerciseMetadata } from "../../../service/workout_manager/exercise_metadata_manager/exercise_metadata_manager";
-import {
-  extractMetadatas,
-  getActiveWorkout,
-} from "../../../service/workout_manager/utils";
+import { extractMetadatas } from "../../../service/workout_manager/utils";
 import { formatExcerciseSetGroups } from "../../../service/workout_manager/utils";
 import { exerciseSetGroupStateSeperator } from "../../../service/workout_manager/utils";
 import { checkExistsAndOwnership } from "../../../service/workout_manager/utils";
@@ -40,6 +38,7 @@ export const completeWorkoutResolver = async (
       workout_id: parseInt(workout_id),
     },
     data: {
+      workout_state: WorkoutState.COMPLETED,
       date_closed: new Date(),
       excercise_set_groups: {
         deleteMany: {},
@@ -62,14 +61,11 @@ export const completeWorkoutResolver = async (
   );
 
   report(`${context.base_user?.displayName} completed a workout. ✅`);
-  const { active_workouts } = await getActiveWorkout({
-    context: context,
-    program_id: JSON.stringify(completedWorkout.programProgram_id),
-  });
+
   return {
     code: "200",
     success: true,
     message: "Successfully completed your workout!",
-    workouts: active_workouts,
+    workout: completedWorkout,
   };
 };

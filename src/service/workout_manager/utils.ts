@@ -67,7 +67,6 @@ export async function formatAndGenerateExcerciseSets(
     // No previous data
     excercise_sets_input = new Array(5).fill({
       target_weight: 0,
-      weight_unit: "KG",
       target_reps: 0,
       actual_weight: undefined,
       actual_reps: undefined,
@@ -103,7 +102,11 @@ export function formatExcerciseSetGroups(
       excercise_set_group_state:
         excercise_set_group_state as ExcerciseSetGroupState,
       excercise_sets: {
-        create: excercise_sets as ExcerciseSetInput[],
+        create: excercise_sets.map((set) => {
+          // set it back
+          set.to_skip = false;
+          return set;
+        }),
       },
     };
   });
@@ -361,11 +364,10 @@ export function convertPresetIntoExcerciseSetGroups(
       // this field only works because preset excercise sets works as an interface for excerciseSetInput <--- might want to look at a better solution here
       excercise_sets: {
         create: preset_excercise_sets.map(function (excerciseSet) {
-          const { target_reps, target_weight, weight_unit } = excerciseSet;
+          const { target_reps, target_weight } = excerciseSet;
           return {
             target_reps: target_reps,
             target_weight: target_weight,
-            weight_unit: weight_unit,
           };
         }),
       },

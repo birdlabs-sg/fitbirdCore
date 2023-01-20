@@ -13,6 +13,10 @@ generates:
       mappers:
         Token: "./tokenType#Token"
         BaseUser: "@prisma/client#BaseUser"
+        ProgramPreset: "@prisma/client#ProgramPreset"
+        PresetWorkouts: "@prisma/client#PresetWorkouts"
+        PresetExcerciseSetGroup: "@prisma/client#PresetExcerciseSetGroup"
+        PresetExcerciseSet: "@prisma/client#PresetExcerciseSet"
         ContentBlock: "@prisma/client#ContentBlock"
         Coach: "@prisma/client#Coach"
         Program: "@prisma/client#Program"

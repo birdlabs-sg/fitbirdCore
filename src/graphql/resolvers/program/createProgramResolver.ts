@@ -1,4 +1,4 @@
-import { DayOfWeek, Prisma, ProgramType } from "@prisma/client";
+import { Prisma, ProgramType } from "@prisma/client";
 import { AppContext } from "../../../types/contextType";
 import { MutationCreateProgramArgs } from "../../../types/graphql";
 import {
@@ -43,7 +43,6 @@ export const createProgramResolver = async (
     });
     const workout_input: Prisma.WorkoutCreateWithoutProgramInput = {
       ...workoutsInput[i],
-      dayOfWeek: DayOfWeek.FRIDAY,
       excercise_set_groups: {
         create: formatExcerciseSetGroups(prismaExerciseSetGroupCreateArgs),
       },
@@ -52,21 +51,25 @@ export const createProgramResolver = async (
   }
 
   //3. Create the new program object with its corresponding workouts
-  const program = await prisma.program.create({
-    data: {
-      ...(coach_id && { coach: { connect: { coach_id: parseInt(coach_id) } } }),
-      program_type: program_type,
-      user: { connect: { user_id: parseInt(user_id) } },
-      is_active: true,
-      workouts: {
-        create: workoutArray,
+  const program = await prisma.program
+    .create({
+      data: {
+        ...(coach_id && {
+          coach: { connect: { coach_id: parseInt(coach_id) } },
+        }),
+        program_type: program_type,
+        user: { connect: { user_id: parseInt(user_id) } },
+        is_active: true,
+        workouts: {
+          create: workoutArray,
+        },
       },
-    },
-  });
+    })
+    .catch((e) => console.log(e));
   return {
     code: "200",
     success: true,
     message: "Successfully Created your program!",
-    program: program,
+    program: program!,
   };
 };

@@ -8,7 +8,7 @@ export const userQueryResolver = async (
   context: AppContext
 ) => {
   onlyAuthenticated(context);
-  if (context.base_user?.User) {
+  if (context.base_user?.User == null) {
     throw new GraphQLError("This endpoint is for Users only.");
   }
   return context.base_user!.User!;

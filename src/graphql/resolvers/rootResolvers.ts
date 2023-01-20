@@ -59,7 +59,31 @@ import { deleteprogramResolver } from "./program/deleteProgramResolver";
 const dateScalar = new GraphQLScalarType({
   name: "Date",
   description: "Date custom scalar type",
+  parseValue(value: string) {
+    // value from client as json
+    return new Date(value);
+  },
 });
+
+function getLastDateOfCurrentWeek() {
+  const now = new Date();
+  const day = now.getDay();
+  const diff = now.getDate() - day + (day === 0 ? -6 : 6);
+  const sunday = new Date(now.setDate(diff));
+  sunday.setHours(0, 0, 0, 0);
+  console.log("last", sunday.toDateString());
+  return sunday;
+}
+
+function getFirstDateOfCurrentWeek() {
+  const now = new Date();
+  const day = now.getDay();
+  const diff = now.getDate() - day;
+  const monday = new Date(now.setDate(diff));
+  monday.setHours(0, 0, 0, 0);
+  console.log("start", monday.toDateString());
+  return monday;
+}
 
 export const resolvers: Resolvers = {
   Date: dateScalar,
@@ -187,11 +211,35 @@ export const resolvers: Resolvers = {
       });
     },
 
-    async workouts(parent, _, context) {
+    async workouts(parent, { workout_filter }, context) {
       const prisma = context.dataSources.prisma;
-      return await prisma.workout.findMany({
-        where: { programProgram_id: parent.program_id },
+      const filteredWorkouts = await prisma.workout.findMany({
+        where: {
+          programProgram_id: parent.program_id,
+          ...(workout_filter && {
+            ...(workout_filter.upcoming != null && {
+              date_scheduled: { lte: getLastDateOfCurrentWeek() },
+              OR: [
+                {
+                  date_closed: { not: null },
+                  date_scheduled: { gte: getFirstDateOfCurrentWeek() },
+                },
+                {
+                  date_closed: null,
+                },
+              ],
+            }),
+            ...(workout_filter.program_id != null && {
+              program_id: workout_filter.program_id,
+            }),
+            ...(workout_filter.workout_name != null && {
+              workout_name: workout_filter.workout_name,
+            }),
+          }),
+        },
       });
+
+      return filteredWorkouts!;
     },
   },
 
@@ -232,7 +280,7 @@ export const resolvers: Resolvers = {
     async excercise_metadata(parent, _, context) {
       // can be null
       const prisma = context.dataSources.prisma;
-      return await prisma.excerciseMetadata.findUnique({
+      return await prisma.excerciseMetadata.findUniqueOrThrow({
         where: {
           user_id_excercise_name: {
             user_id: context.base_user!.User!.user_id,

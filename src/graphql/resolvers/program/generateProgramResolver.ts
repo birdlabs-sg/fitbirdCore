@@ -9,10 +9,10 @@ import { MutationGenerateProgramArgs } from "../../../types/graphql";
  */
 export const generateProgramResolver = async (
   _: unknown,
-  { days_of_week }: MutationGenerateProgramArgs,
+  { initial_days }: MutationGenerateProgramArgs,
   context: AppContext
 ) => {
   onlyAuthenticated(context);
   // TODO: only allow users themselves to generate programs
-  return await workoutGeneratorV2(days_of_week, context);
+  return await workoutGeneratorV2(initial_days, context);
 };
