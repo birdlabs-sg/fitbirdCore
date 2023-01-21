@@ -1,6 +1,6 @@
 import { MutationDeleteProgramArgs } from "../../../types/graphql";
 import { AppContext } from "../../../types/contextType";
-import { clientCoachRelationshipGuard } from "./utils";
+import { GraphQLError } from "graphql";
 
 export const deleteprogramResolver = async (
   _: unknown,
@@ -8,23 +8,18 @@ export const deleteprogramResolver = async (
   context: AppContext
 ) => {
   const prisma = context.dataSources.prisma;
-  const { user_id, coach_id } = await prisma.program.findUniqueOrThrow({
+  const programToDelete = await prisma.program.findUniqueOrThrow({
     where: {
       program_id: parseInt(program_id),
     },
   });
-  // if coach_id is null, will just perform check if user_id === requestor_id which is what we want.
-  await clientCoachRelationshipGuard({
-    context,
-    user_id,
-    coach_id,
-    onlyAllowActiveRelationship: true,
-    checkRelationship: true,
+  checkExistsAndOwnershipOnSharedResource({
+    context: context,
+    object: programToDelete,
   });
-
   const program = await prisma.program.delete({
     where: {
-      program_id: parseInt(program_id),
+      program_id: programToDelete.program_id,
     },
   });
   return {
@@ -34,3 +29,22 @@ export const deleteprogramResolver = async (
     program: program,
   };
 };
+
+interface sharedResource {
+  user_id: number;
+  coach_id: number | null;
+}
+export function checkExistsAndOwnershipOnSharedResource({
+  context,
+  object,
+}: {
+  context: AppContext;
+  object: sharedResource;
+}) {
+  const requestor_id =
+    context.base_user?.User?.user_id ?? context.base_user?.coach?.coach_id;
+  if (requestor_id == null) throw new GraphQLError("Not authenticated.");
+
+  if (object.coach_id != requestor_id && object.user_id != requestor_id)
+    throw new GraphQLError("User does not own the object.");
+}

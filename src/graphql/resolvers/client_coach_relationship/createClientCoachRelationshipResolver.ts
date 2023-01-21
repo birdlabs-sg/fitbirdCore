@@ -3,6 +3,7 @@ import { onlyAuthenticated } from "../../../service/firebase/firebase_service";
 // import { MutationCreateClientCoachRelationshipArgs } from "../../../types/graphql";
 import { AppContext } from "../../../types/contextType";
 import { GraphQLError } from "graphql";
+import { getStakeHoldersID } from "../utils";
 
 /**
  * Creates a client-coach relationship
@@ -16,21 +17,20 @@ export const createCoachClientRelationshipResolver = async (
   context: AppContext
 ) => {
   onlyAuthenticated(context);
-  const requestor_id =
-    context.base_user?.User?.user_id ?? context.base_user?.coach?.coach_id;
-  if (!requestor_id) {
-    throw new GraphQLError("Requestor does not have a valid id.");
+  const stakeholderIds = getStakeHoldersID({
+    context: context,
+    user_id: user_id,
+    coach_id: coach_id,
+  });
+  if (stakeholderIds.coach_id == null || stakeholderIds.user_id == null) {
+    throw new GraphQLError("Both coach_id and user_id needs to be present");
   }
-  if (requestor_id != parseInt(coach_id) && requestor_id != parseInt(user_id)) {
-    throw new GraphQLError(
-      "Requestor cannot create relationships that he does not belong in."
-    );
-  }
+
   const prisma = context.dataSources.prisma;
   const clientCoachRelationship = await prisma.coachClientRelationship.create({
     data: {
-      user_id: parseInt(user_id),
-      coach_id: parseInt(coach_id),
+      user_id: parseInt(stakeholderIds.user_id),
+      coach_id: parseInt(stakeholderIds.coach_id)!,
     },
   });
   return {

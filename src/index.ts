@@ -1,5 +1,4 @@
 import { resolvers } from "./graphql/resolvers/rootResolvers";
-import { typeDefs } from "./graphql/typeDefs/rootTypeDefs";
 import {
   authenticate,
   getAuthToken,
@@ -9,6 +8,7 @@ import { startStandaloneServer } from "@apollo/server/standalone";
 import { ApolloServerPluginUsageReporting } from "@apollo/server/plugin/usageReporting";
 import { PrismaClient } from "@prisma/client";
 import { report } from "./service/slack/slack_service";
+import { loadFiles } from "@graphql-tools/load-files";
 
 const prisma = new PrismaClient();
 
@@ -52,7 +52,7 @@ const reportErrorToSlackPlugin: ApolloServerPlugin = {
 async function startApolloServer() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const server = new ApolloServer<any>({
-    typeDefs: typeDefs,
+    typeDefs: await loadFiles("src/graphql/schema.graphql"),
     resolvers: resolvers,
     csrfPrevention: true,
     introspection: true,

@@ -5,6 +5,7 @@ import { AppContext } from "../../../types/contextType";
 import { getActiveWorkout } from "../../../service/workout_manager/utils";
 import { assert } from "console";
 import { MutationRefreshProgramArgs } from "../../../types/graphql";
+import { checkExistsAndOwnershipOnSharedResource } from "./deleteProgramResolver";
 
 /**
  * Regenerates AI_MANAGED workouts.
@@ -20,6 +21,13 @@ export const refreshProgramResolver = async (
 ) => {
   onlyAuthenticated(context);
   const prisma = context.dataSources.prisma;
+  const programToRefresh = await prisma.program.findUniqueOrThrow({
+    where: { program_id: parseInt(program_id) },
+  });
+  checkExistsAndOwnershipOnSharedResource({
+    context: context,
+    object: programToRefresh,
+  });
   const no_of_workouts = context.base_user?.User?.workout_frequency ?? 3;
 
   assert(no_of_workouts > 0 && no_of_workouts <= 6);

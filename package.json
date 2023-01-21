@@ -13,7 +13,7 @@
   },
   "dependencies": {
     "@apollo/server": "^4.0.0",
-    "@graphql-tools/schema": "^9.0.9",
+    "@graphql-tools/load-files": "^6.6.1",
     "@prisma/client": "^4.7.0",
     "axios": "^0.27.2",
     "dotenv": "^16.0.1",
@@ -44,6 +44,7 @@
     "eslint-plugin-prettier": "^4.2.1",
     "prettier": "^2.7.1",
     "ts-node": "^10.7.0",
-    "tsc-watch": "^5.0.3"
+    "tsc-watch": "^5.0.3",
+    "webpack-cli": "^5.0.1"
   }
 }

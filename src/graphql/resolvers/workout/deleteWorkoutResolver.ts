@@ -1,7 +1,7 @@
 import { onlyAuthenticated } from "../../../service/firebase/firebase_service";
-import { checkExistsAndOwnership } from "../../../service/workout_manager/utils";
 import { AppContext } from "../../../types/contextType";
 import { MutationDeleteWorkoutArgs } from "../../../types/graphql";
+import { checkExistsAndOwnershipOnSharedResource } from "../program/deleteProgramResolver";
 
 /**
  * deletes the workout specified by @workout_id
@@ -16,7 +16,19 @@ export const deleteWorkoutResolver = async (
   onlyAuthenticated(context);
   const prisma = context.dataSources.prisma;
   // Get the workout of interest
-  await checkExistsAndOwnership({ context, workout_id });
+  const programAffected = await prisma.program.findFirstOrThrow({
+    where: {
+      workouts: {
+        some: {
+          workout_id: parseInt(workout_id),
+        },
+      },
+    },
+  });
+  checkExistsAndOwnershipOnSharedResource({
+    context: context,
+    object: programAffected,
+  });
   // delete the workout
   const deletedWorkout = await prisma.workout.delete({
     where: {

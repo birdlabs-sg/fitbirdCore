@@ -55,6 +55,7 @@ import { queryProgramResolver } from "./program/queryProgramResolver";
 import { queryProgramsResolver } from "./program/queryProgramsResolver";
 import { updateProgramResolver } from "./program/updateProgramResolver";
 import { deleteprogramResolver } from "./program/deleteProgramResolver";
+import { getFirstDateOfCurrentWeek, getLastDateOfCurrentWeek } from "./utils";
 
 const dateScalar = new GraphQLScalarType({
   name: "Date",
@@ -64,26 +65,6 @@ const dateScalar = new GraphQLScalarType({
     return new Date(value);
   },
 });
-
-function getLastDateOfCurrentWeek() {
-  const now = new Date();
-  const day = now.getDay();
-  const diff = now.getDate() - day + (day === 0 ? -6 : 6);
-  const sunday = new Date(now.setDate(diff));
-  sunday.setHours(0, 0, 0, 0);
-  console.log("last", sunday.toDateString());
-  return sunday;
-}
-
-function getFirstDateOfCurrentWeek() {
-  const now = new Date();
-  const day = now.getDay();
-  const diff = now.getDate() - day;
-  const monday = new Date(now.setDate(diff));
-  monday.setHours(0, 0, 0, 0);
-  console.log("start", monday.toDateString());
-  return monday;
-}
 
 export const resolvers: Resolvers = {
   Date: dateScalar,

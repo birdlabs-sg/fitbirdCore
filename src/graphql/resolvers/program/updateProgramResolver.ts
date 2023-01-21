@@ -1,7 +1,8 @@
 import { MutationUpdateProgramArgs } from "../../../types/graphql";
 import { onlyAuthenticated } from "../../../service/firebase/firebase_service";
 import { AppContext } from "../../../types/contextType";
-import { clientCoachRelationshipGuard } from "./utils";
+import { clientCoachRelationshipGuard } from "../utils";
+import { checkExistsAndOwnershipOnSharedResource } from "./deleteProgramResolver";
 /**
  * Updates the program specified by @program_id
  */
@@ -15,21 +16,25 @@ export const updateProgramResolver = async (
   context: AppContext
 ) => {
   onlyAuthenticated(context);
+
   const prisma = context.dataSources.prisma;
-  const { user_id, coach_id } = await prisma.program.findUniqueOrThrow({
+  const programToUpdate = await prisma.program.findUniqueOrThrow({
     where: {
       program_id: parseInt(program_id),
     },
   });
-  // requestor must match either user_id OR coach_id
-  await clientCoachRelationshipGuard({
-    context,
-    user_id,
-    coach_id,
-    checkRelationship: true,
-    onlyAllowActiveRelationship: true,
+  checkExistsAndOwnershipOnSharedResource({
+    context: context,
+    object: programToUpdate,
   });
-
+  if (new_coach_id != null) {
+    // Enforce that there's already a relationship.
+    await clientCoachRelationshipGuard({
+      context,
+      user_id: programToUpdate.user_id,
+      coach_id: parseInt(new_coach_id),
+    });
+  }
   const updatedProgram = await prisma.program.update({
     where: {
       program_id: parseInt(program_id),
@@ -39,7 +44,6 @@ export const updateProgramResolver = async (
       ...otherArgs,
     },
   });
-
   return {
     code: "200",
     success: true,

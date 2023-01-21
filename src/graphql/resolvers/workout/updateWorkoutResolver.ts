@@ -2,34 +2,25 @@
  * Updates the workout specified by @workout_id
  */
 
-import { ProgramType } from "@prisma/client";
 import { onlyAuthenticated } from "../../../service/firebase/firebase_service";
 import { generateOrUpdateExcerciseMetadata } from "../../../service/workout_manager/exercise_metadata_manager/exercise_metadata_manager";
 import { extractMetadatas } from "../../../service/workout_manager/utils";
 import { formatExcerciseSetGroups } from "../../../service/workout_manager/utils";
-import { checkExistsAndOwnership } from "../../../service/workout_manager/utils";
 import { AppContext } from "../../../types/contextType";
 import { ExcerciseSetGroupInput } from "../../../types/graphql";
 import { MutationUpdateWorkoutArgs } from "../../../types/graphql";
-import { GraphQLError } from "graphql";
-import { clientCoachRelationshipGuard } from "../program/utils";
+import { checkExistsAndOwnershipOnSharedResource } from "../program/deleteProgramResolver";
 
 // modified the update workout to fit both coaches and users
 export const updateWorkoutResolver = async (
   _: unknown,
-  {
-    workout_id,
-    excercise_set_groups,
-    user_id,
-    coach_id,
-    ...otherArgs
-  }: MutationUpdateWorkoutArgs,
+  { workout_id, excercise_set_groups, ...otherArgs }: MutationUpdateWorkoutArgs,
   context: AppContext
 ) => {
   const prisma = context.dataSources.prisma;
   onlyAuthenticated(context);
 
-  const program = await prisma.program.findFirstOrThrow({
+  const programAffected = await prisma.program.findFirstOrThrow({
     where: {
       workouts: {
         some: {
@@ -39,24 +30,12 @@ export const updateWorkoutResolver = async (
     },
   });
 
-  if (program.program_type === ProgramType.COACH_MANAGED) {
-    // If it's a user, this will be a string, else it's undefined
-    if (!coach_id) {
-      throw new GraphQLError("Coached managed workouts must pass in coach_id.");
-    }
-    await clientCoachRelationshipGuard({
-      context,
-      user_id: parseInt(user_id),
-      coach_id: parseInt(coach_id),
-      checkRelationship: true,
-      onlyAllowActiveRelationship: true,
-    });
-  }
-
-  await checkExistsAndOwnership({ context, workout_id, user_id });
+  checkExistsAndOwnershipOnSharedResource({
+    context: context,
+    object: programAffected,
+  });
 
   let formatedUpdatedData;
-
   if (excercise_set_groups != null) {
     const [excerciseSetGroups, excercise_metadatas] = extractMetadatas(
       excercise_set_groups as ExcerciseSetGroupInput[]
@@ -73,7 +52,7 @@ export const updateWorkoutResolver = async (
     await generateOrUpdateExcerciseMetadata({
       context,
       excercise_metadatas,
-      user_id,
+      user_id: programAffected.user_id.toString(),
     });
   } else {
     formatedUpdatedData = {

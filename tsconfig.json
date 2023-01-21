@@ -19,6 +19,7 @@
         "useUnknownInCatchVariables": false,
         "emitDecoratorMetadata": true,
         "experimentalDecorators": true,
+        "typeRoots": ["node_modules/@types"],
         "paths": {
             "*": [
                 "node_modules/*"

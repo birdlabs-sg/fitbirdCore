@@ -2,7 +2,7 @@ import { onlyAuthenticated } from "../../../service/firebase/firebase_service";
 import { QueryGetCoachClientRelationshipArgs } from "../../../types/graphql";
 import { AppContext } from "../../../types/contextType";
 import { GraphQLError } from "graphql";
-import { clientCoachRelationshipGuard } from "../program/utils";
+import { getStakeHoldersID } from "../utils";
 
 /**
  * Retrieves client-coach relationships specfied at @coach_id or @user_id
@@ -16,22 +16,20 @@ export const getCoachClientRelationshipResolver = async (
   context: AppContext
 ) => {
   onlyAuthenticated(context);
-  if (!coach_id && !user_id) {
-    throw new GraphQLError("Need to pass in at least coach_id OR user_id");
-  }
-  await clientCoachRelationshipGuard({
-    context,
-    user_id: parseInt(user_id),
-    coach_id: parseInt(user_id),
-    checkRelationship: true,
-    onlyAllowActiveRelationship: false,
+  const stakeholderIds = getStakeHoldersID({
+    context: context,
+    user_id: user_id,
+    coach_id: coach_id,
   });
+  if (stakeholderIds.coach_id == null || stakeholderIds.user_id == null) {
+    throw new GraphQLError("Both coach_id and user_id needs to be present");
+  }
   const prisma = context.dataSources.prisma;
   return await prisma.coachClientRelationship.findUniqueOrThrow({
     where: {
       coach_id_user_id: {
-        user_id: parseInt(user_id),
-        coach_id: parseInt(user_id),
+        user_id: parseInt(stakeholderIds.user_id),
+        coach_id: parseInt(stakeholderIds.coach_id),
       },
     },
   });
