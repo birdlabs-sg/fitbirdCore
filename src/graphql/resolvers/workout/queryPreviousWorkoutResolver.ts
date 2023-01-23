@@ -13,7 +13,7 @@ export const queryPreviousWorkoutResolver = async (
   onlyAuthenticated(context);
   const prisma = context.dataSources.prisma;
   // Ensures that requestor matches one of them.
-  console.log(workout_name);
+
   const programAffected = await prisma.program.findFirstOrThrow({
     where: {
       workouts: {
@@ -38,6 +38,5 @@ export const queryPreviousWorkoutResolver = async (
     },
     orderBy: [{ date_scheduled: "desc" }],
   });
-console.log(workouts)
   return workouts[0];
 };
