@@ -261,6 +261,7 @@ model PresetExcerciseSet {
   preset_excercise_set_group_id Int
   target_reps                   Int
   target_weight                 Float
+  weight_unit                   WeightUnit              @default(KG)
 }
 
 model User {

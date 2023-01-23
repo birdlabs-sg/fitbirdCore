@@ -22,7 +22,8 @@ export async function createProgramPresetResolver(
   }
   const formattedPresetWorkouts =
     formatPresetWorkoutsIntoPresetMutationReq(preset_workouts);
-  await prisma.programPreset.create({
+   
+await prisma.programPreset.create({
     data: {
       preset_workouts: { create: formattedPresetWorkouts },
       preset_name: preset_name,
@@ -31,6 +32,7 @@ export async function createProgramPresetResolver(
       coach: { connect: { coach_id: context.base_user!.coach!.coach_id } },
     },
   });
+
 
   return {
     code: "200",

@@ -7,17 +7,24 @@ import {
 } from "../../../service/workout_manager/utils";
 import { generateOrUpdateExcerciseMetadata } from "../../../service/workout_manager/exercise_metadata_manager/exercise_metadata_manager";
 import { onlyAuthenticated } from "../../../service/firebase/firebase_service";
-import { clientCoachRelationshipGuard, getStakeHoldersID } from "../utils";
+import { clientCoachRelationshipGuard, getStakeHoldersID, setAllProgramsInactive } from "../utils";
 import { GraphQLError } from "graphql";
 
 export const createProgramResolver = async (
   _: unknown,
-  { user_id, coach_id, workoutsInput, program_type }: MutationCreateProgramArgs,
+  {
+    user_id,
+    coach_id,
+    workoutsInput,
+    program_type,
+    starting_date,
+    ending_date,
+  }: MutationCreateProgramArgs,
   context: AppContext
 ) => {
   onlyAuthenticated(context);
-  if (program_type == ProgramType.COACH_MANAGED && !coach_id) {
-    throw new GraphQLError("Coached managed programs must pass in coach_id.");
+  if (program_type == ProgramType.COACH_MANAGED && !user_id) {
+    throw new GraphQLError("Coached managed programs must pass in user_id.");
   }
   const stakeholderIds = getStakeHoldersID({
     context: context,
@@ -59,7 +66,8 @@ export const createProgramResolver = async (
     };
     workoutArray.push(workout_input);
   }
-
+  await setAllProgramsInactive(context,program_type)
+  
   //3. Create the new program object with its corresponding workouts
   const program = await prisma.program.create({
     data: {
@@ -72,6 +80,12 @@ export const createProgramResolver = async (
       workouts: {
         create: workoutArray,
       },
+      ...(starting_date && {
+        starting_date: starting_date,
+      }),
+      ...(ending_date && {
+        ending_date: ending_date,
+      }),
     },
   });
 

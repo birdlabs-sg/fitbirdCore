@@ -1,6 +1,7 @@
+import { ProgramType } from "@prisma/client";
 import { GraphQLError } from "graphql";
 import { AppContext } from "../../types/contextType";
-
+import { WorkoutState } from "@prisma/client";
 /**
  *  Guards a resolver
  *
@@ -64,7 +65,34 @@ export function getStakeHoldersID({
   }
   throw new GraphQLError("Requestor does not have a valid id.");
 }
-
+export async function setAllProgramsInactive(
+  context: AppContext,
+  program_type: ProgramType
+) {
+  const prisma = context.dataSources.prisma;
+  await prisma.program.updateMany({
+    where: {
+      program_type: program_type,
+      is_active: true,
+    },
+    data: {
+      is_active: false,
+    },
+  });
+  const today = new Date();
+  await prisma.workout.updateMany({
+    where: {
+      date_closed: null,
+      Program:{
+        program_type:program_type
+      }
+    },
+    data: {
+      date_closed:today,
+      workout_state: WorkoutState.CANCELLED,
+    },
+  });
+}
 export function getLastDateOfCurrentWeek() {
   const now = new Date();
   const day = now.getDay();

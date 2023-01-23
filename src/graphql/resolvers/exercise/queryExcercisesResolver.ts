@@ -14,6 +14,10 @@ export const excercisesQueryResolver = async (
     context.base_user?.User?.equipment_accessible || [],
     lodash.isEqual
   ) as Equipment[];
+  if(context.base_user?.coach){
+    return await prisma.excercise.findMany({});
+  
+  }
   const filteredExcercises = await prisma.excercise.findMany({
     where: {
       NOT: {

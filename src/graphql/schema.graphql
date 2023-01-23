@@ -26,13 +26,14 @@ This is the root query to resources. Require ADMIN permission to access all, oth
 """
 type Query {
   programs(user_id: ID, coach_id: ID): [Program!]!
-  program(program_id: ID!): Program!
+  program(program_id: ID, filter: programQueryFilter): Program!
   preset(programPreset_id: ID!): ProgramPreset!
   presets: [ProgramPreset!]!
   baseUser: BaseUser!
   user: User!
   workouts(user_id: ID, coach_id: ID, filter: WorkoutQueryFilter!): [Workout!]!
-  workout(workout_id: ID!, user_id: ID!, coach_id: ID): Workout!
+  workout(workout_id: ID!, user_id: ID!, coach_id: ID,previous: Boolean!): Workout!
+  previousWorkout(workout_name: String!,program_id:ID!):Workout
   excercises: [Excercise!]!
   excludedExcercises: [Excercise!]!
   getExcercise(excercise_name: ID!): Excercise!
@@ -75,6 +76,12 @@ input WorkoutQueryFilter {
   upcoming: Boolean
   program_type: ProgramType
 }
+input programQueryFilter {
+  user_id: ID
+  is_active: Boolean
+  program_type: ProgramType
+  overview_mode: Boolean
+}
 
 """
 Represents a user. Contains meta-data specific to each user.
@@ -110,6 +117,7 @@ type User {
   excercise_metadata: [ExcerciseMetadata!]!
   program: [Program!]!
   selected_exercise_for_analytics: [Excercise!]!
+  base_user: BaseUser
 }
 
 """
@@ -350,11 +358,11 @@ type Workout {
   workout_state: WorkoutState
   excercise_set_groups: [ExcerciseSetGroup!]!
   programProgram_id: ID!
+  program: Program
 }
 
 type ExcerciseSetGroup {
   excercise_set_group_id: String
-  index: Int!
   excercise_name: String!
   excercise: Excercise!
   excercise_metadata: ExcerciseMetadata!
@@ -626,7 +634,6 @@ type Mutation {
   """
   updateWorkout(
     coach_id: ID
-    user_id: ID!
     workout_id: ID!
     workout_name: String
     date_scheduled: Date
@@ -713,6 +720,8 @@ type Mutation {
     user_id: ID
     program_type: ProgramType!
     workoutsInput: [workoutInput!]!
+    starting_date: Date
+    ending_date: Date
   ): mutateProgramResponse!
 
   """
@@ -757,7 +766,6 @@ type Mutation {
   createProgramPreset(
     preset_workouts: [PresetWorkoutInput!]!
     preset_name: String!
-    life_span: Int!
     preset_difficulty: PresetDifficulty!
     image_url: String
   ): presetResponse

@@ -256,6 +256,5 @@ function getNextScheduledDate(originalScheduledDate: Date) {
   const nextWeekDate = new Date(
     new Date().getTime() + daysUntil * 24 * 60 * 60 * 1000
   );
-
   return nextWeekDate;
 }

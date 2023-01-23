@@ -1,35 +1,43 @@
 import { AppContext } from "../../../types/contextType";
 import { onlyAuthenticated } from "../../../service/firebase/firebase_service";
-import { QueryWorkoutArgs } from "../../../types/graphql";
-import { checkExistsAndOwnershipOnSharedResource } from "../program/deleteProgramResolver";
 
-export const queryWorkoutResolver = async (
+import { checkExistsAndOwnershipOnSharedResource } from "../program/deleteProgramResolver";
+import { WorkoutState } from "@prisma/client";
+import { QueryPreviousWorkoutArgs } from "../../../types/graphql";
+
+export const queryPreviousWorkoutResolver = async (
   _: unknown,
-  { workout_id }: QueryWorkoutArgs,
+  { workout_name, program_id }: QueryPreviousWorkoutArgs,
   context: AppContext
 ) => {
   onlyAuthenticated(context);
   const prisma = context.dataSources.prisma;
-
   // Ensures that requestor matches one of them.
+  console.log(workout_name);
   const programAffected = await prisma.program.findFirstOrThrow({
     where: {
       workouts: {
         some: {
-          workout_id: parseInt(workout_id),
+          workout_name: workout_name,
+          programProgram_id: parseInt(program_id),
         },
       },
     },
   });
+  
   checkExistsAndOwnershipOnSharedResource({
     context: context,
     object: programAffected,
   });
-  
-  return await prisma.workout.findUniqueOrThrow({
+  const workouts = await prisma.workout.findMany({
     where: {
-      // remove this to access other programs not associated with this coach
-      workout_id: parseInt(workout_id),
+      workout_name: workout_name,
+      workout_state: WorkoutState.COMPLETED,
+      date_closed: { not: null },
+      programProgram_id: parseInt(program_id),
     },
+    orderBy: [{ date_scheduled: "desc" }],
   });
+console.log(workouts)
+  return workouts[0];
 };

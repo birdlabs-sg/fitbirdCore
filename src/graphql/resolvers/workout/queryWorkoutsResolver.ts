@@ -34,8 +34,12 @@ export async function queryWorkoutsResolver(
     where: {
       Program: {
         user_id: parseInt(stakeholderIds.user_id),
+        
         ...(stakeholderIds.coach_id && {
           coach_id: parseInt(stakeholderIds.coach_id),
+        }),
+        ...(program_type && {
+          program_type: program_type,
         }),
       },
       ...(completed != undefined && {
@@ -45,11 +49,9 @@ export async function queryWorkoutsResolver(
         workout_name: workout_name,
       }),
       ...(program_id && {
-        program_id: program_id,
+        programProgram_id: parseInt(program_id),
       }),
-      ...(program_type && {
-        program_id: program_type,
-      }),
+     
     },
   });
 }

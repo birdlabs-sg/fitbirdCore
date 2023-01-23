@@ -56,6 +56,7 @@ import { queryProgramsResolver } from "./program/queryProgramsResolver";
 import { updateProgramResolver } from "./program/updateProgramResolver";
 import { deleteprogramResolver } from "./program/deleteProgramResolver";
 import { getFirstDateOfCurrentWeek, getLastDateOfCurrentWeek } from "./utils";
+import { queryPreviousWorkoutResolver } from "./workout/queryPreviousWorkoutResolver";
 
 const dateScalar = new GraphQLScalarType({
   name: "Date",
@@ -112,6 +113,7 @@ export const resolvers: Resolvers = {
     users: usersQueryResolver,
     workouts: queryWorkoutsResolver,
     workout: queryWorkoutResolver,
+    previousWorkout:queryPreviousWorkoutResolver,
     getExcercise: getExcerciseQueryResolver,
     excercises: excercisesQueryResolver,
     notifications: notificationsQueryResolver,
@@ -133,6 +135,13 @@ export const resolvers: Resolvers = {
         where: { workout_id: parent.workout_id },
       });
     },
+    async program(parent,_,context){
+      const prisma = context.dataSources.prisma;
+      return await prisma.program.findFirst({
+        where: { program_id:parent.programProgram_id },
+      });
+    }
+   
   },
 
   User: {
@@ -154,6 +163,16 @@ export const resolvers: Resolvers = {
         where: { user_id: parent.user_id },
         include: {
           workouts: true,
+        },
+      });
+    },
+    async base_user(parent, _, context) {
+      const prisma = context.dataSources.prisma;
+      return await prisma.baseUser.findFirstOrThrow({
+        where: {
+          User: {
+            user_id: parent.user_id,
+          },
         },
       });
     },
@@ -334,4 +353,6 @@ export const resolvers: Resolvers = {
       });
     },
   },
+
+  
 };
