@@ -41,6 +41,22 @@ enum Goal {
   OTHERS
 }
 
+enum DayOfWeek {
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+  SATURDAY
+  SUNDAY
+}
+
+enum ProgramType {
+  AI_MANAGED
+  SELF_MANAGED
+  COACH_MANAGED
+}
+
 enum LevelOfExperience {
   BEGINNER
   MID
@@ -114,15 +130,7 @@ enum WorkoutState {
   UNATTEMPTED
   IN_PROGRESS
   COMPLETED
-  DRAFT
   CANCELLED
-}
-
-enum WorkoutType {
-  AI_MANAGED
-  SELF_MANAGED
-  COACH_MANAGED
-  CHALLENGE
 }
 
 enum PresetDifficulty {
@@ -131,6 +139,7 @@ enum PresetDifficulty {
   HARD
   VERY_HARD
 }
+
 // FOR SETS ONLY (Affects their next workout sets, does not affect the current workout's sets)
 // any set that fail will cause the rest time to increase by 1.25x for the next set. 
 // This is effect temporary, will reset back to lower limit in the next workout
@@ -141,15 +150,29 @@ enum FailureReason {
   LOW_MOOD // (Means that user not enough motivation) No change
   INSUFFICIENT_SLEEP // (Means that user not enough sleep recently) No change
 }
-model PrivateMessage{
-  message_id           Int   @id @default(autoincrement())
-  date_issued          DateTime @default(now())
-  message_content      String
-  BaseUserSender       BaseUser @relation("BaseUserSender",fields: [sender_id], references: [base_user_id])
-  BaseUserReceiver     BaseUser @relation("BaseUserReceiver",fields: [receiver_id], references: [base_user_id])
-  sender_id            Int
-  receiver_id          Int 
+
+model PrivateMessage {
+  message_id       Int      @id @default(autoincrement())
+  date_issued      DateTime @default(now())
+  message_content  String
+  BaseUserSender   BaseUser @relation("BaseUserSender", fields: [sender_id], references: [base_user_id])
+  BaseUserReceiver BaseUser @relation("BaseUserReceiver", fields: [receiver_id], references: [base_user_id])
+  sender_id        Int
+  receiver_id      Int
 }
+
+model CoachClientRelationship {
+  // TODO: Add in more fields as we gain more requirements from gyms
+  coach_id     Int
+  user_id      Int
+  date_created DateTime @default(now())
+  active       Boolean  @default(true)
+  Coach        Coach    @relation(fields: [coach_id], references: [coach_id])
+  User         User     @relation(fields: [user_id], references: [user_id])
+
+  @@id([coach_id, user_id])
+}
+
 // // TODO: Use polymorphism. But prisma does not currently support this.
 // // Contains the authentication information of the user.
 model FCMToken {
@@ -160,10 +183,11 @@ model FCMToken {
 }
 
 model BaseUser {
-  base_user_id      Int        @id @default(autoincrement())
-  email             String     @unique
-  firebase_uid      String     @unique
+  base_user_id      Int              @id @default(autoincrement())
+  email             String           @unique
+  firebase_uid      String           @unique
   displayName       String
+  phoneNumber       String?
   fcm_tokens        FCMToken[]
   coach             Coach?
   User              User?
@@ -173,12 +197,13 @@ model BaseUser {
 
 model Coach {
   // TODO: Add in more fields as we gain more requirements from gyms
-  coach_id     Int       @id @default(autoincrement())
-  base_user    BaseUser  @relation(fields: [base_user_id], references: [base_user_id], onDelete: Cascade)
-  base_user_id Int       @unique
-  Review       Review[]
-  Program      Program[]
-  ProgramPreset ProgramPreset[]
+  coach_id                Int                       @id @default(autoincrement())
+  base_user               BaseUser                  @relation(fields: [base_user_id], references: [base_user_id], onDelete: Cascade)
+  base_user_id            Int                       @unique
+  Review                  Review[]
+  Program                 Program[]
+  ProgramPreset           ProgramPreset[]
+  CoachClientRelationship CoachClientRelationship[]
 }
 
 model Review {
@@ -190,99 +215,97 @@ model Review {
 }
 
 model Program {
-  program_id Int        @id @default(autoincrement())
-  coach      Coach      @relation(fields: [coach_id], references: [coach_id], onDelete: Cascade)
-  user       User       @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
-  workouts   Workout[]
-  coach_id   Int
-  user_id    Int
-  is_active  Boolean    @default(true)
+  program_type  ProgramType @default(SELF_MANAGED)
+  program_id    Int         @id @default(autoincrement())
+  coach         Coach?      @relation(fields: [coach_id], references: [coach_id], onDelete: Cascade)
+  user          User        @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
+  workouts      Workout[]
+  coach_id      Int?
+  user_id       Int
+  is_active     Boolean     @default(true)
+  ending_date   DateTime?
+  starting_date DateTime    @default(now())
 }
 
 // a preset for the programs to be loaded into the programs
 model ProgramPreset {
-  programPreset_id     Int                  @id @default(autoincrement()) // user will be able to select from the list of challenges
-  preset_workouts      PresetWorkouts[]    // up to a maximum of 7 workouts
-  preset_name          String
-  life_span            Int               // days
-  preset_difficulty    PresetDifficulty  // enum to describe difficulty
-  image_url            String?           // poster
-  coach                Coach      @relation(fields: [coach_id], references: [coach_id], onDelete: Cascade)
-  coach_id             Int
+  programPreset_id  Int              @id @default(autoincrement()) // user will be able to select from the list of challenges
+  preset_workouts   PresetWorkouts[] // up to a maximum of 7 workouts
+  preset_name       String
+  preset_difficulty PresetDifficulty // enum to describe difficulty
+  image_url         String? // poster
+  coach             Coach            @relation(fields: [coach_id], references: [coach_id], onDelete: Cascade)
+  coach_id          Int
 }
 
 model PresetWorkouts {
-  preset_workout_id                      Int                 @id @default(autoincrement())
-  programPreset                          ProgramPreset        @relation(fields: [programPreset_id], references: [programPreset_id], onDelete: Cascade)
-  programPreset_id                       Int  
-  preset_excercise_set_groups            PresetExcerciseSetGroup[]
-  rest_day                               Boolean             @default(false)
+  preset_workout_id           Int                       @id @default(autoincrement())
+  programPreset               ProgramPreset             @relation(fields: [programPreset_id], references: [programPreset_id], onDelete: Cascade)
+  programPreset_id            Int
+  preset_excercise_set_groups PresetExcerciseSetGroup[]
+  rest_day                    Boolean                   @default(false)
 }
 
-model PresetExcerciseSetGroup { 
-  preset_excercise_set_group_id    Int                    @id @default(autoincrement())
-  presetWorkouts                   PresetWorkouts         @relation(fields: [preset_workout_id], references: [preset_workout_id], onDelete: Cascade)
-  preset_workout_id                Int
-  excercise                        Excercise              @relation(fields: [excercise_name], references: [excercise_name], onDelete: Cascade)
-  excercise_name                   String
-  preset_excercise_sets            PresetExcerciseSet[]
-
+model PresetExcerciseSetGroup {
+  preset_excercise_set_group_id Int                  @id @default(autoincrement())
+  presetWorkouts                PresetWorkouts       @relation(fields: [preset_workout_id], references: [preset_workout_id], onDelete: Cascade)
+  preset_workout_id             Int
+  excercise                     Excercise            @relation(fields: [excercise_name], references: [excercise_name], onDelete: Cascade)
+  excercise_name                String
+  preset_excercise_sets         PresetExcerciseSet[]
 }
+
 model PresetExcerciseSet {
-  preset_excercise_set_id           Int               @id @default(autoincrement())  
-  presetExerciseSetGroup            PresetExcerciseSetGroup @relation(fields: [preset_excercise_set_group_id], references: [preset_excercise_set_group_id], onDelete: Cascade)
-  preset_excercise_set_group_id     Int   
-  target_reps                       Int
-  target_weight                     Float
-  weight_unit                       WeightUnit @default(KG)
+  preset_excercise_set_id       Int                     @id @default(autoincrement())
+  presetExerciseSetGroup        PresetExcerciseSetGroup @relation(fields: [preset_excercise_set_group_id], references: [preset_excercise_set_group_id], onDelete: Cascade)
+  preset_excercise_set_group_id Int
+  target_reps                   Int
+  target_weight                 Float
+  weight_unit                   WeightUnit              @default(KG)
 }
 
 model User {
-  user_id                           Int                 @id @default(autoincrement())
-  base_user                         BaseUser            @relation(fields: [base_user_id], references: [base_user_id], onDelete: Cascade)
+  user_id                           Int                       @id @default(autoincrement())
   prior_years_of_experience         Float?
   level_of_experience               LevelOfExperience?
   age                               Int?
-  dark_mode                         Boolean             @default(false)
-  automatic_scheduling              Boolean             @default(true)
+  dark_mode                         Boolean                   @default(false)
   workout_frequency                 Int?
   workout_duration                  Int?
   goal                              Goal?
-  gender                            Gender?
+  gender                            Gender                    @default(MALE)
   weight                            Float?
   height                            Float?
-  weight_unit                       WeightUnit?
-  height_unit                       LengthUnit?
-  phoneNumber                       String?
-  compound_movement_rep_lower_bound Int                 @default(3)
-  compound_movement_rep_upper_bound Int                 @default(10)
-  isolated_movement_rep_lower_bound Int                 @default(5)
-  isolated_movement_rep_upper_bound Int                 @default(15)
-  body_weight_rep_lower_bound       Int                 @default(8)
-  body_weight_rep_upper_bound       Int                 @default(20)
-  workout_type_enrollment           WorkoutType         @default(SELF_MANAGED)
-  base_user_id                      Int                 @unique
-  ai_managed_workouts_life_cycle    Int                 @default(12)
-  use_rpe                           Boolean             @default(false)
+  weight_unit                       WeightUnit                @default(KG)
+  height_unit                       LengthUnit                @default(CM)
+  compound_movement_rep_lower_bound Int                       @default(3)
+  compound_movement_rep_upper_bound Int                       @default(10)
+  isolated_movement_rep_lower_bound Int                       @default(5)
+  isolated_movement_rep_upper_bound Int                       @default(15)
+  body_weight_rep_lower_bound       Int                       @default(8)
+  body_weight_rep_upper_bound       Int                       @default(20)
+  current_program_enrollment_id     Int?
+  base_user_id                      Int                       @unique
+  use_rpe                           Boolean                   @default(false)
+  signup_date                       DateTime                  @default(now())
   equipment_accessible              Equipment[]
   measurements                      Measurement[]
-  workouts                          Workout[]
   notifications                     Notification[]
   broadcasts                        BroadCast[]
   excerciseMetadata                 ExcerciseMetadata[]
   Program                           Program[]
   selected_exercise_for_analytics   Excercise[]
+  base_user                         BaseUser                  @relation(fields: [base_user_id], references: [base_user_id], onDelete: Cascade)
+  CoachClientRelationship           CoachClientRelationship[]
 }
 
 model ExcerciseMetadata {
   excercise_metadata_state              ExcerciseMetadataState @default(LEARNING)
   user                                  User                   @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
   excercise                             Excercise              @relation(fields: [excercise_name], references: [excercise_name], onDelete: Cascade)
-  haveRequiredEquipment                 Boolean?
-  preferred                             Boolean?
+  preferred                             Boolean                @default(false)
   last_excecuted                        DateTime?
   best_weight                           Float                  @default(0)
-  weight_unit                           WeightUnit             @default(KG)
   best_rep                              Int                    @default(0)
   rest_time_lower_bound                 Int                    @default(90)
   rest_time_upper_bound                 Int                    @default(180)
@@ -306,20 +329,16 @@ model Measurement {
 }
 
 model Workout {
-  workout_id              Int                 @id @default(autoincrement())
-  workout_name            String
-  user                    User                @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
-  life_span               Int
-  order_index             Int // Keeps track of the order of workout
-  date_scheduled          DateTime?
-  date_completed          DateTime?
-  performance_rating      Float?
-  user_id                 Int
-  workout_state           WorkoutState        @default(UNATTEMPTED)
-  workout_type            WorkoutType         @default(SELF_MANAGED)
-  excercise_set_groups    ExcerciseSetGroup[]
-  Program                 Program?            @relation(fields: [programProgram_id], references: [program_id], onDelete: Cascade) // Will only have a value if this is coach-managed. No choice because polymorphism not supported yet by prisma.
-  programProgram_id       Int?
+  workout_id           Int                 @id @default(autoincrement())
+  workout_name         String
+  date_scheduled       DateTime
+  date_closed          DateTime?
+  last_completed       DateTime?
+  performance_rating   Float?
+  workout_state        WorkoutState        @default(UNATTEMPTED)
+  excercise_set_groups ExcerciseSetGroup[]
+  programProgram_id    Int
+  Program              Program             @relation(fields: [programProgram_id], references: [program_id], onDelete: Cascade) // Will only have a value if this is coach-managed. No choice because polymorphism not supported yet by prisma.
 }
 
 model ExcerciseSetGroup {
@@ -354,17 +373,17 @@ model ContentBlock {
 }
 
 model Excercise {
-  excercise_name             String               @id
+  excercise_name             String                    @id
   excercise_preparation      String?
   excercise_instructions     String?
   excercise_tips             String?
   excercise_utility          ExcerciseUtility[]
   excercise_mechanics        ExcerciseMechanics[]
   excercise_force            ExcerciseForce[]
-  target_regions             MuscleRegion[]       @relation(name: "target")
-  stabilizer_muscles         MuscleRegion[]       @relation(name: "stabilizer")
-  synergist_muscles          MuscleRegion[]       @relation(name: "synergist")
-  dynamic_stabilizer_muscles MuscleRegion[]       @relation(name: "dynamic")
+  target_regions             MuscleRegion[]            @relation(name: "target")
+  stabilizer_muscles         MuscleRegion[]            @relation(name: "stabilizer")
+  synergist_muscles          MuscleRegion[]            @relation(name: "synergist")
+  dynamic_stabilizer_muscles MuscleRegion[]            @relation(name: "dynamic")
   equipment_required         Equipment[]
   body_weight                Boolean
   assisted                   Boolean
@@ -379,11 +398,11 @@ model Excercise {
 model ExcerciseSet {
   excercise_set_id           Int               @id @default(autoincrement())
   target_weight              Float
-  weight_unit                WeightUnit
   target_reps                Int
   actual_weight              Float?
   actual_reps                Int?
   rate_of_perceived_exertion Int?
+  to_skip                    Boolean           @default(false)
   excerciseSetGroup          ExcerciseSetGroup @relation(fields: [excercise_set_group_id], references: [excercise_set_group_id], onDelete: Cascade)
   excercise_set_group_id     Int
 }

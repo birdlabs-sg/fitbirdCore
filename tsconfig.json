@@ -1,6 +1,7 @@
 {
     "compilerOptions": {
         "strict": false,
+        "strictNullChecks": true,
         "module": "commonjs",
         "esModuleInterop": true,
         "target": "es6",
@@ -16,6 +17,9 @@
         "noUnusedLocals": true,
         "noUnusedParameters": true,
         "useUnknownInCatchVariables": false,
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true,
+        "typeRoots": ["node_modules/@types"],
         "paths": {
             "*": [
                 "node_modules/*"
