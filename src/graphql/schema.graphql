@@ -501,7 +501,6 @@ type PresetExcerciseSet {
   preset_excercise_set_id: Int!
   target_reps: Int
   target_weight: Float
-  weight_unit: WeightUnit
   preset_excercise_set_group_id: Int
 }
 
@@ -972,7 +971,6 @@ input PresetExcerciseSetGroupInput {
 input PresetExcerciseSetInput {
   target_reps: Int
   target_weight: Float
-  weight_unit: WeightUnit
 }
 
 """
