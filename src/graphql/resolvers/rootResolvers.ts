@@ -1,120 +1,122 @@
-import { generateFirebaseIdTokenResolver } from "./mutation/generateFirebaseIdTokenResolver";
-import { updateUser } from "./mutation/mutateUser";
-import {
-  createMeasurement,
-  deleteMeasurement,
-  updateMeasurement,
-} from "./mutation/mutateMeasurement";
-import {
-  createMuscleRegion,
-  deleteMuscleRegion,
-  updateMuscleRegion,
-} from "./mutation/mutateMuscleRegion";
-import {
-  completeWorkout,
-  createWorkout,
-  deleteWorkout,
-  generateWorkouts,
-  regenerateWorkouts,
-  updateWorkout,
-  updateWorkoutOrder,
-} from "./mutation/mutateWorkout";
-import { mutateSignup } from "./mutation/mutateSignup";
-import { excercisesQueryResolver } from "./query/queryExcercises";
-import { notificationsQueryResolver } from "./query/queryNotifications";
-import { userQueryResolvers } from "./query/queryUser";
-import { workoutsQueryResolver } from "./query/queryWorkouts";
-import { updateExcerciseMetadata } from "./mutation/mutateExcerciseMetadata";
-import { workoutFrequencyQueryResolver } from "./query/queryWorkoutFrequencies";
-import { getExcerciseQueryResolver } from "./query/queryExcercise";
-import { excercisePerformanceQueryResolver } from "./query/queryExcercisePerformance";
-import { getExcerciseMetadatasQueryResolver } from "./query/queryExcerciseMetadatas";
-import { workoutQueryResolver } from "./query/queryWorkout";
-import {
-  generateNotificationResolver,
-  generateWorkoutReminderResolver,
-} from "./mutation/generateNotificationResolver";
+import { excercisesQueryResolver } from "./exercise/queryExcercisesResolver";
+import { notificationsQueryResolver } from "./notification/queryNotificationsResolver";
+import { userQueryResolver } from "./user/queryUserResolver";
+import { updateExerciseMetadataResolver } from "./exercise_metadata/updateExerciseMetadataResolver";
+import { workoutFrequencyQueryResolver } from "./analytics/queryWorkoutFrequenciesResolver";
+import { getExcerciseQueryResolver } from "./exercise/queryExcerciseResolver";
+import { excercisePerformanceQueryResolver } from "./analytics/queryExcercisePerformanceResolver";
+import { getExcerciseMetadatasQueryResolver } from "./exercise_metadata/queryExcerciseMetadatasResolver";
+import { generateWorkoutReminderResolver } from "./notification/generateWorkoutReminderResolver";
+import { generateNotificationResolver } from "./notification/generateNotificationResolver";
 import { Resolvers } from "../../types/graphql";
-import { usersQueryResolver } from "./query/queryUsers";
+import { usersQueryResolver } from "./user/queryUsersResolver";
 import { GraphQLScalarType } from "graphql";
-import { baseUsersQueryResolver } from "./query/queryBaseUsers";
-import { createProgram,endActiveProgram } from "./mutation/coachMutations/mutateCoachProgram";
-import { coachAllUsersQueryResolver } from "./query/coachQueries/queryCoachAllUsers";
-import { coachWorkoutNameQueryResolver } from "./query/coachQueries/queryCoachWorkoutName";
-import { coachRegisteredUsersQueryResolver } from "./query/coachQueries/queryCoachRegisteredUsers";
-import { coachActiveProgramQueryResolver } from "./query/coachQueries/queryActiveCoachProgram";
 import {
   analyticsWorkoutAverageRPEResolver,
   analyticsExerciseOneRepMaxResolver,
   analyticsExerciseTotalVolumeResolver,
-} from "./query/queryAnalytics";
-import { updateBaseUserResolver } from "./mutation/mutateBaseUser";
-import { getContentBlocksResolver } from "./query/queryContentBlocks";
-import { privateMessagesQueryResolver } from "./query/queryPrivateMessages";
-import { createPrivateMessage, deletePrivateMessage } from "./mutation/mutatePrivateMessage";
-import { createProgramPreset, deleteProgramPreset } from "./mutation/mutatePresets";
-import { coachPresetQueryResolver } from "./query/coachQueries/queryCoachPreset";
-import { coachPresetsQueryResolver } from "./query/coachQueries/queryCoachPresets";
+} from "./analytics/queryAnalyticsResolver";
+import { updateBaseUserResolver } from "./user/updateBaseUserResolver";
+import { getContentBlocksResolver } from "./content_block/queryContentBlocksResolver";
+
+import { deleteProgramPreset } from "./preset/deleteProgramPresetResolver";
+import { createProgramResolver } from "./program/createProgramResolver";
+import { createMeasurementResolver } from "./measurement/createMeasurementResolver";
+import { updateMeasurementResolver } from "./measurement/updateMeasurementResolver";
+import { deleteMeasurementResolver } from "./measurement/deleteMeasurementResolver";
+import { createMuscleRegionResolver } from "./muscle_region/createMuscleRegionResolver";
+import { updateMuscleRegionResolver } from "./muscle_region/updateMuscleRegionResolver";
+import { deleteMuscleRegionResolver } from "./muscle_region/deleteMuscleRegionResolver";
+import { createProgramPresetResolver } from "./preset/createProgramPresetResolver";
+
+import { presetQueryResolver } from "./preset/queryPresetResolver";
+import { presetsQueryResolver } from "./preset/queryPresetsResolver";
+import { generateFirebaseIdTokenResolver } from "./firebase/generateFirebaseIdTokenResolver";
+import { privateMessagesQueryResolver } from "./firebase/queryPrivateMessagesResolver";
+import { generateProgramResolver } from "./program/generateProgramResolver";
+import { refreshProgramResolver } from "./program/refreshProgramResolver";
+import { baseUserQueryResolver } from "./user/queryBaseUser";
+import { signupResolver } from "./user/signupResolver";
+import { createWorkoutResolver } from "./workout/createWorkoutResolver";
+import { updateWorkoutResolver } from "./workout/updateWorkoutResolver";
+import { deleteWorkoutResolver } from "./workout/deleteWorkoutResolver";
+import { completeWorkoutResolver } from "./workout/completeWorkoutResolver";
+import { createPrivateMessageResolver } from "./messages/createPrivateMessageResolver";
+import { deletePrivateMessageResolver } from "./messages/deletePrivateMessageResolver";
+import { queryWorkoutResolver } from "./workout/queryWorkoutResolver";
+import { queryWorkoutsResolver } from "./workout/queryWorkoutsResolver";
+import { updateUser } from "./user/updateUserResolver";
+import { createCoachClientRelationshipResolver } from "./client_coach_relationship/createClientCoachRelationshipResolver";
+import { updateCoachClientRelationshipResolver } from "./client_coach_relationship/updateClientCoachRelationshipResolver";
+import { deleteCoachClientRelationshipResolver } from "./client_coach_relationship/deleteClientCoachRelationshipResolver";
+import { getCoachClientRelationshipResolver } from "./client_coach_relationship/getClientCoachRelationshipResolver";
+import { getCoachClientRelationshipsResolver } from "./client_coach_relationship/getClientCoachRelationshipsResolver";
+import { queryProgramResolver } from "./program/queryProgramResolver";
+import { queryProgramsResolver } from "./program/queryProgramsResolver";
+import { updateProgramResolver } from "./program/updateProgramResolver";
+import { deleteprogramResolver } from "./program/deleteProgramResolver";
+import { getFirstDateOfCurrentWeek, getLastDateOfCurrentWeek } from "./utils";
+import { queryPreviousWorkoutResolver } from "./workout/queryPreviousWorkoutResolver";
+
 const dateScalar = new GraphQLScalarType({
   name: "Date",
   description: "Date custom scalar type",
-  // serialize(value: Date) {
-  //   return value.toISOString(); // Convert outgoing Date to integer for JSON
-  // },
-  // parseValue(value: string) {
-  //   return Date.parse(value); // Convert incoming integer to Date
-  // },
+  parseValue(value: string) {
+    // value from client as json
+    return new Date(value);
+  },
 });
 
 export const resolvers: Resolvers = {
   Date: dateScalar,
-  //Mutations for create, update and delete operations
   Mutation: {
-    signup: mutateSignup,
+    signup: signupResolver,
     generateFirebaseIdToken: generateFirebaseIdTokenResolver,
     generateWorkoutReminder: generateWorkoutReminderResolver,
     generateNotification: generateNotificationResolver,
     updateUser: updateUser,
     updateBaseUser: updateBaseUserResolver,
-    createProgram: createProgram,
-    createMeasurement: createMeasurement,
-    updateMeasurement: updateMeasurement,
-    deleteMeasurement: deleteMeasurement,
-    createWorkout: createWorkout,
-    updateWorkout: updateWorkout,
-    deleteWorkout: deleteWorkout,
-    updateWorkoutOrder: updateWorkoutOrder,
-    completeWorkout: completeWorkout,
-    createMuscleRegion: createMuscleRegion,
-    updateMuscleRegion: updateMuscleRegion,
-    deleteMuscleRegion: deleteMuscleRegion,
-    updateExcerciseMetadata: updateExcerciseMetadata,
-    generateWorkouts: generateWorkouts,
-    regenerateWorkouts: regenerateWorkouts,
-    createPrivateMessage: createPrivateMessage,
-    deletePrivateMessage:deletePrivateMessage,
-    endActiveProgram: endActiveProgram,
-    createProgramPreset:createProgramPreset,
-    deleteProgramPreset:deleteProgramPreset
+    createMeasurement: createMeasurementResolver,
+    updateMeasurement: updateMeasurementResolver,
+    deleteMeasurement: deleteMeasurementResolver,
+    createWorkout: createWorkoutResolver,
+    updateWorkout: updateWorkoutResolver,
+    deleteWorkout: deleteWorkoutResolver,
+    completeWorkout: completeWorkoutResolver,
+    createMuscleRegion: createMuscleRegionResolver,
+    updateMuscleRegion: updateMuscleRegionResolver,
+    deleteMuscleRegion: deleteMuscleRegionResolver,
+    updateExcerciseMetadata: updateExerciseMetadataResolver,
+    createPrivateMessage: createPrivateMessageResolver,
+    deletePrivateMessage: deletePrivateMessageResolver,
+    createProgramPreset: createProgramPresetResolver,
+    deleteProgramPreset: deleteProgramPreset,
+    createProgram: createProgramResolver,
+    updateProgram: updateProgramResolver,
+    deleteProgram: deleteprogramResolver,
+    generateProgram: generateProgramResolver,
+    refreshProgram: refreshProgramResolver,
+    createCoachClientRelationship: createCoachClientRelationshipResolver,
+    updateCoachClientRelationship: updateCoachClientRelationshipResolver,
+    deleteCoachClientRelationship: deleteCoachClientRelationshipResolver,
   },
 
   //Root Query: Top level querying logic here
   Query: {
-    baseUsers: baseUsersQueryResolver,
-    coachRegisteredUsers: coachRegisteredUsersQueryResolver,
     getContentBlocks: getContentBlocksResolver,
-    coachAllUsers: coachAllUsersQueryResolver,
-    coachActiveProgram: coachActiveProgramQueryResolver,
-    coachWorkoutName: coachWorkoutNameQueryResolver,
-    coachPreset:coachPresetQueryResolver,
-    coachPresets:coachPresetsQueryResolver,
-    user: userQueryResolvers,
-    workouts: workoutsQueryResolver,
-    getWorkout: workoutQueryResolver,
+    programs: queryProgramsResolver,
+    program: queryProgramResolver,
+    preset: presetQueryResolver,
+    presets: presetsQueryResolver,
+    baseUser: baseUserQueryResolver,
+    user: userQueryResolver,
+    users: usersQueryResolver,
+    workouts: queryWorkoutsResolver,
+    workout: queryWorkoutResolver,
+    previousWorkout:queryPreviousWorkoutResolver,
     getExcercise: getExcerciseQueryResolver,
     excercises: excercisesQueryResolver,
     notifications: notificationsQueryResolver,
-    users: usersQueryResolver,
     workout_frequencies: workoutFrequencyQueryResolver,
     getExcercisePerformance: excercisePerformanceQueryResolver,
     getExcerciseMetadatas: getExcerciseMetadatasQueryResolver,
@@ -122,9 +124,10 @@ export const resolvers: Resolvers = {
     analyticsExerciseTotalVolume: analyticsExerciseTotalVolumeResolver,
     analyticsWorkoutAverageRPE: analyticsWorkoutAverageRPEResolver,
     getPrivateMessages: privateMessagesQueryResolver,
-   
+    getCoachClientRelationship: getCoachClientRelationshipResolver,
+    getCoachClientRelationships: getCoachClientRelationshipsResolver,
   },
-  // workout query
+  // Chained resolvers - resolve nested fields (AKA non-scalar values)
   Workout: {
     async excercise_set_groups(parent, _, context) {
       const prisma = context.dataSources.prisma;
@@ -132,6 +135,13 @@ export const resolvers: Resolvers = {
         where: { workout_id: parent.workout_id },
       });
     },
+    async program(parent,_,context){
+      const prisma = context.dataSources.prisma;
+      return await prisma.program.findFirst({
+        where: { program_id:parent.programProgram_id },
+      });
+    }
+   
   },
 
   User: {
@@ -156,6 +166,81 @@ export const resolvers: Resolvers = {
         },
       });
     },
+    async base_user(parent, _, context) {
+      const prisma = context.dataSources.prisma;
+      return await prisma.baseUser.findFirstOrThrow({
+        where: {
+          User: {
+            user_id: parent.user_id,
+          },
+        },
+      });
+    },
+  },
+  CoachClientRelationship: {
+    async coach(parent, _, context) {
+      const prisma = context.dataSources.prisma;
+      return await prisma.coach.findUniqueOrThrow({
+        where: { coach_id: parent.coach_id },
+      });
+    },
+
+    async user(parent, _, context) {
+      const prisma = context.dataSources.prisma;
+      return await prisma.user.findUniqueOrThrow({
+        where: { user_id: parent.user_id },
+      });
+    },
+  },
+
+  Program: {
+    async coach(parent, _, context) {
+      const prisma = context.dataSources.prisma;
+      if (!parent.coach_id) {
+        return null;
+      }
+      return await prisma.coach.findUniqueOrThrow({
+        where: { coach_id: parent.coach_id },
+      });
+    },
+
+    async user(parent, _, context) {
+      const prisma = context.dataSources.prisma;
+      return await prisma.user.findUniqueOrThrow({
+        where: { user_id: parent.user_id },
+      });
+    },
+
+    async workouts(parent, { workout_filter }, context) {
+      const prisma = context.dataSources.prisma;
+      const filteredWorkouts = await prisma.workout.findMany({
+        where: {
+          programProgram_id: parent.program_id,
+          ...(workout_filter && {
+            ...(workout_filter.upcoming != null && {
+              date_scheduled: { lte: getLastDateOfCurrentWeek() },
+              OR: [
+                {
+                  date_closed: { not: null },
+                  date_scheduled: { gte: getFirstDateOfCurrentWeek() },
+                },
+                {
+                  date_closed: null,
+                },
+              ],
+            }),
+            ...(workout_filter.program_id != null && {
+              program_id: workout_filter.program_id,
+            }),
+            ...(workout_filter.workout_name != null && {
+              workout_name: workout_filter.workout_name,
+            }),
+          }),
+        },
+      });
+
+      return filteredWorkouts!;
+    },
   },
 
   BaseUser: {
@@ -165,12 +250,27 @@ export const resolvers: Resolvers = {
         where: { baseUserBase_user_id: parent.base_user_id },
       });
     },
+    async user(parent, _, context) {
+      // can be null
+      const prisma = context.dataSources.prisma;
+      return await prisma.user.findUnique({
+        where: { base_user_id: parent.base_user_id },
+      });
+    },
+
+    async coach(parent, _, context) {
+      // can be null
+      const prisma = context.dataSources.prisma;
+      return await prisma.coach.findUnique({
+        where: { base_user_id: parent.base_user_id },
+      });
+    },
   },
 
   ExcerciseSetGroup: {
     async excercise(parent, _, context) {
       const prisma = context.dataSources.prisma;
-      return await prisma.excercise.findUnique({
+      return await prisma.excercise.findUniqueOrThrow({
         where: {
           excercise_name: parent.excercise_name,
         },
@@ -178,8 +278,9 @@ export const resolvers: Resolvers = {
     },
 
     async excercise_metadata(parent, _, context) {
+      // can be null
       const prisma = context.dataSources.prisma;
-      return await prisma.excerciseMetadata.findUnique({
+      return await prisma.excerciseMetadata.findUniqueOrThrow({
         where: {
           user_id_excercise_name: {
             user_id: context.base_user!.User!.user_id,
@@ -252,4 +353,6 @@ export const resolvers: Resolvers = {
       });
     },
   },
+
+  
 };

@@ -1,0 +1,984 @@
+type FCMToken {
+  token: String!
+  date_issued: Date!
+}
+
+"""
+Represents a user. Contains meta-data specific to each user.
+"""
+type BaseUser {
+  base_user_id: ID!
+  email: String!
+  firebase_uid: String!
+  displayName: String!
+  coach: Coach
+  user: User
+  fcm_tokens: [FCMToken!]!
+}
+
+"""
+Date custom scalar type
+"""
+scalar Date
+
+"""
+This is the root query to resources. Require ADMIN permission to access all, otherwise resources are scoped to the user issuing the request.
+"""
+type Query {
+  programs(user_id: ID, coach_id: ID): [Program!]!
+  program(program_id: ID, filter: programQueryFilter): Program!
+  preset(programPreset_id: ID!): ProgramPreset!
+  presets: [ProgramPreset!]!
+  baseUser: BaseUser!
+  user: User!
+  workouts(user_id: ID, coach_id: ID, filter: WorkoutQueryFilter!): [Workout!]!
+  workout(workout_id: ID!, user_id: ID!, coach_id: ID,previous: Boolean!): Workout!
+  previousWorkout(workout_name: String!,program_id:ID!):Workout
+  excercises: [Excercise!]!
+  excludedExcercises: [Excercise!]!
+  getExcercise(excercise_name: ID!): Excercise!
+  notifications: [Notification!]!
+  analyticsExerciseOneRepMax(
+    excercise_names_list: [ID!]!
+    user_id: ID
+  ): [ExerciseOneRepMaxDataPoint!]!
+  analyticsExerciseTotalVolume(
+    excercise_names_list: [ID!]!
+    user_id: ID
+  ): [ExerciseTotalVolumeDataPoint!]!
+  analyticsWorkoutAverageRPE: [WorkoutAverageRPEDataPoint!]!
+  workout_frequencies: [WorkoutFrequency!]!
+  getExcercisePerformance(
+    excercise_name: ID!
+    span: Int
+    user_id: ID
+  ): ExcercisePerformance!
+  getExcerciseMetadatas(excercise_names_list: [ID!]!): [ExcerciseMetadata!]!
+  getContentBlocks(content_block_type: ContentBlockType!): [ContentBlock!]!
+  getPrivateMessages(pair_id: ID!): [PrivateMessage!]!
+  users(coach_filters: UserQueryCoachFilter): [User!]!
+  getCoachClientRelationship(
+    user_id: ID
+    coach_id: ID
+  ): CoachClientRelationship!
+  getCoachClientRelationships: [CoachClientRelationship!]!
+}
+
+input UserQueryCoachFilter {
+  clients: Boolean
+  active: Boolean
+}
+
+input WorkoutQueryFilter {
+  completed: Boolean
+  workout_name: String
+  program_id: ID
+  upcoming: Boolean
+  program_type: ProgramType
+}
+input programQueryFilter {
+  user_id: ID
+  is_active: Boolean
+  program_type: ProgramType
+  overview_mode: Boolean
+}
+
+"""
+Represents a user. Contains meta-data specific to each user.
+"""
+type User {
+  user_id: ID!
+  prior_years_of_experience: Float
+  level_of_experience: LevelOfExperience
+  age: Int
+  dark_mode: Boolean!
+  workout_frequency: Int
+  workout_duration: Int
+  goal: Goal
+  gender: Gender!
+  weight: Float
+  height: Float
+  weight_unit: WeightUnit!
+  height_unit: LengthUnit!
+  compound_movement_rep_lower_bound: Int!
+  compound_movement_rep_upper_bound: Int!
+  isolated_movement_rep_lower_bound: Int!
+  isolated_movement_rep_upper_bound: Int!
+  body_weight_rep_lower_bound: Int!
+  body_weight_rep_upper_bound: Int!
+  current_program_enrollment_id: Int
+  base_user_id: ID!
+  use_rpe: Boolean!
+  signup_date: Date!
+  equipment_accessible: [Equipment!]!
+  measurements: [Measurement!]!
+  notifications: [Notification!]!
+  broadcasts: [BroadCast!]!
+  excercise_metadata: [ExcerciseMetadata!]!
+  program: [Program!]!
+  selected_exercise_for_analytics: [Excercise!]!
+  base_user: BaseUser
+}
+
+"""
+Gender type.
+"""
+enum Gender {
+  MALE
+  FEMALE
+  RATHER_NOT_SAY
+}
+
+enum ProgramType {
+  AI_MANAGED
+  SELF_MANAGED
+  COACH_MANAGED
+}
+
+"""
+Units for weight
+"""
+enum WeightUnit {
+  KG
+  LB
+}
+
+"""
+Units for length.
+"""
+enum LengthUnit {
+  CM
+  MM
+  MTR
+  FT
+}
+
+enum PresetDifficulty {
+  EASY
+  NORMAL
+  HARD
+  VERY_HARD
+}
+
+"""
+Used in overloading algorithm to determine what to do with that set.
+"""
+enum ExcerciseSetGroupState {
+  DELETED_TEMPORARILY
+  DELETED_PERMANANTLY
+  REPLACEMENT_TEMPORARILY
+  REPLACEMENT_PERMANANTLY
+  NORMAL_OPERATION
+}
+
+enum WorkoutState {
+  UNATTEMPTED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum ContentBlockType {
+  FEATURE_GUIDE
+  FITNESS_CONTENT
+}
+
+enum Equipment {
+  DUMBBELL
+  BARBELL
+  KETTLEBELL
+  CABLE
+  LEVER
+  SUSPENSION
+  T_BAR
+  TRAP_BAR
+  SLED
+  SMITH
+  BENCH
+  MEDICINE_BALL
+  PREACHER
+  PARALLEL_BARS
+  PULL_UP_BAR
+  STABILITY_BALL
+}
+
+enum MuscleRegionType {
+  HIPS
+  UPPER_ARM
+  SHOULDER
+  WAIST
+  CALVES
+  THIGHS
+  BACK
+  CHEST
+  FORE_ARM
+  NECK
+}
+
+enum ExcerciseMetadataState {
+  LEARNING
+  INCREASED_DIFFICULTY
+  DECREASED_DIFFICULTY
+  MAINTAINENCE
+}
+
+enum LevelOfExperience {
+  BEGINNER
+  MID
+  ADVANCED
+  EXPERT
+}
+
+enum Goal {
+  BODY_RECOMPOSITION
+  STRENGTH
+  KEEPING_FIT
+  ATHLETICISM
+  OTHERS
+}
+
+"""
+Units for weight
+"""
+enum WorkoutFilter {
+  ACTIVE
+  COMPLETED
+  NONE
+}
+
+enum FailureReason {
+  INSUFFICIENT_TIME
+  INSUFFICIENT_REST_TIME
+  TOO_DIFFICULT
+  LOW_MOOD
+  INSUFFICIENT_SLEEP
+}
+
+enum coachUserFilter {
+  ACTIVE
+  NONE
+}
+
+enum ExcerciseMechanics {
+  COMPOUND
+  ISOLATED
+}
+
+enum ExcerciseUtility {
+  BASIC
+  AUXILIARY
+}
+
+"""
+Represents a measurement of a body part taken at a certain date.
+"""
+type Measurement {
+  measurement_id: ID!
+  measured_at: Date
+  muscle_region: MuscleRegion
+  measurement_value: Float
+  length_units: LengthUnit
+  user_id: Int
+}
+
+"""
+Represents broadcast message to selected users.
+"""
+type BroadCast {
+  broad_cast_id: ID!
+  broadcast_message: String
+  scheduled_start: String
+  scheduled_end: String
+}
+
+"""
+Represents a specific excercise.
+"""
+type Excercise {
+  excercise_name: ID!
+  excercise_preparation: String
+  excercise_instructions: String
+  excercise_tips: String
+  excercise_utility: [ExcerciseUtility!]!
+  excercise_mechanics: [ExcerciseMechanics!]!
+  excercise_force: [String!]!
+  target_regions: [MuscleRegion!]!
+  stabilizer_muscles: [MuscleRegion!]!
+  synergist_muscles: [MuscleRegion!]!
+  dynamic_stabilizer_muscles: [MuscleRegion!]!
+  equipment_required: [Equipment!]!
+  body_weight: Boolean!
+  assisted: Boolean!
+  excercise_metadata: ExcerciseMetadata
+  video_url: String
+}
+
+"""
+Represents a logical component of a workout session.
+"""
+type ExcerciseSet {
+  excercise_set_id: ID!
+  target_weight: Float!
+  target_reps: Int!
+  actual_weight: Float
+  actual_reps: Int
+  rate_of_perceived_exertion: Int
+  to_skip: Boolean!
+}
+
+"""
+Represents a specific body part in the human anatomy.
+"""
+type MuscleRegion {
+  muscle_region_id: ID!
+  muscle_region_name: String
+  muscle_region_description: String
+  muscle_region_type: MuscleRegionType
+}
+
+"""
+Represents notification message for a specific user.
+"""
+type Notification {
+  notification_id: ID!
+  notification_message: String
+  user_id: Int
+}
+
+"""
+Represents a user. Contains meta-data specific to each user.
+"""
+type Workout {
+  workout_id: ID!
+  workout_name: String!
+  date_scheduled: Date!
+  date_closed: Date
+  last_completed: Date
+  performance_rating: Float
+  workout_state: WorkoutState
+  excercise_set_groups: [ExcerciseSetGroup!]!
+  programProgram_id: ID!
+  program: Program
+}
+
+type ExcerciseSetGroup {
+  excercise_set_group_id: String
+  excercise_name: String!
+  excercise: Excercise!
+  excercise_metadata: ExcerciseMetadata!
+  excercise_set_group_state: ExcerciseSetGroupState!
+  excercise_sets: [ExcerciseSet!]!
+  failure_reason: FailureReason
+}
+
+"""
+Helps to store extra details of a user for a particular exercise.
+"""
+type ExcerciseMetadata {
+  excercise_metadata_state: ExcerciseMetadataState!
+  preferred: Boolean!
+  last_excecuted: Date
+  best_weight: Float
+  best_rep: Int
+  rest_time_lower_bound: Int!
+  rest_time_upper_bound: Int!
+  user_id: ID!
+  excercise_name: ID!
+  estimated_historical_average_best_rep: Int
+  estimated_historical_best_one_rep_max: Float
+  # current_duration is augmented data, don't exists in backend
+  current_duration: Int
+}
+
+"""
+Represents a user. Contains meta-data specific to each user.
+"""
+type WorkoutFrequency {
+  workout_count: Int!
+  week_identifier: String
+}
+
+type GroupedExcerciseSets {
+  date_completed: Date
+  excercise_sets: [ExcerciseSet!]
+}
+
+type ExcercisePerformance {
+  grouped_excercise_sets: [GroupedExcerciseSets!]
+}
+
+"""
+Represents broadcast message to selected users.
+"""
+type Coach {
+  coach_id: ID!
+  Review: [Review!]
+  Program: [Program!]
+}
+
+"""
+Represents programs for coaches.
+"""
+type Program {
+  program_type: ProgramType!
+  program_id: ID!
+  workouts(
+    user_id: ID
+    coach_id: ID
+    workout_filter: WorkoutQueryFilter
+  ): [Workout!]!
+  coach: Coach
+  user: User!
+  is_active: Boolean!
+  ending_date: Date
+  starting_date: Date!
+}
+
+"""
+Represents broadcast message to selected users.
+"""
+type Review {
+  review_id: ID!
+  rating: String!
+  content: String!
+}
+
+type ExerciseOneRepMaxDataPoint {
+  exercise_name: String
+  estimated_one_rep_max_value: Float
+  date_completed: Date
+}
+
+type ExerciseTotalVolumeDataPoint {
+  exercise_name: String
+  exercise_total_volume: Float
+  date_completed: Date
+}
+
+type WorkoutAverageRPEDataPoint {
+  average_rpe_value: Float
+  date_completed: Date
+}
+
+"""
+Represents broadcast message to selected users.
+"""
+type ContentBlock {
+  content_block_id: ID!
+  content_block_type: ContentBlockType!
+  title: String!
+  description: String!
+  video_url: String
+}
+
+"""
+Represents a list of private messages.
+"""
+type PrivateMessage {
+  message_id: Int
+  date_issued: Date
+  message_content: String!
+  sender_id: Int
+  receiver_id: Int
+}
+
+"""
+Represents a challenge Preset.
+"""
+type ProgramPreset {
+  programPreset_id: Int!
+  preset_workouts: [PresetWorkouts!]!
+  preset_name: String
+  preset_difficulty: PresetDifficulty
+  image_url: String
+  coach_id: Int
+}
+
+"""
+Represents an excercise set group Preset.
+"""
+type PresetExcerciseSet {
+  preset_excercise_set_id: Int!
+  target_reps: Int
+  target_weight: Float
+  preset_excercise_set_group_id: Int
+}
+
+type PresetWorkouts {
+  preset_workout_id: Int!
+  preset_excercise_set_groups: [PresetExcerciseSetGroup!]!
+  rest_day: Boolean
+  program_preset_id: Int
+}
+
+type PresetExcerciseSetGroup {
+  preset_excercise_set_group_id: Int!
+  preset_excercise_sets: [PresetExcerciseSet!]!
+  preset_workout_id: Int
+  excercise_name: String!
+}
+
+"""
+Represents broadcast message to selected users.
+"""
+type CoachClientRelationship {
+  coach: Coach
+  user: User
+  date_created: Date
+  active: Boolean
+}
+
+"""
+Standard mutation response. Each mutation response will implement this.
+"""
+interface MutationResponse {
+  code: String!
+  success: Boolean!
+  message: String!
+}
+
+"""
+Response if a signup event is successful
+"""
+type SignupResponse implements MutationResponse {
+  code: String!
+  success: Boolean!
+  message: String!
+}
+
+"""
+[PROTECTED] Mutation to create a programPreset
+"""
+type Mutation {
+  signup(
+    email: String!
+    phoneNumber: String
+    password: String!
+    displayName: String!
+    is_user: Boolean!
+  ): SignupResponse
+  generateFirebaseIdToken(uid: String!): GenerateIdTokenResponse
+
+  """
+  [PROTECTED] Creates a measurement object for the requestor.
+  """
+  createMeasurement(
+    muscle_region_id: ID!
+    measured_at: Date!
+    measurement_value: Float!
+    length_units: LengthUnit!
+  ): mutateMeasurementResponse
+
+  """
+  [PROTECTED] Update a measurement object for the requestor (Must belong to the requestor).
+  """
+  updateMeasurement(
+    measurement_id: ID!
+    measured_at: Date
+    muscle_region_id: Int
+    measurement_value: Float
+    length_units: LengthUnit
+  ): mutateMeasurementResponse
+
+  """
+  [PROTECTED] Deletes a measurement object for the requestor (Must belong to the requestor).
+  """
+  deleteMeasurement(measurement_id: ID!): mutateMeasurementResponse
+
+  """
+  [PROTECTED] Creates a muscle region object.
+  """
+  createMuscleRegion(
+    muscle_region_name: String!
+    muscle_region_description: String!
+    muscle_region_type: MuscleRegionType!
+  ): mutateMuscleRegionResponse
+
+  """
+  [PROTECTED] Updates a muscle region object.
+  """
+  updateMuscleRegion(
+    muscle_region_id: ID!
+    muscle_region_name: String
+    muscle_region_description: String
+  ): mutateMuscleRegionResponse
+
+  """
+  [PROTECTED] Deletes a muscle region object.
+  """
+  deleteMuscleRegion(muscle_region_id: ID!): mutateMuscleRegionResponse
+
+  """
+  [PROTECTED] Creates a workout object for the requestor.
+  """
+  createWorkout(
+    coach_id: ID
+    user_id: ID!
+    program_id: ID!
+    date_scheduled: Date!
+    workout_name: String!
+    excercise_set_groups: [excerciseSetGroupInput!]!
+  ): mutateWorkoutResponse
+
+  """
+  [PROTECTED] Updates a workout object (Must belong to the requestor). Note: This will replace any existing excercise sets.
+  """
+  completeWorkout(
+    workout_id: ID!
+    excercise_set_groups: [excerciseSetGroupInput!]!
+  ): mutateWorkoutResponse
+
+  """
+  [PROTECTED] Updates a workout object (Must belong to the requestor). Note: This will replace any existing excercise sets.
+  """
+  updateWorkout(
+    coach_id: ID
+    workout_id: ID!
+    workout_name: String
+    date_scheduled: Date
+    performance_rating: Float
+    workout_state: WorkoutState
+    excercise_set_groups: [excerciseSetGroupInput!]
+  ): mutateWorkoutResponse
+
+  """
+  [PROTECTED] Deletes a workout object (Must belong to the requestor).
+  """
+  deleteWorkout(workout_id: ID!): mutateWorkoutResponse
+  updateUser(
+    prior_years_of_experience: Float
+    level_of_experience: LevelOfExperience
+    age: Int
+    dark_mode: Boolean
+    workout_frequency: Int
+    workout_duration: Int
+    goal: Goal
+    gender: Gender
+    weight: Float
+    height: Float
+    weight_unit: WeightUnit
+    height_unit: LengthUnit
+    phoneNumber: String
+    compound_movement_rep_lower_bound: Int
+    compound_movement_rep_upper_bound: Int
+    isolated_movement_rep_lower_bound: Int
+    isolated_movement_rep_upper_bound: Int
+    body_weight_rep_lower_bound: Int
+    body_weight_rep_upper_bound: Int
+    current_program_enrollment_id: Int
+    use_rpe: Boolean
+    equipment_accessible: [Equipment!]
+    selected_exercise_for_analytics: [String!]
+    fcm_token: [String!]
+  ): MutateUserResponse
+
+  """
+  [PROTECTED] Updates a excerciseMetadata object.
+  """
+  updateExcerciseMetadata(
+    excercise_name: ID!
+    excercise_metadata_state: ExcerciseMetadataState!
+    haveRequiredEquipment: Boolean
+    preferred: Boolean
+    last_excecuted: Date
+    best_weight: Float
+    best_rep: Int
+    rest_time_lower_bound: Int
+    rest_time_upper_bound: Int
+    estimated_historical_average_best_rep: Int
+    estimated_historical_best_one_rep_max: Float
+  ): mutateExcerciseMetaDataResponse
+  createExcerciseMetadata(
+    user_id: ID!
+    excercise_name: ID!
+    excercise_metadata_state: ExcerciseMetadataState
+    haveRequiredEquipment: Boolean
+    preferred: Boolean
+    last_excecuted: Date
+    best_weight: Float
+    best_rep: Int
+    rest_time_lower_bound: Int
+    rest_time_upper_bound: Int
+    estimated_historical_average_best_rep: Int
+    estimated_historical_best_one_rep_max: Float
+  ): mutateExcerciseMetaDataResponse
+  generateProgram(initial_days: [Date!]!): Program!
+  refreshProgram(program_id: ID!, initial_days: [Date!]): Program!
+  generateNotification(
+    token: String!
+    title: String!
+    body: String!
+  ): NotificationResponse
+  generateWorkoutReminder: NotificationResponse
+
+  """
+  [PROTECTED] Creates a program object.
+  """
+  createProgram(
+    coach_id: ID
+    user_id: ID
+    program_type: ProgramType!
+    workoutsInput: [workoutInput!]!
+    starting_date: Date
+    ending_date: Date
+  ): mutateProgramResponse!
+
+  """
+  [PROTECTED] Deletes a program object.
+  """
+  deleteProgram(program_id: ID!): mutateProgramResponse!
+
+  """
+  [PROTECTED] Updates a program object. coach_id is the new coach_id
+  """
+  updateProgram(
+    program_id: ID!
+    program_type: ProgramType
+    coach_id: ID
+    is_active: Boolean
+    ending_date: Date
+    starting_date: Date
+  ): mutateProgramResponse!
+
+  """
+  [PROTECTED] ends an active program object (ONLY COACH).
+  """
+  endActiveProgram(user_id: ID!): mutateProgramResponse!
+  updateBaseUser(
+    email: String
+    displayName: String
+    fcm_tokens: [String]
+  ): MutateBaseUserResponse
+
+  """
+  [PROTECTED] Creates a PrivateMessage Object.
+  """
+  createPrivateMessage(
+    message_content: String!
+    receiver_id: ID!
+  ): MutatePrivateMessageResponse
+
+  """
+  [PROTECTED] Deletes a PrivateMessage Object.
+  """
+  deletePrivateMessage(message_id: ID!): MutationResponse
+  createProgramPreset(
+    preset_workouts: [PresetWorkoutInput!]!
+    preset_name: String!
+    preset_difficulty: PresetDifficulty!
+    image_url: String
+  ): presetResponse
+
+  """
+  [PROTECTED] Mutation to delete a programPreset
+  """
+  deleteProgramPreset(programPreset_id: ID!): presetResponse
+
+  """
+  [PROTECTED] Updates a excerciseMetadata object.
+  """
+  deleteCoachClientRelationship(
+    coach_id: ID
+    user_id: ID
+  ): mutateCoachClientRelationship
+  updateCoachClientRelationship(
+    coach_id: ID
+    user_id: ID
+    active: Boolean!
+  ): mutateCoachClientRelationship
+  createCoachClientRelationship(
+    coach_id: ID
+    user_id: ID
+  ): mutateCoachClientRelationship
+}
+
+"""
+Represents a firebase id Token
+"""
+type Token {
+  kind: String!
+  idToken: String!
+  refreshToken: String!
+  expiresIn: String!
+  isNewUser: Boolean!
+}
+
+"""
+Response if a token generation event is successful
+"""
+type GenerateIdTokenResponse implements MutationResponse {
+  code: String!
+  success: Boolean!
+  message: String!
+  token: Token
+}
+
+"""
+Response if a mutation of a measurement is successful
+"""
+type mutateMeasurementResponse implements MutationResponse {
+  code: String!
+  success: Boolean!
+  message: String!
+  measurement: Measurement
+}
+
+"""
+Response if mutating a muscle region was successful
+"""
+type mutateMuscleRegionResponse implements MutationResponse {
+  code: String!
+  success: Boolean!
+  message: String!
+  muscle_region: MuscleRegion
+}
+
+"""
+Response when mutating a workout
+"""
+type mutateWorkoutResponse implements MutationResponse {
+  code: String!
+  success: Boolean!
+  message: String!
+  workout: Workout
+}
+
+"""
+Response when mutating multiple workouts
+"""
+type mutateWorkoutsResponse implements MutationResponse {
+  code: String!
+  success: Boolean!
+  message: String!
+  workouts: [Workout!]
+}
+
+input excerciseSetGroupInput {
+  excercise_name: String!
+  excercise_set_group_state: ExcerciseSetGroupState!
+  excercise_metadata: excerciseMetaDataInput!
+  excercise_sets: [excerciseSetInput!]!
+  failure_reason: FailureReason
+}
+
+input excerciseMetaDataInput {
+  excercise_name: ID!
+  rest_time_lower_bound: Int
+  rest_time_upper_bound: Int
+  preferred: Boolean
+  haveRequiredEquipment: Boolean
+  excercise_metadata_state: ExcerciseMetadataState
+  last_excecuted: Date
+  best_weight: Float
+  best_rep: Int
+}
+
+input excerciseSetInput {
+  target_weight: Float!
+  target_reps: Int!
+  actual_weight: Float
+  actual_reps: Int
+  rate_of_perceived_exertion: Int
+  to_skip: Boolean!
+}
+
+"""
+Response if a mutation event is successful
+"""
+type MutateUserResponse implements MutationResponse {
+  code: String!
+  success: Boolean!
+  message: String!
+  user: User
+}
+
+input ExcerciseInput {
+  excercise_name: String!
+}
+
+"""
+Response if mutating a excercise was successful
+"""
+type mutateExcerciseMetaDataResponse implements MutationResponse {
+  code: String!
+  success: Boolean!
+  message: String!
+  excercise_metadata: ExcerciseMetadata
+}
+
+"""
+Response if a signup event is successful
+"""
+type NotificationResponse implements MutationResponse {
+  code: String!
+  success: Boolean!
+  message: String!
+}
+
+type mutateProgramResponse implements MutationResponse {
+  code: String!
+  success: Boolean!
+  message: String!
+  program: Program
+}
+
+input workoutInput {
+  workout_name: String!
+  excercise_set_groups: [excerciseSetGroupInput!]!
+  date_scheduled: Date!
+  date_closed: Date
+}
+
+"""
+Response if a mutation event is successful
+"""
+type MutateBaseUserResponse implements MutationResponse {
+  code: String!
+  success: Boolean!
+  message: String!
+  user: BaseUser
+}
+
+"""
+Response if a PrivateMessage event is successful
+"""
+type MutatePrivateMessageResponse implements MutationResponse {
+  code: String!
+  success: Boolean!
+  message: String!
+  privateMessage: PrivateMessage
+}
+
+"""
+Response if a mutation event is successful
+"""
+type presetResponse implements MutationResponse {
+  code: String!
+  success: Boolean!
+  message: String!
+}
+
+input PresetWorkoutInput {
+  preset_excercise_set_groups: [PresetExcerciseSetGroupInput!]!
+  rest_day: Boolean
+}
+
+input PresetExcerciseSetGroupInput {
+  excercise_name: String!
+  preset_excercise_sets: [PresetExcerciseSetInput!]!
+}
+
+input PresetExcerciseSetInput {
+  target_reps: Int
+  target_weight: Float
+}
+
+"""
+Response if mutating a excercise was successful
+"""
+type mutateCoachClientRelationship implements MutationResponse {
+  code: String!
+  success: Boolean!
+  message: String!
+  client_coach_relationship: CoachClientRelationship
+}
