@@ -61,9 +61,9 @@ import { queryPreviousWorkoutResolver } from "./workout/queryPreviousWorkoutReso
 const dateScalar = new GraphQLScalarType({
   name: "Date",
   description: "Date custom scalar type",
-  parseValue(value: string) {
+  parseValue(inputValue: unknown) {
     // value from client as json
-    return new Date(value);
+    return new Date(inputValue as string);
   },
 });
 
@@ -113,7 +113,7 @@ export const resolvers: Resolvers = {
     users: usersQueryResolver,
     workouts: queryWorkoutsResolver,
     workout: queryWorkoutResolver,
-    previousWorkout:queryPreviousWorkoutResolver,
+    previousWorkout: queryPreviousWorkoutResolver,
     getExcercise: getExcerciseQueryResolver,
     excercises: excercisesQueryResolver,
     notifications: notificationsQueryResolver,
@@ -135,13 +135,12 @@ export const resolvers: Resolvers = {
         where: { workout_id: parent.workout_id },
       });
     },
-    async program(parent,_,context){
+    async program(parent, _, context) {
       const prisma = context.dataSources.prisma;
       return await prisma.program.findFirst({
-        where: { program_id:parent.programProgram_id },
+        where: { program_id: parent.programProgram_id },
       });
-    }
-   
+    },
   },
 
   User: {
@@ -353,6 +352,4 @@ export const resolvers: Resolvers = {
       });
     },
   },
-
-  
 };

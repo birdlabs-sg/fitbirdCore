@@ -45,9 +45,6 @@ export function getStakeHoldersID({
 }):
   | { user_id?: string; coach_id: string; requestor_type: "COACH" }
   | { user_id: string; coach_id?: string; requestor_type: "USER" } {
-  if (user_id == null && coach_id == null) {
-    throw new GraphQLError("Must pass in at least one ID, coach_id or user_id");
-  }
   if (context.base_user?.User?.user_id) {
     // normal user accessing
     return {
@@ -83,12 +80,12 @@ export async function setAllProgramsInactive(
   await prisma.workout.updateMany({
     where: {
       date_closed: null,
-      Program:{
-        program_type:program_type
-      }
+      Program: {
+        program_type: program_type,
+      },
     },
     data: {
-      date_closed:today,
+      date_closed: today,
       workout_state: WorkoutState.CANCELLED,
     },
   });
