@@ -51,6 +51,12 @@ export const refreshProgramResolver = async (
       programProgram_id: parseInt(program_id),
     },
   });
+
   // generate new active workouts
-  return await workoutGeneratorV2(days_of_week, context, parseInt(program_id));
+  const refreshedWorkouts = await workoutGeneratorV2(
+    days_of_week,
+    context,
+    parseInt(program_id)
+  );
+  return refreshedWorkouts!;
 };

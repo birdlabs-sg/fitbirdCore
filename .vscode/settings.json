@@ -22,5 +22,6 @@
     },
     "eslint.validate": [
         "typescript",
-    ]
+    ],
+    "dotenv.enableAutocloaking": false
 }

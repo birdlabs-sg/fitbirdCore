@@ -14,7 +14,20 @@ export const usersQueryResolver = async (
     throw new GraphQLError("Requestor is not a coach.");
   }
   const prisma = context.dataSources.prisma;
-
+  // If the coach wants to request for new clients, clients == true
+  if (coach_filters?.clients === false) {
+    return await prisma.user.findMany({
+      where: {
+        NOT: {
+          CoachClientRelationship: {
+            some: {
+              coach_id: context.base_user?.coach?.coach_id,
+            },
+          },
+        },
+      },
+    });
+  }
   return await prisma.user.findMany({
     where: {
       CoachClientRelationship: {

@@ -652,7 +652,6 @@ export type MutationUpdateUserArgs = {
 
 /** [PROTECTED] Mutation to create a programPreset */
 export type MutationUpdateWorkoutArgs = {
-  coach_id?: InputMaybe<Scalars['ID']>;
   date_scheduled?: InputMaybe<Scalars['Date']>;
   excercise_set_groups?: InputMaybe<Array<ExcerciseSetGroupInput>>;
   performance_rating?: InputMaybe<Scalars['Float']>;
@@ -699,7 +698,6 @@ export type PresetExcerciseSet = {
   preset_excercise_set_id: Scalars['Int'];
   target_reps?: Maybe<Scalars['Int']>;
   target_weight?: Maybe<Scalars['Float']>;
-  weight_unit?: Maybe<WeightUnit>;
 };
 
 export type PresetExcerciseSetGroup = {
@@ -718,7 +716,6 @@ export type PresetExcerciseSetGroupInput = {
 export type PresetExcerciseSetInput = {
   target_reps?: InputMaybe<Scalars['Int']>;
   target_weight?: InputMaybe<Scalars['Float']>;
-  weight_unit?: InputMaybe<WeightUnit>;
 };
 
 export type PresetWorkoutInput = {
@@ -1625,7 +1622,6 @@ export type PresetExcerciseSetResolvers<ContextType = AppContext, ParentType ext
   preset_excercise_set_id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   target_reps?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   target_weight?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
-  weight_unit?: Resolver<Maybe<ResolversTypes['WeightUnit']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
