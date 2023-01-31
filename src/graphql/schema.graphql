@@ -31,9 +31,9 @@ type Query {
   presets: [ProgramPreset!]!
   baseUser: BaseUser!
   user: User!
-  workouts(user_id: ID, coach_id: ID, filter: WorkoutQueryFilter!): [Workout!]!
-  workout(workout_id: ID!, user_id: ID!, coach_id: ID,previous: Boolean!): Workout!
-  previousWorkout(workout_name: String!,program_id:ID!):Workout
+  workouts(user_id: ID, filter: WorkoutQueryFilter!): [Workout!]!
+  workout(workout_id: ID!): Workout!
+  previousWorkout(workout_name: String!, program_id: ID!): Workout
   excercises: [Excercise!]!
   excludedExcercises: [Excercise!]!
   getExcercise(excercise_name: ID!): Excercise!
@@ -632,7 +632,6 @@ type Mutation {
   [PROTECTED] Updates a workout object (Must belong to the requestor). Note: This will replace any existing excercise sets.
   """
   updateWorkout(
-    coach_id: ID
     workout_id: ID!
     workout_name: String
     date_scheduled: Date
