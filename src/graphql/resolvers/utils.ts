@@ -90,20 +90,22 @@ export async function setAllProgramsInactive(
     },
   });
 }
+
+// Get last date of current week in UTC
 export function getLastDateOfCurrentWeek() {
-  const now = new Date();
-  const day = now.getDay();
-  const diff = now.getDate() - day + (day === 0 ? -6 : 6);
-  const sunday = new Date(now.setDate(diff));
+  const now = new Date(new Date().toDateString());
+  const day = now.getUTCDay();
+  const diff = now.getUTCDate() - day + (day === 0 ? -6 : 6);
+  const sunday = new Date(now.setUTCDate(diff));
   sunday.setHours(0, 0, 0, 0);
   return sunday;
 }
 
 export function getFirstDateOfCurrentWeek() {
-  const now = new Date();
-  const day = now.getDay();
-  const diff = now.getDate() - day;
-  const monday = new Date(now.setDate(diff));
+  const now = new Date(new Date().toDateString());
+  const day = now.getUTCDay();
+  const diff = now.getUTCDate() - day;
+  const monday = new Date(now.setUTCDate(diff));
   monday.setHours(0, 0, 0, 0);
   return monday;
 }

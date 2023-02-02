@@ -3,7 +3,6 @@ import { workoutGeneratorV2 } from "../../../service/workout_manager/workout_gen
 import { Workout } from "@prisma/client";
 import { AppContext } from "../../../types/contextType";
 import { getActiveWorkout } from "../../../service/workout_manager/utils";
-import { assert } from "console";
 import { MutationRefreshProgramArgs } from "../../../types/graphql";
 import { checkExistsAndOwnershipOnSharedResource } from "./deleteProgramResolver";
 
@@ -28,9 +27,6 @@ export const refreshProgramResolver = async (
     context: context,
     object: programToRefresh,
   });
-  const no_of_workouts = context.base_user?.User?.workout_frequency ?? 3;
-
-  assert(no_of_workouts > 0 && no_of_workouts <= 6);
 
   const { active_workouts } = await getActiveWorkout({
     context: context,
@@ -53,10 +49,10 @@ export const refreshProgramResolver = async (
   });
 
   // generate new active workouts
-  const refreshedWorkouts = await workoutGeneratorV2(
+  const refreshedProgram = await workoutGeneratorV2(
     days_of_week,
     context,
     parseInt(program_id)
   );
-  return refreshedWorkouts!;
+  return refreshedProgram;
 };
