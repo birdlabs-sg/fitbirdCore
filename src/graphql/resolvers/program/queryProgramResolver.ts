@@ -34,7 +34,7 @@ export const queryProgramResolver = async (
       return programToQuery;
     }
 
-    let newWorkouts: Workout[] = [];
+    const newWorkouts: Workout[] = [];
     let i = 0;
     let counter = 7;
     while (i < programToQuery.workouts.length && counter > 0) {
@@ -45,7 +45,7 @@ export const queryProgramResolver = async (
         i++;
         counter--;
       } else {
-        let restDay: Workout = {
+        const restDay: Workout = {
           workout_id: 0,
           workout_name: `Day ${counter}`,
           date_scheduled: new Date(),
@@ -59,8 +59,8 @@ export const queryProgramResolver = async (
         counter--;
       }
     }
-    
-    let newProg: Program & {
+
+    const newProg: Program & {
       workouts: Workout[];
     } = {
       program_type: programToQuery.program_type,
@@ -74,10 +74,7 @@ export const queryProgramResolver = async (
     };
 
     return newProg;
-
-  } 
-  
-  else {
+  } else {
     const programToQuery = await prisma.program.findFirstOrThrow({
       where: {
         program_id: parseInt(program_id!),
@@ -89,6 +86,4 @@ export const queryProgramResolver = async (
     });
     return programToQuery;
   }
-
-  
 };

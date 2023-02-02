@@ -243,18 +243,10 @@ export async function generateNextWorkout(
 
 function getNextScheduledDate(originalScheduledDate: Date) {
   // 1. Get the day of the week from the scheduled date
-  const dayOfWeek = originalScheduledDate.getDay(); // 0 - sun , 6 - Saturday
-  const currentDay = new Date().getDay();
-  let daysUntil = 0;
-
-  if (dayOfWeek <= currentDay) {
-    daysUntil = 7 - currentDay + dayOfWeek;
-  } else {
-    daysUntil = dayOfWeek - currentDay;
-  }
-
-  const nextWeekDate = new Date(
-    new Date().getTime() + daysUntil * 24 * 60 * 60 * 1000
+  const nextweek = new Date(
+    originalScheduledDate.getUTCFullYear(),
+    originalScheduledDate.getUTCMonth(),
+    originalScheduledDate.getUTCDate() + 7
   );
-  return nextWeekDate;
+  return nextweek;
 }
