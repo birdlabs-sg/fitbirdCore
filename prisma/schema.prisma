@@ -155,8 +155,8 @@ model PrivateMessage {
   message_id       Int      @id @default(autoincrement())
   date_issued      DateTime @default(now())
   message_content  String
-  BaseUserSender   BaseUser @relation("BaseUserSender", fields: [sender_id], references: [base_user_id])
-  BaseUserReceiver BaseUser @relation("BaseUserReceiver", fields: [receiver_id], references: [base_user_id])
+  BaseUserSender   BaseUser @relation("BaseUserSender", fields: [sender_id], references: [base_user_id],onDelete: Cascade)
+  BaseUserReceiver BaseUser @relation("BaseUserReceiver", fields: [receiver_id], references: [base_user_id],onDelete: Cascade)
   sender_id        Int
   receiver_id      Int
 }
@@ -167,8 +167,8 @@ model CoachClientRelationship {
   user_id      Int
   date_created DateTime @default(now())
   active       Boolean  @default(true)
-  Coach        Coach    @relation(fields: [coach_id], references: [coach_id])
-  User         User     @relation(fields: [user_id], references: [user_id])
+  Coach        Coach    @relation(fields: [coach_id], references: [coach_id],onDelete: Cascade)
+  User         User     @relation(fields: [user_id], references: [user_id],onDelete: Cascade)
 
   @@id([coach_id, user_id])
 }
@@ -178,7 +178,7 @@ model CoachClientRelationship {
 model FCMToken {
   token                String   @id
   date_issued          DateTime @default(now())
-  BaseUser             BaseUser @relation(fields: [baseUserBase_user_id], references: [base_user_id])
+  BaseUser             BaseUser @relation(fields: [baseUserBase_user_id], references: [base_user_id],onDelete: Cascade)
   baseUserBase_user_id Int
 }
 
@@ -319,10 +319,10 @@ model ExcerciseMetadata {
 model Measurement {
   measurement_id    Int          @id @default(autoincrement())
   measured_at       DateTime
-  muscle_region     MuscleRegion @relation(fields: [muscle_region_id], references: [muscle_region_id])
+  muscle_region     MuscleRegion @relation(fields: [muscle_region_id], references: [muscle_region_id],onDelete: Cascade)
   measurement_value Float
   length_units      LengthUnit
-  user              User         @relation(fields: [user_id], references: [user_id])
+  user              User         @relation(fields: [user_id], references: [user_id],onDelete: Cascade)
   user_id           Int
   muscle_region_id  Int
 }
@@ -417,6 +417,6 @@ model BroadCast {
 model Notification {
   notification_id      Int    @id @default(autoincrement())
   notification_message String
-  user                 User   @relation(fields: [user_id], references: [user_id])
+  user                 User   @relation(fields: [user_id], references: [user_id],onDelete: Cascade)
   user_id              Int
 }
