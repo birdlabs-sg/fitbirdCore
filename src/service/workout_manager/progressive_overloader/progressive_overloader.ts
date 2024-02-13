@@ -1,8 +1,8 @@
-import { onlyAuthenticated } from '../../firebase/firebase_service';
-import { AppContext } from '../../../types/contextType';
-import { PrismaExerciseSetGroupCreateArgs } from '../../../types/Prisma';
-import { ExcerciseSetInput, FailureReason } from '../../../types/graphql';
-import { retrieveExerciseMetadata } from '../exercise_metadata_manager/exercise_metadata_manager';
+import { onlyAuthenticated } from "../../firebase/firebase_service";
+import { AppContext } from "../../../types/contextType";
+import { PrismaExerciseSetGroupCreateArgs } from "../../../types/Prisma";
+import { ExcerciseSetInput, FailureReason } from "../../../types/graphql";
+import { retrieveExerciseMetadata } from "../exercise_metadata_manager/exercise_metadata_manager";
 
 // TODO: RPE should have a factor in the overloader algorithm.
 /**
@@ -37,20 +37,20 @@ export const progressivelyOverload = async (
     let lowerBound;
     const excerciseData = await prisma.excercise.findUnique({
       where: {
-        excercise_name: excercise_set_group.excercise_name
-      }
+        excercise_name: excercise_set_group.excercise_name,
+      },
     });
     if (excerciseData == null) {
       return [];
     }
     if (
-      excerciseData.excercise_mechanics[0] == 'COMPOUND' &&
+      excerciseData.excercise_mechanics[0] == "COMPOUND" &&
       excerciseData.body_weight == false
     ) {
       upperBound = compoundUpperBound;
       lowerBound = compoundLowerBound;
     } else if (
-      excerciseData.excercise_mechanics[0] == 'ISOLATED' &&
+      excerciseData.excercise_mechanics[0] == "ISOLATED" &&
       excerciseData.body_weight == false
     ) {
       upperBound = isolatedUpperBound;
@@ -62,7 +62,7 @@ export const progressivelyOverload = async (
 
     // Based on the failure reason, route the type of overloading logic
     const excercise_sets = excercise_set_group.excercise_sets;
-    switch (excercise_set_group.failure_reason ?? '') {
+    switch (excercise_set_group.failure_reason ?? "") {
       case FailureReason.InsufficientSleep ||
         FailureReason.LowMood ||
         FailureReason.InsufficientRestTime: {
@@ -72,7 +72,7 @@ export const progressivelyOverload = async (
         overloadedSets = generateOverloadedExerciseSets({
           excercise_sets,
           upperBound,
-          lowerBound
+          lowerBound,
         });
         break;
       }
@@ -84,7 +84,7 @@ export const progressivelyOverload = async (
         overloadedSets = generateOverloadedExerciseSets({
           excercise_sets,
           upperBound,
-          lowerBound
+          lowerBound,
         });
         // TODO: create a helper to get exerciseMetadata. If dont have automatically generate one before returbning the generated exerciseMetadata.
         const metadata = await retrieveExerciseMetadata(
@@ -103,12 +103,12 @@ export const progressivelyOverload = async (
           where: {
             user_id_excercise_name: {
               user_id: context.base_user!.User!.user_id,
-              excercise_name: excerciseData.excercise_name
-            }
+              excercise_name: excerciseData.excercise_name,
+            },
           },
           data: {
-            ...metadata
-          }
+            ...metadata,
+          },
         });
 
         break;
@@ -121,7 +121,7 @@ export const progressivelyOverload = async (
           excercise_sets,
           upperBound,
           lowerBound,
-          dropDifficultyForFailedSets: true
+          dropDifficultyForFailedSets: true,
         });
         break;
       }
@@ -132,7 +132,7 @@ export const progressivelyOverload = async (
         overloadedSets = generateOverloadedExerciseSets({
           excercise_sets,
           upperBound,
-          lowerBound
+          lowerBound,
         });
         break;
       }
@@ -154,7 +154,7 @@ function generateOverloadedExerciseSets({
   excercise_sets,
   upperBound,
   lowerBound,
-  dropDifficultyForFailedSets = false
+  dropDifficultyForFailedSets = false,
 }: {
   excercise_sets: ExcerciseSetInput[];
   upperBound: number;
@@ -176,7 +176,7 @@ function generateOverloadedExerciseSets({
 
     const category = categorizeExcerciseSet({ excercise_set: excerciseSet });
 
-    if (category == 'FAILED' || category == 'SKIPPED') {
+    if (category == "FAILED" || category == "SKIPPED") {
       if (dropDifficultyForFailedSets) {
         // Using target values as the base: Decrease by 1 rep. If already at lower bound, decrease the weight by 2.5% and drop back reps to upper bound
         let newTargetReps = excerciseSet.target_reps - 1;
@@ -202,7 +202,7 @@ function generateOverloadedExerciseSets({
         // no change
         updatedSets.push(excercise_set_scaffold);
       }
-    } else if (category == 'MAINTAINED' || category == 'EXCEED') {
+    } else if (category == "MAINTAINED" || category == "EXCEED") {
       // Using actual values as the base: Increase by 1 rep. If already at upper bound, increase the weight by 2.5% and drop back reps to lower bound
       let newTargetReps: number = (actual_reps ?? 0) + 1;
       let newTargetWeight: number = actual_weight ?? 0;
@@ -223,6 +223,20 @@ function generateOverloadedExerciseSets({
       excercise_set_scaffold.target_weight = newTargetWeight!;
       updatedSets.push(excercise_set_scaffold);
     }
+    // The definition of MAINTAINED is when both reps and sets hit the target, we do not progressivelyOverload normally unless both hits the target, if one of them hits/exceeds then we use that as their actual value as the new base, if (weight-maintained) increment the rep by 1, else
+    else if(category =="VOLUME-MAINTAINED"){
+      excercise_set_scaffold.target_reps = excerciseSet.target_reps ;
+      excercise_set_scaffold.target_weight = excerciseSet.target_weight;
+      updatedSets.push(excercise_set_scaffold)
+      //no change needed
+    }
+    else if(category=="INTENSITY-MAINTAINED"){
+      let newTargetReps: number = (actual_reps ?? 0) + 1;// the reps will never hit the upper bound because INTENSITY-MAINTAINED means failed the reps but maintained/exceeded the weight
+      let newTargetWeight: number = actual_weight ?? 0; 
+      excercise_set_scaffold.target_reps = newTargetReps;
+      excercise_set_scaffold.target_weight = newTargetWeight!;
+      updatedSets.push(excercise_set_scaffold)
+    }
   }
   return updatedSets;
 }
@@ -232,7 +246,7 @@ function generateOverloadedExerciseSets({
  * Function to determine if an exercise set is a PASS/FAIL/EXCEED
  */
 function categorizeExcerciseSet({
-  excercise_set
+  excercise_set,
 }: {
   excercise_set: ExcerciseSetInput;
 }) {
@@ -247,7 +261,7 @@ function categorizeExcerciseSet({
     excercise_set.actual_weight == null
   ) {
     // guard clause
-    return 'SKIPPED';
+    return "SKIPPED";
   }
   let benchMarkRep: number;
   let benchMarkWeight: number;
@@ -277,16 +291,26 @@ function categorizeExcerciseSet({
   }
 
   if (
-    excercise_set.actual_reps < benchMarkRep ||
+    excercise_set.actual_reps < benchMarkRep &&
     excercise_set.actual_weight! < benchMarkWeight
   ) {
-    return 'FAILED';
+    return "FAILED";
   } else if (
     excercise_set.actual_reps == benchMarkRep &&
     excercise_set.actual_weight! == benchMarkWeight
   ) {
-    return 'MAINTAINED';
+    return "MAINTAINED";
+  } else if (
+    excercise_set.actual_reps >= benchMarkRep &&
+    excercise_set.actual_weight! < benchMarkWeight
+  ) {
+    return "VOLUME-MAINTAINED";
+  } else if (
+    excercise_set.actual_reps < benchMarkRep &&
+    excercise_set.actual_weight! >= benchMarkWeight
+  ) {
+    return "INTENSITY-MAINTAINED";
   } else {
-    return 'EXCEED';
+    return "EXCEED";
   }
 }
